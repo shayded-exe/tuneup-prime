@@ -1,3 +1,5 @@
+import { Except } from 'type-fest';
+
 declare module 'knex/types/tables' {
   interface Tables {
     Playlist: Playlist;
@@ -10,10 +12,12 @@ export interface Playlist {
   id: number;
   title: string;
   parentListId: number;
-  isPersisted: boolean;
   nextListId: number;
+  isPersisted: boolean;
   lastEditTime: string;
 }
+
+export type NewPlaylist = Except<Playlist, 'id'>;
 
 export interface PlaylistEntity {
   id: number;

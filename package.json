@@ -32,7 +32,9 @@
     "conf-cli": "0.1.9",
     "js-yaml": "4.1.0",
     "knex": "0.95.4",
-    "sqlite3": "5.0.2"
+    "moment": "2.29.1",
+    "sqlite3": "5.0.2",
+    "type-fest": "0.21.3"
   },
   "devDependencies": {
     "@oclif/dev-cli": "1.26.0",

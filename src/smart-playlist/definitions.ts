@@ -41,14 +41,6 @@ export enum StringFilterField {
   Title = 'title',
 }
 
-export enum StringFilterOperator {
-  Equals = '=',
-  NotEqual = '!=',
-  Contains = 'contains',
-  Excludes = 'excludes',
-  Regex = 'regex',
-}
-
 export enum NumberFilterField {
   // Key = 'key',
   Bitrate = 'bitrate',
@@ -56,6 +48,16 @@ export enum NumberFilterField {
   Length = 'length',
   Rating = 'rating',
   Year = 'year',
+}
+
+export type FilterField = StringFilterField | NumberFilterField;
+
+export enum StringFilterOperator {
+  Equals = '=',
+  NotEqual = '!=',
+  Contains = 'contains',
+  Excludes = 'excludes',
+  Regex = 'regex',
 }
 
 export enum NumberFilterOperator {

@@ -1,6 +1,8 @@
 import knex, { Knex } from 'knex';
 import path from 'path';
 
+import { Playlist, Track } from './types';
+
 export class EngineDB {
   private readonly connection: Knex;
 
@@ -24,5 +26,39 @@ export class EngineDB {
 
   disconnect() {
     this.connection.destroy();
+  }
+
+  async getPlaylists(): Promise<Playlist[]> {
+    return this.table('Playlist').select('*');
+  }
+
+  async getTracks(): Promise<Track[]> {
+    return this.table('Track').select([
+      'id',
+      'album',
+      'artist',
+      'bitrate',
+      'bpmAnalyzed',
+      'comment',
+      'composer',
+      'dateAdded',
+      'dateCreated',
+      'explicitLyrics',
+      'filename',
+      'fileType',
+      'genre',
+      'isAnalyzed',
+      'isMetadataImported',
+      'label',
+      'length',
+      'originDatabaseUuid',
+      'path',
+      'rating',
+      'remixer',
+      'thirdPartySourceId',
+      'timeLastPlayed',
+      'title',
+      'year',
+    ]);
   }
 }
