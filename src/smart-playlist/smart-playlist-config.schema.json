@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "properties": {
+    "smartPlaylists": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/SmartPlaylist" }
+    }
+  },
+  "definitions": {
+    "SmartPlaylist": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "sources": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PlaylistRule" },
+          "minItems": 1
+        }
+      },
+      "required": ["name", "rules"]
+    },
+    "PlaylistRule": {
+      "type": "object",
+      "properties": {
+        "field": { "$ref": "#/definitions/StringFilterField" },
+        "operator": { "$ref": "#/definitions/StringFilterOperator" },
+        "value": { "type": "string" },
+        "caseSensitive": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": ["field", "operator", "value"]
+    },
+    "StringFilterField": {
+      "type": "string",
+      "enum": [
+        "album",
+        "artist",
+        "comment",
+        "composer",
+        "filename",
+        "fileType",
+        "genre",
+        "label",
+        "path",
+        "remixer",
+        "title"
+      ]
+    },
+    "StringFilterOperator": {
+      "type": "string",
+      "enum": ["=", "!=", "contains", "excludes", "regex"]
+    },
+    "NumberFilterField": {
+      "type": "string",
+      "enum": ["bitrate", "bpm", "length", "rating", "year"]
+    },
+    "NumberFilterOperator": {
+      "type": "string",
+      "enum": ["=", "!=", "<", "<=", ">", ">="]
+    }
+  }
+}

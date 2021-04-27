@@ -1,5 +1,8 @@
 import { Command, flags } from '@oclif/command';
 
+import { appConf, AppConfKey } from '../conf';
+import { EngineDB } from '../engine/engine-db';
+
 export default class Smart extends Command {
   static readonly description = 'Generate smart playlists';
 
@@ -7,16 +10,15 @@ export default class Smart extends Command {
     help: flags.help({ char: 'h' }),
   };
 
-  static args = [
-    {
-      name: 'firstArg',
-      required: false,
-    },
-  ];
-
   async run() {
-    const { args } = this.parse(Smart);
+    const {} = this.parse(Smart);
 
-    this.log(`hi ${args.firstArg}`);
+    const engineLibraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
+    const engineDb = EngineDB.connect(engineLibraryFolder);
+
+    const playlists = await engineDb.table('Playlist').select('*');
+    console.log(playlists);
+
+    engineDb.disconnect();
   }
 }

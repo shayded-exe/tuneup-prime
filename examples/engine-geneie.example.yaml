@@ -1,0 +1,6 @@
+smartPlaylists:
+  - name: Test
+    rules:
+      - field: artist
+        operator: contains
+        value: whethan
