@@ -2,5 +2,6 @@
 
 require('@oclif/command') //
   .run()
-  .then(require('@oclif/command/flush'));
-// .catch(require('@oclif/errors/handle'))
+  .then(require('@oclif/command/flush'))
+  // .catch(e => console.error(e));
+  .catch(require('@oclif/errors/handle'));

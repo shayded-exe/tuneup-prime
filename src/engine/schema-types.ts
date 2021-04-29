@@ -2,10 +2,20 @@ import { Except } from 'type-fest';
 
 declare module 'knex/types/tables' {
   interface Tables {
+    Information: Information;
     Playlist: Playlist;
     PlaylistEntity: PlaylistEntity;
     Track: Track;
+    SQLITE_SEQUENCE: SQLITE_SEQUENCE;
   }
+}
+
+export interface Information {
+  id: number;
+  uuid: string;
+  schemaVersionMajor: number;
+  schemaVersionMinor: number;
+  schemaVersionPatch: number;
 }
 
 export interface Playlist {
@@ -17,16 +27,16 @@ export interface Playlist {
   lastEditTime: string;
 }
 
-export type NewPlaylist = Except<Playlist, 'id'>;
-
 export interface PlaylistEntity {
   id: number;
   listId: number;
   trackId: number;
-  databaseUuid: string;
   nextEntityId: number;
   membershipReference: number;
+  databaseUuid: string;
 }
+
+export type NewPlaylistEntity = Except<PlaylistEntity, 'id'>;
 
 // Non-exhaustive. We don't need everything.
 export interface Track {
@@ -55,4 +65,9 @@ export interface Track {
   timeLastPlayed: number;
   title: string;
   year: number;
+}
+
+export interface SQLITE_SEQUENCE {
+  name: string;
+  seq: number;
 }

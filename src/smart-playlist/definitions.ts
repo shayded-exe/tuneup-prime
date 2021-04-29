@@ -1,9 +1,10 @@
-export interface SmartPlaylistConfig {
-  smartPlaylists: SmartPlaylist[];
+export interface SmartPlaylistConfigFile {
+  smartPlaylists: SmartPlaylistConfig[];
 }
 
-export interface SmartPlaylist {
+export interface SmartPlaylistConfig {
   name: string;
+  // TODO: Support
   sources?: string[];
   rules: PlaylistRule[];
 }

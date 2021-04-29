@@ -22,10 +22,16 @@ export default class Smart extends Command {
     const engineDb = engine.EngineDB.connect(engineLibraryFolder);
 
     try {
-      await buildSmartPlaylists({
+      const outputs = await buildSmartPlaylists({
         config: playlistConfig,
         engineDb,
       });
+
+      this.log(`SUCCESS - Created ${outputs.length} smart playlists`);
+
+      outputs.forEach(x =>
+        this.log(`\t${x.playlist.title} [${x.tracks.length} tracks]`),
+      );
     } finally {
       engineDb.disconnect();
     }

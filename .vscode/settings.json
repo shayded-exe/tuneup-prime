@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
     "Remixer"
-  ]
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }
