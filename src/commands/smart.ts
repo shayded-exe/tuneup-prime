@@ -17,9 +17,11 @@ export default class Smart extends Command {
   async run() {
     const {} = this.parse(Smart);
 
-    const engineLibraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
-    const playlistConfig = await readSmartPlaylistConfig(engineLibraryFolder);
-    const engineDb = engine.EngineDB.connect(engineLibraryFolder);
+    const libraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
+    console.log(libraryFolder);
+    throw new Error();
+    const playlistConfig = await readSmartPlaylistConfig(libraryFolder);
+    const engineDb = engine.EngineDB.connect(libraryFolder);
 
     try {
       const outputs = await buildSmartPlaylists({
