@@ -4,7 +4,11 @@ import os from 'os';
 import path from 'path';
 
 import { appConf, AppConfKey } from '../../conf';
-import { checkPathExists, checkPathIsFolder } from '../../utils';
+import {
+  checkPathExists,
+  checkPathIsFile,
+  checkPathIsFolder,
+} from '../../utils';
 
 export default hook;
 
@@ -54,8 +58,9 @@ async function validateLibraryFolder(folder: string): Promise<true | string> {
   if (!(await checkPathIsFolder(folder))) {
     return `Path isn't a folder`;
   }
+  const dbFile = path.resolve(folder, 'Database2', 'm.db');
   // TODO: Work for Engine 1.6
-  if (!(await checkPathIsFolder(path.resolve(folder, 'Database2')))) {
+  if (!(await checkPathIsFile(dbFile))) {
     return `Path isn't an Engine library folder`;
   }
 
