@@ -18,8 +18,8 @@ export default class Smart extends Command {
     const {} = this.parse(Smart);
 
     const libraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
-    console.log(libraryFolder);
-    throw new Error();
+    this.log(`Engine library: ${libraryFolder}`);
+
     const playlistConfig = await readSmartPlaylistConfig(libraryFolder);
     const engineDb = engine.EngineDB.connect(libraryFolder);
 

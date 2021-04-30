@@ -1,31 +1,63 @@
 import { Hook } from '@oclif/config';
 import inquirer from 'inquirer';
 import os from 'os';
+import path from 'path';
 
 import { appConf, AppConfKey } from '../../conf';
-import { checkPathExists } from '../../utils';
+import { checkPathExists, checkPathIsFolder } from '../../utils';
 
 export default hook;
 
 export const hook: Hook<'init'> = async function (options) {
-  let isLibraryFolderValid = true;
-  let folder: string;
+  let folderNeedsUpdate = false;
+  let folder = appConf.get(AppConfKey.EngineLibraryFolder);
 
-  if (!appConf.has(AppConfKey.EngineLibraryFolder)) {
-    isLibraryFolderValid = false;
+  if (!folder) {
+    folderNeedsUpdate = true;
+  } else {
+    const validationResult = await validateLibraryFolder(folder);
+
+    if (validationResult !== true) {
+      this.warn(`Engine library: ${validationResult} (${folder})`);
+      folderNeedsUpdate = true;
+    }
+  }
+
+  if (folderNeedsUpdate) {
     folder = await promptForLibraryFolder();
     appConf.set(AppConfKey.EngineLibraryFolder, folder);
   }
 };
 
 async function promptForLibraryFolder(): Promise<string> {
+  let isValid: boolean | string = false;
+
   const { folder } = await inquirer.prompt<{ folder: string }>({
     type: 'input',
     name: 'folder',
     message: 'Where is your Engine library folder?',
-    default: os.homedir(),
-    validate: x => checkPathExists(x),
+    default: path.join(os.homedir(), 'Music', 'Engine Library'),
+    validate: async value => {
+      isValid = await validateLibraryFolder(value);
+      return isValid;
+    },
+    filter: value => (!isValid ? value : path.normalize(value)),
   });
 
   return folder;
+}
+
+async function validateLibraryFolder(folder: string): Promise<true | string> {
+  if (!(await checkPathExists(folder))) {
+    return `Path doesn't exist`;
+  }
+  if (!(await checkPathIsFolder(folder))) {
+    return `Path isn't a folder`;
+  }
+  // TODO: Work for Engine 1.6
+  if (!(await checkPathIsFolder(path.resolve(folder, 'Database2')))) {
+    return `Path isn't an Engine library folder`;
+  }
+
+  return true;
 }

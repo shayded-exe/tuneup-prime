@@ -20,3 +20,13 @@ export async function checkPathExists(path: string): Promise<boolean> {
     return false;
   }
 }
+
+export async function checkPathIsFolder(path: string): Promise<boolean> {
+  try {
+    const stat = await fs.promises.lstat(path);
+
+    return stat.isDirectory();
+  } catch {
+    return false;
+  }
+}
