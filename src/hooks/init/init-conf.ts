@@ -61,7 +61,7 @@ async function validateLibraryFolder(folder: string): Promise<true | string> {
   const dbFile = path.resolve(folder, 'Database2', 'm.db');
   // TODO: Work for Engine 1.6
   if (!(await checkPathIsFile(dbFile))) {
-    return `Path isn't an Engine library folder`;
+    return `Path isn't an Engine library`;
   }
 
   return true;

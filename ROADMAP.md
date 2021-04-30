@@ -13,4 +13,5 @@
 
 - Auto backup
 - Filter on multiple fields in one rule
+- Filter on multiple values for one field
 - Library relocation
