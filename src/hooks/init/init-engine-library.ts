@@ -8,24 +8,24 @@ import { appConf, AppConfKey } from '../../conf';
 import * as engine from '../../engine';
 import { checkPathExists, checkPathIsFolder } from '../../utils';
 
-export default hook;
+export default initEngineLibrary;
 
-export const hook: Hook<'init'> = async function () {
-  let folderNeedsUpdate = false;
+export const initEngineLibrary: Hook<'init'> = async function () {
+  let needsUpdate = false;
   let folder = appConf.get(AppConfKey.EngineLibraryFolder);
 
   if (!folder) {
-    folderNeedsUpdate = true;
+    needsUpdate = true;
   } else {
     const validationResult = await validateLibraryFolder(folder);
 
     if (validationResult !== true) {
       this.warn(`Engine library: ${validationResult} (${folder})`);
-      folderNeedsUpdate = true;
+      needsUpdate = true;
     }
   }
 
-  if (folderNeedsUpdate) {
+  if (needsUpdate) {
     folder = await promptForLibraryFolder();
     appConf.set(AppConfKey.EngineLibraryFolder, folder);
   }
