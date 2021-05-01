@@ -1,6 +1,14 @@
 smartPlaylists:
-  - name: Test
+  - name: Smart Test
     rules:
-      - field: artist
-        operator: contains
-        value: whethan
+      or:
+        - field: artist
+          operator: contains
+          value: snake
+        - and:
+            - field: artist
+              operator: contains
+              value: dolla
+            - field: title
+              operator: contains
+              value: take

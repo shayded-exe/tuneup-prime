@@ -134,5 +134,5 @@ function getMetaValue(
 function isTextMeta(
   meta: schema.MetaData | schema.MetaDataInteger,
 ): meta is schema.MetaData {
-  return meta.hasOwnProperty('text');
+  return 'text' in meta;
 }

@@ -17,13 +17,38 @@
           "items": { "type": "string" },
           "minItems": 1
         },
-        "rules": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/PlaylistRule" },
-          "minItems": 1
-        }
+        "rules": { "$ref": "#/definitions/PlaylistRuleGroup" }
       },
       "required": ["name", "rules"]
+    },
+    "PlaylistRuleGroup": {
+      "type": "object",
+      "oneOf": [
+        {
+          "properties": {
+            "and": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/PlaylistRuleNode" }
+            }
+          },
+          "required": ["and"]
+        },
+        {
+          "properties": {
+            "or": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/PlaylistRuleNode" }
+            }
+          },
+          "required": ["or"]
+        }
+      ]
+    },
+    "PlaylistRuleNode": {
+      "oneOf": [
+        { "$ref": "#/definitions/PlaylistRule" },
+        { "$ref": "#/definitions/PlaylistRuleGroup" }
+      ]
     },
     "PlaylistRule": {
       "type": "object",

@@ -6,12 +6,12 @@ export interface SmartPlaylistConfig {
   name: string;
   // TODO: Support
   sources?: string[];
-  rules: PlaylistRule[];
+  rules: PlaylistRuleGroup;
 }
 
-type PlaylistRuleGroup = PlaylistRuleAndGroup | PlaylistRuleOrGroup;
+export type PlaylistRuleGroup = PlaylistRuleAndGroup | PlaylistRuleOrGroup;
 
-type PlaylistRuleNode = PlaylistRule | PlaylistRuleGroup;
+export type PlaylistRuleNode = PlaylistRule | PlaylistRuleGroup;
 
 export interface PlaylistRuleAndGroup {
   and: PlaylistRuleNode[];
