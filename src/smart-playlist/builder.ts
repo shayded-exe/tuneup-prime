@@ -14,13 +14,11 @@ export async function buildSmartPlaylists({
   config: SmartPlaylistConfigFile;
   engineDb: engine.EngineDB;
 }): Promise<engine.PlaylistWithTracks[]> {
-  const playlists = await engineDb.getPlaylists();
   const tracks = await engineDb.getTracks();
 
   const inputs = config.smartPlaylists.map<engine.PlaylistInput>(
     playlistConfig => ({
       title: playlistConfig.name,
-      parentListId: 0,
       tracks: filterTracks({ tracks, playlistConfig }),
     }),
   );

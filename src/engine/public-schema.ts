@@ -1,3 +1,5 @@
+import { Opaque } from 'type-fest';
+
 export interface Information {
   id: number;
   uuid: string;
@@ -18,31 +20,33 @@ export interface PlaylistWithTracks extends Playlist {
 
 export interface PlaylistInput {
   title: string;
-  parentListId: number;
+  parentListId?: number;
   tracks: Track[];
 }
 
 export interface Track {
   id: number;
-  album: string;
-  artist: string;
+  album?: string;
+  artist?: string;
   bitrate: number;
-  bpmAnalyzed: number;
-  comment: string;
-  composer: string;
+  bpmAnalyzed?: number;
+  comment?: string;
+  composer?: string;
   dateAdded: number;
   dateCreated: number;
   filename: string;
   fileType: string;
-  genre: string;
+  genre?: string;
   isBeatGridLocked: boolean;
-  label: string;
+  key?: CamelotKeyId;
+  label?: string;
   length: number;
   path: string;
-  rating: number;
-  remixer: string;
-  thirdPartySourceId: number;
-  timeLastPlayed: number;
+  rating?: number;
+  remixer?: string;
+  timeLastPlayed?: number;
   title: string;
-  year: number;
+  year?: number;
 }
+
+export type CamelotKeyId = Opaque<'CamelotKeyId', number>;

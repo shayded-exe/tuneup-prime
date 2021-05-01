@@ -23,6 +23,8 @@ export interface Playlist {
   lastEditTime: string;
 }
 
+export type NewPlaylist = Except<Playlist, 'id'>;
+
 export interface PlaylistWithPath extends Playlist {
   path: string;
 }
@@ -62,6 +64,7 @@ export interface Track {
   isAnalyzed: boolean;
   isBeatGridLocked: boolean;
   isMetadataImported: boolean;
+  key: publicSchema.CamelotKeyId;
   label: string;
   length: number;
   originDatabaseUuid: string;

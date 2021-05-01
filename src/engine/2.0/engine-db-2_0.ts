@@ -36,18 +36,21 @@ export class EngineDB_2_0 extends EngineDB {
     return this.createPlaylistInternal(input);
   }
 
-  private async createPlaylistInternal({
-    tracks,
-    ...newPlaylist
-  }: publicSchema.PlaylistInput): Promise<schema.PlaylistWithPath> {
+  private async createPlaylistInternal(
+    input: publicSchema.PlaylistInput,
+  ): Promise<schema.PlaylistWithPath> {
     return this.knex.transaction(
       async (trx): Promise<schema.PlaylistWithPath> => {
-        const [playlistId] = await trx<schema.Playlist>('Playlist').insert({
-          ...newPlaylist,
+        const newPlaylist: schema.NewPlaylist = {
+          title: input.title,
+          parentListId: input.parentListId ?? 0,
           nextListId: 0,
           isPersisted: true,
           lastEditTime: formatDate(new Date()),
-        });
+        };
+        const [playlistId] = await trx<schema.Playlist>('Playlist').insert(
+          newPlaylist,
+        );
 
         const lastEntityId = await this.getLastGeneratedId(
           'PlaylistEntity',
@@ -55,11 +58,11 @@ export class EngineDB_2_0 extends EngineDB {
         );
 
         await trx<schema.PlaylistEntity>('PlaylistEntity').insert(
-          tracks.map<schema.NewPlaylistEntity>((track, i) => ({
+          input.tracks.map<schema.NewPlaylistEntity>((track, i) => ({
             listId: playlistId,
             trackId: track.id,
             nextEntityId:
-              i === tracks.length - 1 //
+              i === input.tracks.length - 1 //
                 ? 0
                 : lastEntityId + 2 + i,
             membershipReference: 0,

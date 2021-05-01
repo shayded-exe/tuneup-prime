@@ -1,11 +1,18 @@
 import { Except } from 'type-fest';
 
 import * as publicSchema from '../public-schema';
-import { SQLITE_SEQUENCE } from '../sqlite-types';
+import { IntBoolean, SQLITE_SEQUENCE } from '../sqlite-types';
 
 export interface Tables {
   SQLITE_SEQUENCE: SQLITE_SEQUENCE;
   Information: publicSchema.Information;
+  List: List;
+  ListTrackList: ListTrackList;
+  ListParentList: ListParentList;
+  Crate: Crate;
+  Track: Track;
+  MetaData: MetaData;
+  MetaDataInteger: MetaDataInteger;
 }
 
 export type TableNames = keyof Tables;
@@ -22,10 +29,10 @@ export interface List {
   type: ListType;
   title: string;
   path: string;
-  isFolder: boolean;
+  isFolder: IntBoolean;
+  isExplicitlyExported: IntBoolean;
   trackCount: number;
   ordering: number;
-  isExplicitlyExported: boolean;
 }
 
 export type NewList = Except<List, 'trackCount' | 'ordering'>;
@@ -42,6 +49,13 @@ export interface ListTrackList {
 
 export type NewListTrackList = Except<ListTrackList, 'id'>;
 
+export interface ListParentList {
+  listOriginId: number;
+  listOriginType: ListType;
+  listParentId: number;
+  listParentType: ListType;
+}
+
 export interface Crate {
   id: number;
   title: string;
@@ -56,6 +70,7 @@ export interface Track {
   id: number;
   bitrate: number;
   bpmAnalyzed: number;
+  filename: string;
   isBeatGridLocked: boolean;
   isExternalTrack: boolean;
   length: number;
@@ -64,15 +79,33 @@ export interface Track {
   year: number;
 }
 
+export interface TrackMeta {
+  album: string;
+  artist: string;
+  comment: string;
+  composer: string;
+  dateAdded: number;
+  dateCreated: number;
+  fileType: string;
+  genre: string;
+  key: publicSchema.CamelotKeyId;
+  label: string;
+  title: string;
+}
+
+export interface TrackWithMeta extends Track {
+  meta: TrackMeta;
+}
+
 export enum MetaDataType {
-  Title = 1,
-  Artist = 2,
   Album = 3,
-  Genre = 4,
+  Artist = 2,
   Comment = 5,
-  Label = 6,
   Composer = 7,
   FileType = 13,
+  Genre = 4,
+  Label = 6,
+  Title = 1,
 }
 
 export interface MetaData {
