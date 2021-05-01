@@ -1,18 +1,16 @@
 import { Hook } from '@oclif/config';
+import chalk from 'chalk';
 import inquirer from 'inquirer';
 import os from 'os';
 import path from 'path';
 
 import { appConf, AppConfKey } from '../../conf';
-import {
-  checkPathExists,
-  checkPathIsFile,
-  checkPathIsFolder,
-} from '../../utils';
+import * as engine from '../../engine';
+import { checkPathExists, checkPathIsFolder } from '../../utils';
 
 export default hook;
 
-export const hook: Hook<'init'> = async function (options) {
+export const hook: Hook<'init'> = async function () {
   let folderNeedsUpdate = false;
   let folder = appConf.get(AppConfKey.EngineLibraryFolder);
 
@@ -31,6 +29,11 @@ export const hook: Hook<'init'> = async function (options) {
     folder = await promptForLibraryFolder();
     appConf.set(AppConfKey.EngineLibraryFolder, folder);
   }
+
+  const { version } = await engine.detectLibraryVersion(folder);
+  this.log('Engine library:');
+  this.log(chalk`\t{blue ${folder}} [{green v${version}}]`);
+  this.log('');
 };
 
 async function promptForLibraryFolder(): Promise<string> {
@@ -58,9 +61,10 @@ async function validateLibraryFolder(folder: string): Promise<true | string> {
   if (!(await checkPathIsFolder(folder))) {
     return `Path isn't a folder`;
   }
-  const dbFile = path.resolve(folder, 'Database2', 'm.db');
-  // TODO: Work for Engine 1.6
-  if (!(await checkPathIsFile(dbFile))) {
+
+  try {
+    await engine.detectLibraryVersion(folder);
+  } catch {
     return `Path isn't an Engine library`;
   }
 

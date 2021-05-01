@@ -1,41 +1,42 @@
 import knex, { Knex } from 'knex';
-import path from 'path';
 
-import { formatDate } from './format';
-import {
-  Information,
-  NewPlaylistEntity,
-  Playlist,
-  Track,
-} from './schema-types';
+import * as schema from './public-schema';
+import { SQLITE_SEQUENCE } from './sqlite-types';
 
-export class EngineDB {
-  private readonly knex: Knex;
+export abstract class EngineDB {
+  protected readonly knex: Knex;
 
-  public get table(): Knex {
-    return this.knex;
-  }
+  protected databaseUuid!: string;
 
-  constructor(filename: string) {
+  protected constructor(dbPath: string) {
     this.knex = knex({
       client: 'sqlite3',
-      connection: { filename },
+      connection: { filename: dbPath },
       useNullAsDefault: true,
     });
   }
 
-  static connect(engineLibraryFolder: string): EngineDB {
-    const dbPath = path.resolve(engineLibraryFolder, 'Database2', 'm.db');
+  protected async init() {
+    const { uuid } = await this.getSchemaInfo();
 
-    return new EngineDB(dbPath);
+    this.databaseUuid = uuid;
   }
 
-  disconnect() {
-    this.knex.destroy();
+  async disconnect() {
+    await this.knex.destroy();
   }
 
-  async getSchemaInfo(): Promise<Information> {
-    const results = await this.table('Information').select('*');
+  abstract getPlaylists(): Promise<schema.Playlist[]>;
+
+  abstract createPlaylist(
+    input: schema.PlaylistInput,
+  ): Promise<schema.Playlist>;
+
+  abstract getTracks(): Promise<schema.Track[]>;
+
+  protected async getSchemaInfo(): Promise<schema.Information> {
+    const results = await this.knex<schema.Information>('Information') //
+      .select('*');
 
     if (!results.length) {
       throw new Error('EngineDB: Schema info not found');
@@ -47,11 +48,11 @@ export class EngineDB {
     return results[0];
   }
 
-  private async getLastGeneratedId(
-    table: Knex.TableNames,
+  protected async getLastGeneratedId(
+    table: string,
     trx?: Knex.Transaction,
   ): Promise<number> {
-    const [id] = await (trx ?? this.table)('SQLITE_SEQUENCE')
+    const [id] = await (trx ?? this.knex)<SQLITE_SEQUENCE>('SQLITE_SEQUENCE')
       .pluck('seq')
       .where('name', table);
 
@@ -60,84 +61,4 @@ export class EngineDB {
     }
     return id;
   }
-
-  async getPlaylists(): Promise<Playlist[]> {
-    return this.table('Playlist').select('*');
-  }
-
-  async createPlaylist({
-    tracks,
-    databaseUuid,
-    ...newPlaylist
-  }: PlaylistInput): Promise<Playlist> {
-    return this.knex.transaction(
-      async (trx): Promise<Playlist> => {
-        const [playlistId] = await trx('Playlist').insert({
-          ...newPlaylist,
-          isPersisted: true,
-          lastEditTime: formatDate(new Date()),
-        });
-
-        const lastEntityId = await this.getLastGeneratedId(
-          'PlaylistEntity',
-          trx,
-        );
-
-        await trx('PlaylistEntity').insert(
-          tracks.map<NewPlaylistEntity>((track, i) => ({
-            listId: playlistId,
-            trackId: track.id,
-            nextEntityId:
-              i === tracks.length - 1 //
-                ? 0
-                : lastEntityId + 2 + i,
-            membershipReference: 0,
-            databaseUuid,
-          })),
-        );
-
-        const playlist = await trx('Playlist').where('id', playlistId).first();
-
-        return playlist!;
-      },
-    );
-  }
-
-  async getTracks(): Promise<Track[]> {
-    return this.table('Track').select([
-      'id',
-      'album',
-      'artist',
-      'bitrate',
-      'bpmAnalyzed',
-      'comment',
-      'composer',
-      'dateAdded',
-      'dateCreated',
-      'explicitLyrics',
-      'filename',
-      'fileType',
-      'genre',
-      'isAnalyzed',
-      'isMetadataImported',
-      'label',
-      'length',
-      'originDatabaseUuid',
-      'path',
-      'rating',
-      'remixer',
-      'thirdPartySourceId',
-      'timeLastPlayed',
-      'title',
-      'year',
-    ]);
-  }
-}
-
-export interface PlaylistInput {
-  title: string;
-  parentListId: number;
-  nextListId: number;
-  tracks: Track[];
-  databaseUuid: string;
 }

@@ -1,5 +1,4 @@
 import * as engine from '../engine';
-import { Track } from '../engine';
 import { asyncSeries } from '../utils';
 import {
   SmartPlaylistConfig,
@@ -8,19 +7,13 @@ import {
 } from './definitions';
 import { getTrackColumnName } from './mapping';
 
-export interface SmartPlaylistOutput {
-  playlist: engine.Playlist;
-  tracks: engine.Track[];
-}
-
 export async function buildSmartPlaylists({
   config,
   engineDb,
 }: {
   config: SmartPlaylistConfigFile;
   engineDb: engine.EngineDB;
-}): Promise<SmartPlaylistOutput[]> {
-  const { uuid: databaseUuid } = await engineDb.getSchemaInfo();
+}): Promise<engine.PlaylistWithTracks[]> {
   const playlists = await engineDb.getPlaylists();
   const tracks = await engineDb.getTracks();
 
@@ -28,15 +21,13 @@ export async function buildSmartPlaylists({
     playlistConfig => ({
       title: playlistConfig.name,
       parentListId: 0,
-      nextListId: 0,
       tracks: filterTracks({ tracks, playlistConfig }),
-      databaseUuid,
     }),
   );
 
-  return asyncSeries<SmartPlaylistOutput>(
+  return asyncSeries<engine.PlaylistWithTracks>(
     inputs.map(input => async () => ({
-      playlist: await engineDb.createPlaylist(input),
+      ...(await engineDb.createPlaylist(input)),
       tracks: input.tracks,
     })),
   );
@@ -46,7 +37,7 @@ function filterTracks({
   tracks,
   playlistConfig,
 }: {
-  tracks: Track[];
+  tracks: engine.Track[];
   playlistConfig: SmartPlaylistConfig;
 }) {
   return tracks.filter(track => {

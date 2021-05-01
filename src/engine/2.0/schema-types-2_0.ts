@@ -1,22 +1,18 @@
 import { Except } from 'type-fest';
 
-declare module 'knex/types/tables' {
-  interface Tables {
-    Information: Information;
-    Playlist: Playlist;
-    PlaylistEntity: PlaylistEntity;
-    Track: Track;
-    SQLITE_SEQUENCE: SQLITE_SEQUENCE;
-  }
+import * as publicSchema from '../public-schema';
+import { SQLITE_SEQUENCE } from '../sqlite-types';
+
+export interface Tables {
+  SQLITE_SEQUENCE: SQLITE_SEQUENCE;
+  Information: publicSchema.Information;
+  Playlist: Playlist;
+  PlaylistPath: PlaylistPath;
+  PlaylistEntity: PlaylistEntity;
+  Track: Track;
 }
 
-export interface Information {
-  id: number;
-  uuid: string;
-  schemaVersionMajor: number;
-  schemaVersionMinor: number;
-  schemaVersionPatch: number;
-}
+export type TableNames = keyof Tables;
 
 export interface Playlist {
   id: number;
@@ -25,6 +21,16 @@ export interface Playlist {
   nextListId: number;
   isPersisted: boolean;
   lastEditTime: string;
+}
+
+export interface PlaylistWithPath extends Playlist {
+  path: string;
+}
+
+export interface PlaylistPath {
+  id: number;
+  path: string;
+  position: number;
 }
 
 export interface PlaylistEntity {
@@ -54,6 +60,7 @@ export interface Track {
   fileType: string;
   genre: string;
   isAnalyzed: boolean;
+  isBeatGridLocked: boolean;
   isMetadataImported: boolean;
   label: string;
   length: number;
@@ -65,9 +72,4 @@ export interface Track {
   timeLastPlayed: number;
   title: string;
   year: number;
-}
-
-export interface SQLITE_SEQUENCE {
-  name: string;
-  seq: number;
 }
