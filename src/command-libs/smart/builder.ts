@@ -1,11 +1,12 @@
-import * as engine from '../engine';
-import { asyncSeries } from '../utils';
+import * as engine from '../../engine';
+import { asyncSeries } from '../../utils';
 import {
+  FilterField,
+  NumberFilterField,
   SmartPlaylistConfig,
   SmartPlaylistConfigFile,
   StringFilterOperator,
 } from './definitions';
-import { getTrackColumnName } from './mapping';
 
 export async function buildSmartPlaylists({
   config,
@@ -66,4 +67,15 @@ function filterTracks({
       }
     });
   });
+}
+
+export function getTrackColumnName(
+  filterField: FilterField,
+): keyof engine.Track {
+  switch (filterField) {
+    case NumberFilterField.Bpm:
+      return 'bpmAnalyzed';
+  }
+
+  return filterField;
 }

@@ -1,7 +1,7 @@
 import { EngineDB } from '../engine-db';
 import { formatDate } from '../format';
 import * as publicSchema from '../public-schema';
-import * as schema from './schema-types-2_0';
+import * as schema from './schema-2_0';
 
 export class EngineDB_2_0 extends EngineDB {
   static async connect(dbPath: string): Promise<EngineDB_2_0> {

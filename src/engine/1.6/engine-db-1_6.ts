@@ -2,7 +2,7 @@ import { camelCase, groupBy, transform } from 'lodash';
 
 import { EngineDB } from '../engine-db';
 import * as publicSchema from '../public-schema';
-import * as schema from './schema-types-1_6';
+import * as schema from './schema-1_6';
 
 export class EngineDB_1_6 extends EngineDB {
   static async connect(dbPath: string): Promise<EngineDB_1_6> {

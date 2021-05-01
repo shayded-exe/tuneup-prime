@@ -1,11 +1,8 @@
 import { Command, flags } from '@oclif/command';
 
+import * as smart from '../command-libs/smart';
 import { appConf, AppConfKey } from '../conf';
 import * as engine from '../engine';
-import {
-  buildSmartPlaylists,
-  readSmartPlaylistConfig,
-} from '../smart-playlist';
 
 export default class Smart extends Command {
   static readonly description = 'Generate smart playlists';
@@ -18,11 +15,11 @@ export default class Smart extends Command {
     const {} = this.parse(Smart);
 
     const libraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
-    const playlistConfig = await readSmartPlaylistConfig(libraryFolder);
+    const playlistConfig = await smart.readSmartPlaylistConfig(libraryFolder);
     const engineDb = await engine.connect(libraryFolder);
 
     try {
-      const outputs = await buildSmartPlaylists({
+      const outputs = await smart.buildSmartPlaylists({
         config: playlistConfig,
         engineDb,
       });
