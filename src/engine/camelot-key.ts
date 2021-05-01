@@ -46,7 +46,21 @@ type ScalePart = 'B' | 'A';
 export type CamelotKeyCode = `${KeyPart}${ScalePart}`;
 
 export function camelotKeyIdToCode(id: CamelotKeyId): CamelotKeyCode {
-  return CamelotKeyMap[(id as unknown) as number] as CamelotKeyCode;
+  return CamelotKeyMap[+id] as CamelotKeyCode;
+}
+
+function camelotKeyIdToCode2(id: CamelotKeyId): CamelotKeyCode {
+  let key = +id + 2;
+  let scale: ScalePart = 'B';
+  if (key % 2 == 1) {
+    key -= 1;
+    scale = 'A';
+  }
+  key = key / 2 - 5;
+  if (key <= 0) {
+    key += 12;
+  }
+  return `${key}${scale}` as CamelotKeyCode;
 }
 
 export function camelotKeyCodeToId(code: CamelotKeyCode): CamelotKeyId {

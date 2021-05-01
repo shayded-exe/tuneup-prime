@@ -3,10 +3,10 @@
 ### Initial release
 
 - [x] First time run setup
+- [x] Support Engine 1.6 DB
 - [ ] Numeric filters
 - [ ] Filter logic groups (AND, OR)
 - [ ] Set parent playlist
-- [ ] Support Engine 1.6 DB
 - [ ] ASCII ART
 
 ### Future
