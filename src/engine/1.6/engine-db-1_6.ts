@@ -1,5 +1,6 @@
 import { camelCase, groupBy, transform } from 'lodash';
 
+import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import * as publicSchema from '../public-schema';
 import * as schema from './schema-1_6';
@@ -144,6 +145,18 @@ export class EngineDB_1_6 extends EngineDB {
           ),
         },
       };
+    });
+  }
+
+  async updateTrackPaths(tracks: publicSchema.Track[]) {
+    this.knex.transaction(async trx => {
+      await asyncSeries(
+        tracks.map(track => async () => {
+          await trx<schema.Track>('Track')
+            .where('id', track.id)
+            .update({ path: track.path });
+        }),
+      );
     });
   }
 }

@@ -16,12 +16,12 @@ export default class Smart extends Command {
     const {} = this.parse(Smart);
 
     const libraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
-    const config = await readLibraryConfig(libraryFolder);
+    const libraryConfig = await readLibraryConfig(libraryFolder);
     const engineDb = await engine.connect(libraryFolder);
 
     try {
       const outputs = await smart.buildSmartPlaylists({
-        config,
+        config: libraryConfig,
         engineDb,
       });
 
@@ -31,7 +31,7 @@ export default class Smart extends Command {
         this.log(`\t${x.title} [${x.tracks.length} tracks]`),
       );
     } finally {
-      engineDb.disconnect();
+      await engineDb.disconnect();
     }
   }
 }

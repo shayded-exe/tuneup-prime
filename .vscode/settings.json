@@ -2,6 +2,7 @@
   "cSpell.words": [
     "Remixer",
     "keyby",
+    "listr",
     "metas"
   ],
   "typescript.tsdk": "node_modules\\typescript\\lib"

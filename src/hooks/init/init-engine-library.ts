@@ -3,10 +3,11 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import os from 'os';
 import path from 'path';
+import { trueCasePath } from 'true-case-path';
 
 import { appConf, AppConfKey } from '../../conf';
 import * as engine from '../../engine';
-import { checkPathExists, checkPathIsFolder } from '../../utils';
+import { checkPathExists, checkPathIsDir } from '../../utils';
 
 export default initEngineLibrary;
 
@@ -37,28 +38,22 @@ export const initEngineLibrary: Hook<'init'> = async function () {
 };
 
 async function promptForLibraryFolder(): Promise<string> {
-  let isValid: boolean | string = false;
-
-  const { folder } = await inquirer.prompt<{ folder: string }>({
-    type: 'input',
-    name: 'folder',
-    message: 'Where is your Engine library folder?',
-    default: path.join(os.homedir(), 'Music', 'Engine Library'),
-    validate: async value => {
-      isValid = await validateLibraryFolder(value);
-      return isValid;
-    },
-    filter: value => (!isValid ? value : path.normalize(value)),
-  });
-
-  return folder;
+  return inquirer
+    .prompt<{ folder: string }>({
+      type: 'input',
+      name: 'folder',
+      message: 'Where is your Engine library folder?',
+      default: path.join(os.homedir(), 'Music', 'Engine Library'),
+      validate: validateLibraryFolder,
+    })
+    .then(x => trueCasePath(x.folder));
 }
 
 async function validateLibraryFolder(folder: string): Promise<true | string> {
   if (!(await checkPathExists(folder))) {
     return `Path doesn't exist`;
   }
-  if (!(await checkPathIsFolder(folder))) {
+  if (!(await checkPathIsDir(folder))) {
     return `Path isn't a folder`;
   }
 

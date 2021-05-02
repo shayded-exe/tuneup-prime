@@ -7,11 +7,20 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "Debug smart",
+      "name": "Debug command",
       "program": "${workspaceFolder}\\bin\\run",
-      "args": ["smart"],
+      "args": ["${input:command}"],
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "command",
+      "type": "pickString",
+      "description": "Which command do you want to run?",
+      "options": ["smart", "relocate"],
+      "default": "smart"
     }
   ]
 }

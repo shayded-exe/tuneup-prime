@@ -6,13 +6,13 @@
 - [x] Support Engine 1.6 DB
 - [x] Filter logic groups (AND, OR)
 - [x] Clear playlist if it already exists
-- [ ] Numeric filters
-- [ ] ASCII ART
+- [x] Track relocation
 
 ### Future
 
-- Auto backup
-- Library relocation
-- Filter on multiple fields in one rule
-- Filter on multiple values for one field
-- Support source playlist filter
+- [ ] Numeric filters
+- [ ] Auto backup
+- [ ] Filter on multiple fields in one rule
+- [ ] Filter on multiple values for one field
+- [ ] Support source playlist filter
+- [ ] ASCII ART

@@ -34,6 +34,7 @@
     "@oclif/plugin-help": "3.2.2",
     "ajv": "8.1.0",
     "chalk": "2.4.2",
+    "cli-ux": "5.5.1",
     "conf": "10.0.1",
     "conf-cli": "0.1.9",
     "inquirer": "8.0.0",
@@ -42,6 +43,7 @@
     "lodash": "4.17.21",
     "moment": "2.29.1",
     "sqlite3": "5.0.2",
+    "true-case-path": "2.2.1",
     "type-fest": "0.21.3"
   },
   "devDependencies": {

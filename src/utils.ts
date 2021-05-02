@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 
 export async function asyncSeries<T>(
   asyncFuncs: readonly (() => Promise<T>)[],
@@ -21,7 +22,7 @@ export async function checkPathExists(path: string): Promise<boolean> {
   }
 }
 
-export async function checkPathIsFolder(path: string): Promise<boolean> {
+export async function checkPathIsDir(path: string): Promise<boolean> {
   try {
     const stat = await fs.promises.stat(path);
 
@@ -39,4 +40,36 @@ export async function checkPathIsFile(path: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export async function getFilesInDir({
+  path: _path,
+  maxDepth = 0,
+}: {
+  path: string;
+  maxDepth?: number;
+}): Promise<{ name: string; path: string }[]> {
+  const entries = await fs.promises.readdir(_path, {
+    withFileTypes: true,
+  });
+
+  const filesWithPath = entries
+    .filter(x => x.isFile())
+    .map(x => ({
+      name: x.name,
+      path: path.resolve(_path, x.name),
+    }));
+
+  if (maxDepth > 0) {
+    for (const dir of entries.filter(x => x.isDirectory())) {
+      filesWithPath.push(
+        ...(await getFilesInDir({
+          path: path.resolve(_path, dir.name),
+          maxDepth: maxDepth - 1,
+        })),
+      );
+    }
+  }
+
+  return filesWithPath;
 }

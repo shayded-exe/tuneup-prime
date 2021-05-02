@@ -34,6 +34,8 @@ export abstract class EngineDB {
 
   abstract getTracks(): Promise<schema.Track[]>;
 
+  abstract updateTrackPaths(tracks: schema.Track[]): Promise<void>;
+
   protected async getSchemaInfo(): Promise<schema.Information> {
     const results = await this.knex<schema.Information>('Information') //
       .select('*');

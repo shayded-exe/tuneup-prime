@@ -1,3 +1,4 @@
+import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import { formatDate } from '../format';
 import * as publicSchema from '../public-schema';
@@ -141,5 +142,17 @@ export class EngineDB_2_0 extends EngineDB {
       'title',
       'year',
     ]);
+  }
+
+  async updateTrackPaths(tracks: publicSchema.Track[]) {
+    this.knex.transaction(async trx => {
+      await asyncSeries(
+        tracks.map(track => async () => {
+          await trx<schema.Track>('Track')
+            .where('id', track.id)
+            .update({ path: track.path });
+        }),
+      );
+    });
   }
 }
