@@ -23,7 +23,7 @@ export async function checkPathExists(path: string): Promise<boolean> {
 
 export async function checkPathIsFolder(path: string): Promise<boolean> {
   try {
-    const stat = await fs.promises.lstat(path);
+    const stat = await fs.promises.stat(path);
 
     return stat.isDirectory();
   } catch {
@@ -33,7 +33,7 @@ export async function checkPathIsFolder(path: string): Promise<boolean> {
 
 export async function checkPathIsFile(path: string): Promise<boolean> {
   try {
-    const stat = await fs.promises.lstat(path);
+    const stat = await fs.promises.stat(path);
 
     return stat.isFile();
   } catch {
