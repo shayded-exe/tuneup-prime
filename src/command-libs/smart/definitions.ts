@@ -1,8 +1,4 @@
-export interface SmartPlaylistConfigFile {
-  smartPlaylists: SmartPlaylistConfig[];
-}
-
-export interface SmartPlaylistConfig {
+export interface SmartPlaylist {
   name: string;
   // TODO: Support
   sources?: string[];

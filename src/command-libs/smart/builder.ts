@@ -1,6 +1,7 @@
 import { every, some } from 'lodash';
 
 import * as engine from '../../engine';
+import { LibraryConfigFile } from '../../library-config';
 import { asyncSeries } from '../../utils';
 import {
   FilterField,
@@ -9,8 +10,7 @@ import {
   PlaylistRuleAndGroup,
   PlaylistRuleGroup,
   PlaylistRuleNode,
-  SmartPlaylistConfig,
-  SmartPlaylistConfigFile,
+  SmartPlaylist,
   StringFilterOperator,
 } from './definitions';
 
@@ -18,7 +18,7 @@ export async function buildSmartPlaylists({
   config,
   engineDb,
 }: {
-  config: SmartPlaylistConfigFile;
+  config: LibraryConfigFile;
   engineDb: engine.EngineDB;
 }): Promise<engine.PlaylistWithTracks[]> {
   const tracks = await engineDb.getTracks();
@@ -47,7 +47,7 @@ function filterTracks({
   playlistConfig,
 }: {
   tracks: engine.Track[];
-  playlistConfig: SmartPlaylistConfig;
+  playlistConfig: SmartPlaylist;
 }) {
   return tracks.filter(track => applyRuleGroup(track, playlistConfig.rules));
 }
