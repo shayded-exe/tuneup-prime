@@ -5,7 +5,7 @@
 - [x] First time run setup
 - [x] Support Engine 1.6 DB
 - [x] Filter logic groups (AND, OR)
-- [ ] Clear playlist if it already exists
+- [x] Clear playlist if it already exists
 - [ ] Numeric filters
 - [ ] ASCII ART
 

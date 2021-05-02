@@ -30,27 +30,61 @@ export class EngineDB_2_0 extends EngineDB {
       .select('Playlist.*', 'PlaylistPath.path');
   }
 
-  async createPlaylist(
-    input: publicSchema.PlaylistInput,
-  ): Promise<publicSchema.Playlist> {
-    return this.createPlaylistInternal(input);
+  private async getPlaylistByTitle(
+    title: string,
+  ): Promise<schema.PlaylistWithPath | undefined> {
+    return this.table('Playlist') //
+      .join<schema.PlaylistPath>(
+        'PlaylistPath',
+        'Playlist.id',
+        '=',
+        'PlaylistPath.id',
+      )
+      .select('Playlist.*', 'PlaylistPath.path')
+      .where('Playlist.title', title)
+      .first();
   }
 
-  private async createPlaylistInternal(
+  async createOrUpdatePlaylist(
+    input: publicSchema.PlaylistInput,
+  ): Promise<publicSchema.Playlist> {
+    return this.createOrUpdatePlaylistInternal(input);
+  }
+
+  private async createOrUpdatePlaylistInternal(
     input: publicSchema.PlaylistInput,
   ): Promise<schema.PlaylistWithPath> {
+    let playlist = await this.getPlaylistByTitle(input.title);
+    let playlistId = playlist?.id;
+
     return this.knex.transaction(
       async (trx): Promise<schema.PlaylistWithPath> => {
-        const newPlaylist: schema.NewPlaylist = {
-          title: input.title,
-          parentListId: input.parentListId ?? 0,
-          nextListId: 0,
-          isPersisted: true,
-          lastEditTime: formatDate(new Date()),
-        };
-        const [playlistId] = await trx<schema.Playlist>('Playlist').insert(
-          newPlaylist,
-        );
+        if (!playlist) {
+          const newPlaylist: schema.NewPlaylist = {
+            title: input.title,
+            parentListId: input.parentListId ?? 0,
+            nextListId: 0,
+            isPersisted: true,
+            lastEditTime: formatDate(new Date()),
+          };
+          [playlistId] = await trx<schema.Playlist>('Playlist').insert(
+            newPlaylist,
+          );
+          playlist = await trx<schema.Playlist>('Playlist')
+            .join<schema.PlaylistPath>(
+              'PlaylistPath',
+              'Playlist.id',
+              '=',
+              'PlaylistPath.id',
+            )
+            .select('Playlist.*', 'PlaylistPath.path')
+            .where('Playlist.id', playlistId)
+            .first();
+        } else {
+          await trx<schema.PlaylistEntity>('PlaylistEntity') //
+            .where('listId', playlistId)
+            .delete();
+        }
 
         const lastEntityId = await this.getLastGeneratedId(
           'PlaylistEntity',
@@ -59,7 +93,7 @@ export class EngineDB_2_0 extends EngineDB {
 
         await trx<schema.PlaylistEntity>('PlaylistEntity').insert(
           input.tracks.map<schema.NewPlaylistEntity>((track, i) => ({
-            listId: playlistId,
+            listId: playlistId!,
             trackId: track.id,
             nextEntityId:
               i === input.tracks.length - 1 //
@@ -69,19 +103,6 @@ export class EngineDB_2_0 extends EngineDB {
             databaseUuid: this.databaseUuid,
           })),
         );
-
-        const playlist: schema.PlaylistWithPath = await trx<schema.Playlist>(
-          'Playlist',
-        )
-          .join<schema.PlaylistPath>(
-            'PlaylistPath',
-            'Playlist.id',
-            '=',
-            'PlaylistPath.id',
-          )
-          .select('Playlist.*', 'PlaylistPath.path')
-          .where('Playlist.id', playlistId)
-          .first();
 
         return playlist!;
       },

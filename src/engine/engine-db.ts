@@ -28,7 +28,7 @@ export abstract class EngineDB {
 
   abstract getPlaylists(): Promise<schema.Playlist[]>;
 
-  abstract createPlaylist(
+  abstract createOrUpdatePlaylist(
     input: schema.PlaylistInput,
   ): Promise<schema.Playlist>;
 

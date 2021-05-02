@@ -36,7 +36,7 @@ export async function buildSmartPlaylists({
 
   return asyncSeries<engine.PlaylistWithTracks>(
     inputs.map(input => async () => ({
-      ...(await engineDb.createPlaylist(input)),
+      ...(await engineDb.createOrUpdatePlaylist(input)),
       tracks: input.tracks,
     })),
   );

@@ -24,39 +24,67 @@ export class EngineDB_1_6 extends EngineDB {
     return this.table('List').select('*');
   }
 
-  async createPlaylist(
-    input: publicSchema.PlaylistInput,
-  ): Promise<publicSchema.Playlist> {
-    return this.createPlaylistInternal(input);
+  private async getPlaylistByTitle(
+    title: string,
+  ): Promise<schema.List | undefined> {
+    return this.table('List') //
+      .select('*')
+      .where('title', title)
+      .first();
   }
 
-  private async createPlaylistInternal(
+  async createOrUpdatePlaylist(
+    input: publicSchema.PlaylistInput,
+  ): Promise<publicSchema.Playlist> {
+    return this.createOrUpdatePlaylistInternal(input);
+  }
+
+  private async createOrUpdatePlaylistInternal(
     input: publicSchema.PlaylistInput,
   ): Promise<schema.List> {
+    let playlist = await this.getPlaylistByTitle(input.title);
+    let playlistId = playlist?.id;
+
     return this.knex.transaction(
       async (trx): Promise<schema.List> => {
-        const { maxId } = (await trx<schema.List>('List')
-          .max('id', { as: 'maxId' })
-          .first())!;
-        const newPlaylist: schema.NewList = {
-          id: +maxId + 1,
-          title: input.title,
-          type: schema.ListType.Playlist,
-          path: `${input.title};`,
-          isFolder: 0,
-          isExplicitlyExported: 1,
-        };
-        await trx<schema.List>('List').insert(newPlaylist);
-        await trx<schema.ListParentList>('ListParentList').insert({
-          listOriginId: newPlaylist.id,
-          listOriginType: newPlaylist.type,
-          listParentId: newPlaylist.id,
-          listParentType: newPlaylist.type,
-        });
+        if (!playlist) {
+          const { maxId } = (await trx<schema.List>('List')
+            .max('id', { as: 'maxId' })
+            .first())!;
+          playlistId = +maxId + 1;
+
+          const newPlaylist: schema.NewList = {
+            id: playlistId,
+            title: input.title,
+            type: schema.ListType.Playlist,
+            path: `${input.title};`,
+            isFolder: 0,
+            isExplicitlyExported: 1,
+          };
+          await trx<schema.List>('List').insert(newPlaylist);
+          playlist = await trx<schema.List>('Playlist')
+            .select('*')
+            .where('id', playlistId!)
+            .first();
+
+          await trx<schema.ListParentList>('ListParentList').insert({
+            listOriginId: newPlaylist.id,
+            listOriginType: newPlaylist.type,
+            listParentId: newPlaylist.id,
+            listParentType: newPlaylist.type,
+          });
+        } else {
+          await trx<schema.ListTrackList>('ListTrackList')
+            .where({
+              listId: playlistId,
+              listType: schema.ListType.Playlist,
+            })
+            .delete();
+        }
 
         await trx<schema.ListTrackList>('ListTrackList').insert(
           input.tracks.map<schema.NewListTrackList>((track, i) => ({
-            listId: newPlaylist.id,
+            listId: playlistId!,
             listType: schema.ListType.Playlist,
             trackId: track.id,
             trackIdInOriginDatabase: track.id,
@@ -64,11 +92,6 @@ export class EngineDB_1_6 extends EngineDB {
             databaseUuid: this.databaseUuid,
           })),
         );
-
-        const playlist = await trx<schema.List>('Playlist')
-          .select('*')
-          .where('id', newPlaylist.id)
-          .first();
 
         return playlist!;
       },
