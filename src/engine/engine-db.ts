@@ -1,3 +1,4 @@
+import fs from 'fs';
 import knex, { Knex } from 'knex';
 
 import * as schema from './public-schema';
@@ -8,7 +9,7 @@ export abstract class EngineDB {
 
   protected databaseUuid!: string;
 
-  protected constructor(dbPath: string) {
+  protected constructor(private readonly dbPath: string) {
     this.knex = knex({
       client: 'sqlite3',
       connection: { filename: dbPath },
@@ -17,6 +18,7 @@ export abstract class EngineDB {
   }
 
   protected async init() {
+    await this.backup();
     const { uuid } = await this.getSchemaInfo();
 
     this.databaseUuid = uuid;
@@ -24,6 +26,10 @@ export abstract class EngineDB {
 
   async disconnect() {
     await this.knex.destroy();
+  }
+
+  async backup() {
+    await fs.promises.copyFile(this.dbPath, `${this.dbPath}.bak`);
   }
 
   abstract getPlaylists(): Promise<schema.Playlist[]>;
