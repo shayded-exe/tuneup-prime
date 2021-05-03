@@ -6,13 +6,13 @@ import { EOL } from 'os';
 import path from 'path';
 
 import { SmartPlaylist } from '../command-libs/smart';
-import smartPlaylistConfigSchema from './engine-genie.schema.json';
+import smartPlaylistConfigSchema from './enjinn.schema.json';
 
 export interface LibraryConfigFile {
   smartPlaylists: SmartPlaylist[];
 }
 
-export const LIBRARY_CONFIG_FILENAME = 'engine-genie.yaml';
+export const LIBRARY_CONFIG_FILENAME = 'enjinn.yaml';
 
 const validateConfig = new Ajv().compile<LibraryConfigFile>(
   smartPlaylistConfigSchema,

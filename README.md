@@ -1,4 +1,4 @@
-![Engine Genie](img/engine-genie.png)
+![Enjinn](img/enjinn.png)
 
 #### A library management tool for Denon Engine PRIME
 
@@ -23,7 +23,7 @@
 - Cross platform
   - Windows & macOS
 
-If there's a feature you'd like added that would be useful to you, please open a [feature request](https://github.com/rshea0/engine-genie/issues/new/choose)!
+If there's a feature you'd like added that would be useful to you, please open a [feature request](https://github.com/rshea0/enjinn/issues/new/choose)!
 
 ## Installation
 
@@ -31,14 +31,14 @@ Requires NodeJS v14+
 _Standalone version coming soon_
 
 ```
-$ npm install -g engine-genie
-$ engine-genie
+$ npm install -g enjinn
+$ enjinn
 ```
 
 ## How To Use
 
 ```
-$ engine-genie [COMMAND]
+$ enjinn [COMMAND]
 ```
 
 [Available commands](#commands)
@@ -51,8 +51,8 @@ In the future, you'll be able to specify multiple Engine libraries and even swit
 
 #### Config file locations:
 
-- Windows: `%APPDATA%\engine-genie-nodejs\Config\config.yaml`
-- macOS: `~Library/Preferences/engine-genie-nodejs/config.yaml`
+- Windows: `%APPDATA%\enjinn-nodejs\Config\config.yaml`
+- macOS: `~Library/Preferences/enjinn-nodejs/config.yaml`
 
 ## Commands
 
@@ -64,10 +64,10 @@ In the future, you'll be able to specify multiple Engine libraries and even swit
 Generates smart playlists based off a config file located in your Engine library folder.
 
 ```
-$ engine-genie smart
+$ enjinn smart
 ```
 
-To configure the smart playlists, place a file called `engine-genie.yaml` in your Engine library folder. See the [examples](examples/engine-genie.example.yaml) to learn how to define playlists.
+To configure the smart playlists, place a file called `enjinn.yaml` in your Engine library folder. See the [examples](examples/enjinn.example.yaml) to learn how to define playlists.
 
 If a playlist already exists (at the root level) with the same name as one of your smart playlists **IT WILL BE OVERWRITTEN**. In most cases this is desired, as you'll want to update your smart playlists.
 
@@ -76,9 +76,9 @@ If a playlist already exists (at the root level) with the same name as one of yo
 Finds tracks in your library that are missing, because you've moved the files to a new folder.
 
 ```
-$ engine-genie relocate
+$ enjinn relocate
 ```
 
-Engine Genie will scan your library for tracks that are missing on disk. It will then ask you to specify a folder to search for your tracks in. It will also search up to 5 subfolders deep. After searching, it will print out the relocated tracks and their new paths.
+Enjinn will scan your library for tracks that are missing on disk. It will then ask you to specify a folder to search for your tracks in. It will also search up to 5 subfolders deep. After searching, it will print out the relocated tracks and their new paths.
 
 Currently, the filenames have to be the same, but soon you'll be able to specify rules for matching filenames as well as rename individual files.

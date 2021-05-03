@@ -1,19 +1,21 @@
 {
-  "name": "engine-genie",
+  "name": "enjinn",
   "version": "1.0.0",
   "description": "A library management tool for Denon Engine PRIME",
   "author": "SHAYDED <shayded@shayded.com> (http://shayded.com)",
-  "homepage": "https://github.com/rshea0/engine-genie#readme",
+  "homepage": "https://github.com/rshea0/enjinn#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rshea0/engine-genie.git"
+    "url": "https://github.com/rshea0/enjinn.git"
   },
   "bugs": {
-    "url": "https://github.com/rshea0/engine-genie/issues",
+    "url": "https://github.com/rshea0/enjinn/issues",
     "email": "shayded@shayded.com"
   },
   "keywords": [
+    "enjinn",
     "engine",
+    "genie",
     "engine prime",
     "denon",
     "dj",
@@ -27,11 +29,11 @@
     "node": ">=14"
   },
   "bin": {
-    "engine-genie": "./bin/run"
+    "enjinn": "./bin/run"
   },
   "main": "lib/index.js",
   "oclif": {
-    "bin": "engine-genie",
+    "bin": "enjinn",
     "commands": "./lib/commands",
     "helpClass": "./lib/help",
     "hooks": {

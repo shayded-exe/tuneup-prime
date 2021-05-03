@@ -6,9 +6,9 @@ import { partialRight } from 'lodash';
 import { EOL } from 'os';
 import terminalLink from 'terminal-link';
 
-export default class EngineGenieHelp extends Help {
+export default class EnjinnHelp extends Help {
   showRootHelp() {
-    const figletText = figlet.textSync('Engine Genie', {
+    const figletText = figlet.textSync('ENJINN', {
       font: 'Jacky',
       horizontalLayout: 'fitted',
     });
@@ -26,7 +26,7 @@ export default class EngineGenieHelp extends Help {
     console.log(chalk`  {blue ${shaydedLink}}${EOL}`);
 
     console.log(chalk`{magenta GitHub}`);
-    const gitHubUrl = 'https://github.com/rshea0/engine-genie';
+    const gitHubUrl = 'https://github.com/rshea0/enjinn';
     const gitHubLink = terminalLink(gitHubUrl, gitHubUrl, {
       fallback: (_, url) => url,
     });

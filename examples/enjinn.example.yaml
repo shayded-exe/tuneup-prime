@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/rshea0/engine-genie/master/src/library-config/engine-genie.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/rshea0/enjinn/master/src/library-config/enjinn.schema.json
 
 # Supported fields:
 #   album
