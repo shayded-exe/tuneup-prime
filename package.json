@@ -51,8 +51,7 @@
   ],
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
-    "prepack": "rimraf lib && tsc -b && oclif-dev manifest",
-    "version": "oclif-dev readme && git add README.md"
+    "prepack": "rimraf lib && tsc -b && oclif-dev manifest"
   },
   "dependencies": {
     "@oclif/command": "1.8.0",
