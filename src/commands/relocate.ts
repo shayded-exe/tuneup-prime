@@ -12,7 +12,7 @@ import { EngineDB } from '../engine';
 import { checkPathExists, checkPathIsDir, getFilesInDir } from '../utils';
 
 export default class Relocate extends Command {
-  static readonly description = 'Relocate missing tracks';
+  static readonly description = 'relocate missing tracks';
 
   private libraryFolder!: string;
   private engineDb!: EngineDB;

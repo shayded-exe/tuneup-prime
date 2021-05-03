@@ -6,7 +6,7 @@ import * as engine from '../engine';
 import { readLibraryConfig } from '../library-config';
 
 export default class Smart extends Command {
-  static readonly description = 'Generate smart playlists';
+  static readonly description = 'generate smart playlists';
 
   static readonly flags = {
     help: flags.help({ char: 'h' }),

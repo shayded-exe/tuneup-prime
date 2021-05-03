@@ -9,9 +9,9 @@ import { appConf, AppConfKey } from '../../conf';
 import * as engine from '../../engine';
 import { checkPathExists, checkPathIsDir } from '../../utils';
 
-export default initEngineLibrary;
+export default prerunEngineLibrary;
 
-export const initEngineLibrary: Hook<'init'> = async function () {
+export const prerunEngineLibrary: Hook<'prerun'> = async function () {
   let needsUpdate = false;
   let folder = appConf.get(AppConfKey.EngineLibraryFolder);
 

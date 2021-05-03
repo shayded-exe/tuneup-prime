@@ -5,6 +5,9 @@
   "scripts": {},
   "author": "SHAYDED <shayded@shayded.com>",
   "license": "ISC",
+  "engines": {
+    "node": ">=14"
+  },
   "bin": {
     "engine-genie": "./bin/run"
   },
@@ -12,14 +15,14 @@
   "oclif": {
     "bin": "engine-genie",
     "commands": "./lib/commands",
+    "helpClass": "./lib/help",
     "hooks": {
-      "init": [
-        "./lib/hooks/init/init-engine-library"
+      "prerun": [
+        "./lib/hooks/prerun/prerun-engine-library"
       ]
     },
     "plugins": [
-      "@oclif/plugin-help",
-      "conf-cli"
+      "@oclif/plugin-help"
     ]
   },
   "files": [
@@ -34,21 +37,27 @@
     "@oclif/plugin-help": "3.2.2",
     "ajv": "8.1.0",
     "chalk": "2.4.2",
+    "chalk-animation": "1.6.0",
     "cli-ux": "5.5.1",
     "conf": "10.0.1",
-    "conf-cli": "0.1.9",
+    "figlet": "1.5.0",
+    "gradient-string": "1.2.0",
     "inquirer": "8.0.0",
     "js-yaml": "4.1.0",
     "knex": "0.95.4",
     "lodash": "4.17.21",
     "moment": "2.29.1",
     "sqlite3": "5.0.2",
+    "terminal-link": "2.1.1",
     "true-case-path": "2.2.1",
     "type-fest": "0.21.3"
   },
   "devDependencies": {
     "@oclif/dev-cli": "1.26.0",
     "@types/chalk": "2.2.0",
+    "@types/chalk-animation": "1.6.0",
+    "@types/figlet": "1.5.1",
+    "@types/gradient-string": "1.1.1",
     "@types/inquirer": "7.3.1",
     "@types/js-yaml": "4.0.1",
     "@types/lodash": "4.14.168",

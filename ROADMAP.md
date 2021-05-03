@@ -8,6 +8,7 @@
 - [x] Clear playlist if it already exists
 - [x] Track relocation
 - [x] Auto backup
+- [x] ASCII ART
 
 ### Future
 
@@ -16,4 +17,3 @@
 - [ ] Filter on multiple fields in one rule
 - [ ] Filter on multiple values for one field
 - [ ] Support source playlist filter
-- [ ] ASCII ART
