@@ -8,7 +8,10 @@ import terminalLink from 'terminal-link';
 
 export default class EngineGenieHelp extends Help {
   showRootHelp() {
-    const figletText = figlet.textSync('Engine Genie', 'Alligator2');
+    const figletText = figlet.textSync('Engine Genie', {
+      font: 'Jacky',
+      horizontalLayout: 'fitted',
+    });
     console.log(`${EOL}${gradient.retro(figletText)}${EOL}`);
 
     console.log(`by ${gradient.morning('SHAYDED')}`);
