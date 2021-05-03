@@ -2,7 +2,7 @@
 
 #### A library management tool for Denon Engine PRIME
 
-#### By [SHAYDED](http://shayded.com)
+&nbsp;&nbsp;_by [SHAYDED](http://shayded.com)_
 
 - [Installation](#installation)
 - [How To Use](#how-to-use)
@@ -67,7 +67,7 @@ Generates smart playlists based off a config file located in your Engine library
 $ engine-genie smart
 ```
 
-To configure the smart playlists, place a file called `engine-genie.yaml` in your Engine library folder. See the [examples](examples/engine-genie.yaml) to learn how to define playlists.
+To configure the smart playlists, place a file called `engine-genie.yaml` in your Engine library folder. See the [examples](examples/engine-genie.example.yaml) to learn how to define playlists.
 
 If a playlist already exists (at the root level) with the same name as one of your smart playlists **IT WILL BE OVERWRITTEN**. In most cases this is desired, as you'll want to update your smart playlists.
 

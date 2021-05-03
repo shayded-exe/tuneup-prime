@@ -1,14 +1,64 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/rshea0/engine-genie/master/src/library-config/engine-genie.schema.json
+
+# Supported fields:
+#   album
+#   artist
+#   comment
+#   composer
+#   filename
+#   fileType
+#   genre
+#   label
+#   path
+#   remixer
+#   title
+
+# Supported operators:
+#   equals
+#   notequal
+#   contains
+#   excludes
+#   regex
+
 smartPlaylists:
-  - name: Smart Test
+  - name: Single filter
     rules:
-      or:
+      and:
         - field: artist
           operator: contains
           value: snake
+
+  - name: Multiple filters
+    rules:
+      # Must match all rules
+      and:
+        - field: title
+          operator: contains
+          value: remix
+        - field: artist
+          operator: equals
+          value: ILLENIUM
+          # optional (default: false)
+          caseSensitive: true
+        - field: fileType
+          operator: excludes
+          value: m4a
+
+  - name: Complex logic
+    rules:
+      # Only needs to match one rule
+      or:
+        - field: title
+          operator: regex
+          value: \(\w remix\)
+        # Can nest groups
         - and:
             - field: artist
-              operator: contains
-              value: dolla
-            - field: title
-              operator: contains
-              value: take
+              operator: excludes
+              value: khaled
+            - field: another one
+              operator: equals
+              value: another one
+            - field: another one
+              operator: equals
+            - field: another one
