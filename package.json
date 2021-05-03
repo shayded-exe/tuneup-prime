@@ -1,10 +1,28 @@
 {
   "name": "engine-genie",
-  "version": "0.1.0",
-  "description": "",
-  "scripts": {},
-  "author": "SHAYDED <shayded@shayded.com>",
-  "license": "ISC",
+  "version": "1.0.0",
+  "description": "A library management tool for Denon Engine PRIME",
+  "author": "SHAYDED <shayded@shayded.com> (http://shayded.com)",
+  "homepage": "https://github.com/rshea0/engine-genie#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rshea0/engine-genie.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rshea0/engine-genie/issues",
+    "email": "shayded@shayded.com"
+  },
+  "keywords": [
+    "engine",
+    "engine prime",
+    "denon",
+    "dj",
+    "denon dj",
+    "relocate library",
+    "missing tracks",
+    "smart playlist"
+  ],
+  "license": "MIT",
   "engines": {
     "node": ">=14"
   },
