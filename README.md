@@ -28,7 +28,7 @@ If there's a feature you'd like added that would be useful to you, please open a
 
 ## Installation
 
-Requires NodeJS v14+
+Requires [NodeJS v14+](https://nodejs.org/en/)  
 _Standalone version coming soon_
 
 ```
