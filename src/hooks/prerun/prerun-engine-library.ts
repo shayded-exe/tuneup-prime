@@ -56,6 +56,9 @@ async function validateLibraryFolder(folder: string): Promise<true | string> {
   if (!(await checkPathIsDir(folder))) {
     return `Path isn't a folder`;
   }
+  if (!path.isAbsolute(folder)) {
+    return 'Path must be absolute';
+  }
 
   try {
     await engine.detectLibraryVersion(folder);

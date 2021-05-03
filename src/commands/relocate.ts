@@ -87,6 +87,9 @@ export default class Relocate extends Command {
       if (!(await checkPathIsDir(folder))) {
         return `Path isn't a folder`;
       }
+      if (!path.isAbsolute(folder)) {
+        return 'Path must be absolute';
+      }
       return true;
     }
 
