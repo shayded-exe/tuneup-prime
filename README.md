@@ -22,6 +22,7 @@
 - Supports Engine 1.6 and Engine 2.0 Beta
 - Cross platform
   - Windows & macOS
+  - _macOS is untested._ The code is written to be compatible, but I don't have a mac to test on. If you have a mac, please let me know if everything works properly.
 
 If there's a feature you'd like added that would be useful to you, please open a [feature request](https://github.com/rshea0/enjinn/issues/new/choose)!
 
