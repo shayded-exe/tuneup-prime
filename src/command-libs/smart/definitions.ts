@@ -50,8 +50,8 @@ export enum NumberFilterField {
 export type FilterField = StringFilterField | NumberFilterField;
 
 export enum StringFilterOperator {
-  Equals = '=',
-  NotEqual = '!=',
+  Equals = 'equals',
+  NotEqual = 'notequal',
   Contains = 'contains',
   Excludes = 'excludes',
   Regex = 'regex',

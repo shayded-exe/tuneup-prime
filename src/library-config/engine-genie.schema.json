@@ -81,7 +81,7 @@
     },
     "StringFilterOperator": {
       "type": "string",
-      "enum": ["=", "!=", "contains", "excludes", "regex"]
+      "enum": ["equals", "notequal", "contains", "excludes", "regex"]
     },
     "NumberFilterField": {
       "type": "string",
