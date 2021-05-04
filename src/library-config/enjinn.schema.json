@@ -51,6 +51,12 @@
       ]
     },
     "PlaylistRule": {
+      "oneOf": [
+        { "$ref": "#/definitions/StringPlaylistRule" },
+        { "$ref": "#/definitions/NumericPlaylistRule" }
+      ]
+    },
+    "StringPlaylistRule": {
       "type": "object",
       "properties": {
         "field": { "$ref": "#/definitions/StringFilterField" },
@@ -60,6 +66,15 @@
           "type": "boolean",
           "default": false
         }
+      },
+      "required": ["field", "operator", "value"]
+    },
+    "NumericPlaylistRule": {
+      "type": "object",
+      "properties": {
+        "field": { "$ref": "#/definitions/NumericFilterField" },
+        "operator": { "$ref": "#/definitions/NumericFilterOperator" },
+        "value": { "type": "number" }
       },
       "required": ["field", "operator", "value"]
     },
@@ -83,13 +98,13 @@
       "type": "string",
       "enum": ["equals", "notequal", "contains", "excludes", "regex"]
     },
-    "NumberFilterField": {
+    "NumericFilterField": {
       "type": "string",
       "enum": ["bitrate", "bpm", "length", "rating", "year"]
     },
-    "NumberFilterOperator": {
+    "NumericFilterOperator": {
       "type": "string",
-      "enum": ["=", "!=", "<", "<=", ">", ">="]
+      "enum": ["=", "!=", ">", ">=", "<", "<="]
     }
   }
 }

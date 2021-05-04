@@ -13,7 +13,8 @@
 - (relocate) Support source playlist filter
 - (smart) Filter on multiple fields in one rule
 - (smart) Filter on multiple values for one field
-- (smart) Support source playlist filter
+- (smart) Filter on camelot key
+- (smart) Filter on source playlist
 - Better auto backup (don't overwrite, store in folder, maybe don't backup until before save op)
 
 ## Released

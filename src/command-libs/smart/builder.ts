@@ -5,13 +5,17 @@ import { LibraryConfigFile } from '../../library-config';
 import { asyncSeries } from '../../utils';
 import {
   FilterField,
-  NumberFilterField,
+  NumericFilterField,
+  NumericFilterOperator,
+  NumericPlaylistRule,
   PlaylistRule,
   PlaylistRuleAndGroup,
   PlaylistRuleGroup,
   PlaylistRuleNode,
   SmartPlaylist,
+  StringFilterField,
   StringFilterOperator,
+  StringPlaylistRule,
 } from './definitions';
 
 export async function buildSmartPlaylists({
@@ -75,29 +79,56 @@ function applyRuleNode(track: engine.Track, node: PlaylistRuleNode): boolean {
 }
 
 function applyRule(track: engine.Track, rule: PlaylistRule): boolean {
-  let trackValue = track[getTrackColumnName(rule.field)] as string;
-  trackValue ??= '';
-  let ruleValue = rule.value;
-
-  if (!rule.caseSensitive && rule.operator !== StringFilterOperator.Regex) {
-    trackValue = trackValue.toLocaleLowerCase();
-    ruleValue = ruleValue.toLocaleLowerCase();
+  function isStringRule(rule: PlaylistRule): rule is StringPlaylistRule {
+    return Object.values(StringFilterField).includes(rule.field as any);
   }
 
-  switch (rule.operator) {
-    case StringFilterOperator.Equals:
-      return trackValue === ruleValue;
-    case StringFilterOperator.NotEqual:
-      return trackValue !== ruleValue;
-    case StringFilterOperator.Contains:
-      return trackValue.includes(ruleValue);
-    case StringFilterOperator.Excludes:
-      return !trackValue.includes(ruleValue);
-    case StringFilterOperator.Regex:
-      return new RegExp(ruleValue, rule.caseSensitive ? undefined : 'i').test(
-        trackValue,
-      );
+  function applyStringRule(rule: StringPlaylistRule): boolean {
+    let trackValue = getTrackValue(track, rule.field) ?? '';
+    let ruleValue = rule.value;
+
+    if (!rule.caseSensitive && rule.operator !== StringFilterOperator.Regex) {
+      trackValue = trackValue.toLocaleLowerCase();
+      ruleValue = ruleValue.toLocaleLowerCase();
+    }
+
+    switch (rule.operator) {
+      case StringFilterOperator.Equals:
+        return trackValue === ruleValue;
+      case StringFilterOperator.NotEqual:
+        return trackValue !== ruleValue;
+      case StringFilterOperator.Contains:
+        return trackValue.includes(ruleValue);
+      case StringFilterOperator.Excludes:
+        return !trackValue.includes(ruleValue);
+      case StringFilterOperator.Regex:
+        return new RegExp(ruleValue, rule.caseSensitive ? undefined : 'i').test(
+          trackValue,
+        );
+    }
   }
+
+  function applyNumericRule(rule: NumericPlaylistRule): boolean {
+    const trackValue = getTrackValue(track, rule.field) ?? 0;
+    const ruleValue = rule.value;
+
+    switch (rule.operator) {
+      case NumericFilterOperator.Equals:
+        return trackValue === ruleValue;
+      case NumericFilterOperator.NotEqual:
+        return trackValue !== ruleValue;
+      case NumericFilterOperator.GreaterThan:
+        return trackValue > ruleValue;
+      case NumericFilterOperator.GreaterThanEquals:
+        return trackValue >= ruleValue;
+      case NumericFilterOperator.LessThan:
+        return trackValue < ruleValue;
+      case NumericFilterOperator.LessThanEquals:
+        return trackValue <= ruleValue;
+    }
+  }
+
+  return isStringRule(rule) ? applyStringRule(rule) : applyNumericRule(rule);
 }
 
 interface NormalizedRuleGroup {
@@ -117,11 +148,26 @@ function normalizeRuleGroup(group: PlaylistRuleGroup): NormalizedRuleGroup {
     : { type: '||', nodes: group.or };
 }
 
-function getTrackColumnName(filterField: FilterField): keyof engine.Track {
-  switch (filterField) {
-    case NumberFilterField.Bpm:
-      return 'bpmAnalyzed';
+function getTrackValue(
+  track: engine.Track,
+  field: StringFilterField,
+): string | undefined;
+function getTrackValue(
+  track: engine.Track,
+  field: NumericFilterField,
+): number | undefined;
+function getTrackValue(
+  track: engine.Track,
+  field: FilterField,
+): string | number | undefined {
+  function getTrackField() {
+    switch (field) {
+      case NumericFilterField.Bpm:
+        return 'bpmAnalyzed';
+      default:
+        return field;
+    }
   }
 
-  return filterField;
+  return track[getTrackField()];
 }

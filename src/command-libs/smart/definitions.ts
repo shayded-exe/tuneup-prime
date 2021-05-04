@@ -17,12 +17,22 @@ export interface PlaylistRuleOrGroup {
   or: PlaylistRuleNode[];
 }
 
-export interface PlaylistRule {
+export type PlaylistRule = StringPlaylistRule | NumericPlaylistRule;
+
+export interface StringPlaylistRule {
   field: StringFilterField;
   operator: StringFilterOperator;
   value: string;
   caseSensitive?: boolean;
 }
+
+export interface NumericPlaylistRule {
+  field: NumericFilterField;
+  operator: NumericFilterOperator;
+  value: number;
+}
+
+export type FilterField = StringFilterField | NumericFilterField;
 
 export enum StringFilterField {
   Album = 'album',
@@ -38,7 +48,7 @@ export enum StringFilterField {
   Title = 'title',
 }
 
-export enum NumberFilterField {
+export enum NumericFilterField {
   // Key = 'key',
   Bitrate = 'bitrate',
   Bpm = 'bpm',
@@ -46,8 +56,6 @@ export enum NumberFilterField {
   Rating = 'rating',
   Year = 'year',
 }
-
-export type FilterField = StringFilterField | NumberFilterField;
 
 export enum StringFilterOperator {
   Equals = 'equals',
@@ -57,11 +65,11 @@ export enum StringFilterOperator {
   Regex = 'regex',
 }
 
-export enum NumberFilterOperator {
+export enum NumericFilterOperator {
   Equals = '=',
   NotEqual = '!=',
-  LessThan = '<',
-  LessThanEquals = '<=',
   GreaterThan = '>',
   GreaterThanEquals = '>=',
+  LessThan = '<',
+  LessThanEquals = '<=',
 }
