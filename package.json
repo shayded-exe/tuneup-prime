@@ -58,6 +58,7 @@
     "oclif.manifest.json"
   ],
   "scripts": {
+    "publish": "np --no-tests --message v%s",
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "rimraf lib && tsc -b && oclif-dev manifest"
   },
