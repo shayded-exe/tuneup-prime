@@ -19,7 +19,7 @@
   - Relocate missing tracks
   - Provide a folder to search for tracks in
 - Automatically backs up library before running
-- Supports Engine 1.6 and Engine 2.0 Beta
+- Supports Engine 1.6.x
 - Cross platform
   - Windows & macOS
   - _macOS is untested._ The code is written to be compatible, but I don't have a mac to test on. If you have a mac, please let me know if everything works properly.
