@@ -8,14 +8,13 @@ import { trueCasePath } from 'true-case-path';
 
 import { appConf, AppConfKey } from '../conf';
 import * as engine from '../engine';
-import { EngineDB } from '../engine';
 import { checkPathExists, checkPathIsDir, getFilesInDir } from '../utils';
 
 export default class Relocate extends Command {
   static readonly description = 'relocate missing tracks';
 
   private libraryFolder!: string;
-  private engineDb!: EngineDB;
+  private engineDb!: engine.EngineDB;
 
   async run() {
     const {} = this.parse(Relocate);

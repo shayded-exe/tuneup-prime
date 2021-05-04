@@ -5,8 +5,8 @@ import yaml from 'js-yaml';
 import { EOL } from 'os';
 import path from 'path';
 
-import { SmartPlaylist } from '../command-libs/smart';
 import smartPlaylistConfigSchema from './enjinn.schema.json';
+import { SmartPlaylist } from './smart-playlist';
 
 export interface LibraryConfigFile {
   smartPlaylists: SmartPlaylist[];

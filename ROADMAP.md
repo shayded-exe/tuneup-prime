@@ -1,9 +1,7 @@
 ## Future
 
-### v1.1.0
+### v1.1.1
 
-- Autoupdate
-- (smart) Numeric filters
 - Prettier, uniform, command output
 
 ### Unknown
@@ -28,3 +26,8 @@
 - (relocate) Track relocation
 - Auto backup
 - ASCII ART
+
+### v1.1.0
+
+- Autoupdate
+- (smart) Numeric filters
