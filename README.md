@@ -36,6 +36,14 @@ $ npm install -g enjinn
 $ enjinn
 ```
 
+#### Updating
+
+```
+$ enjinn update
+```
+
+> ENJINN will notify you when an update is available.
+
 ## ❓ How To Use
 
 ```
@@ -80,6 +88,6 @@ Finds tracks in your library that are missing, because you've moved the files to
 $ enjinn relocate
 ```
 
-Enjinn will scan your library for tracks that are missing on disk. It will then ask you to specify a folder to search for your tracks in. It will also search up to 5 subfolders deep. After searching, it will print out the relocated tracks and their new paths.
+ENJINN will scan your library for tracks that are missing on disk. It will then ask you to specify a folder to search for your tracks in. It will also search up to 5 subfolders deep. After searching, it will print out the relocated tracks and their new paths.
 
 Currently, the filenames have to be the same, but soon you'll be able to specify rules for matching filenames as well as rename individual files.
