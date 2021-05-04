@@ -1,14 +1,14 @@
 ![Enjinn](img/enjinn.png)
 
-#### A library management tool for Denon Engine PRIME
+#### A library management tool for Denon Engine PRIME 🎧
 
 &nbsp;&nbsp;_by [SHAYDED](http://shayded.com)_
 
-- [Installation](#installation)
-- [How To Use](#how-to-use)
-- [Commands](#commands)
+- [🚀 Installation](#-installation)
+- [❓ How To Use](#-how-to-use)
+- [🔨 Commands](#-commands)
 
-## Features
+## 🌟 Features
 
 - Smart playlists
   - Generate playlists based off of easily configurable rules
@@ -26,7 +26,7 @@
 
 If there's a feature you'd like added that would be useful to you, please open a [feature request](https://github.com/rshea0/enjinn/issues/new/choose)!
 
-## Installation
+## 🚀 Installation
 
 Requires [NodeJS v14+](https://nodejs.org/en/)  
 _Standalone version coming soon_
@@ -36,13 +36,13 @@ $ npm install -g enjinn
 $ enjinn
 ```
 
-## How To Use
+## ❓ How To Use
 
 ```
 $ enjinn [COMMAND]
 ```
 
-[Available commands](#commands)
+[Available commands](#-commands)
 
 The first time you run a command, it will ask you to enter the location of your Engine library.
 
@@ -55,12 +55,12 @@ In the future, you'll be able to specify multiple Engine libraries and even swit
 - Windows: `%APPDATA%\enjinn-nodejs\Config\config.yaml`
 - macOS: `~Library/Preferences/enjinn-nodejs/config.yaml`
 
-## Commands
+## 🔨 Commands
 
 - [`smart` - Generate smart playlists](#smart)
 - [`relocate` - Relocate missing tracks](#relocate)
 
-### Smart
+### 🧠 Smart
 
 Generates smart playlists based off a config file located in your Engine library folder.
 
@@ -72,7 +72,7 @@ To configure the smart playlists, place a file called `enjinn.yaml` in your Engi
 
 If a playlist already exists (at the root level) with the same name as one of your smart playlists **IT WILL BE OVERWRITTEN**. In most cases this is desired, as you'll want to update your smart playlists.
 
-### Relocate
+### 🔍 Relocate
 
 Finds tracks in your library that are missing, because you've moved the files to a new folder.
 
