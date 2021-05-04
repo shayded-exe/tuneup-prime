@@ -59,9 +59,11 @@
     "oclif.manifest.json"
   ],
   "scripts": {
+    "prerelease": "npm run build",
     "release": "np --no-tests --message v%s",
+    "build": "rimraf lib && tsc -b",
     "postpack": "rimraf oclif.manifest.json",
-    "prepack": "rimraf lib && tsc -b && oclif-dev manifest"
+    "prepack": "npm run build && oclif-dev manifest"
   },
   "dependencies": {
     "@oclif/command": "1.8.0",
