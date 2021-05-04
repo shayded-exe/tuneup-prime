@@ -38,7 +38,7 @@ export async function readLibraryConfig(
       [
         chalk`{blue ${LIBRARY_CONFIG_FILENAME}} is {red invalid}`,
         ...(validateConfig.errors ?? []).map(
-          e => chalk`\t{green.bold ${e.instancePath}} - ${e.message ?? ''}`,
+          e => chalk`  {green.bold ${e.instancePath}} - ${e.message ?? ''}`,
         ),
       ].join(EOL),
     );

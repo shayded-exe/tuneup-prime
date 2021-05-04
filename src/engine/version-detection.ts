@@ -10,12 +10,14 @@ export enum EngineVersion {
 
 const DB_FILE_NAME = 'm.db';
 
-export async function detectLibraryVersion(
-  libraryFolder: string,
-): Promise<{
+export interface LibraryInfo {
   version: EngineVersion;
   dbPath: string;
-}> {
+}
+
+export async function getLibraryInfo(
+  libraryFolder: string,
+): Promise<LibraryInfo> {
   let dbPath = getDbPath(libraryFolder, EngineVersion.V2_0);
   if (await checkPathIsFile(dbPath)) {
     return {

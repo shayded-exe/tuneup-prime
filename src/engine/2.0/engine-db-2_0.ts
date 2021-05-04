@@ -87,23 +87,25 @@ export class EngineDB_2_0 extends EngineDB {
             .delete();
         }
 
-        const lastEntityId = await this.getLastGeneratedId(
-          'PlaylistEntity',
-          trx,
-        );
+        if (input.tracks.length) {
+          const lastEntityId = await this.getLastGeneratedId(
+            'PlaylistEntity',
+            trx,
+          );
 
-        await trx<schema.PlaylistEntity>('PlaylistEntity').insert(
-          input.tracks.map<schema.NewPlaylistEntity>((track, i) => ({
-            listId: playlistId!,
-            trackId: track.id,
-            nextEntityId:
-              i === input.tracks.length - 1 //
-                ? 0
-                : lastEntityId + 2 + i,
-            membershipReference: 0,
-            databaseUuid: this.databaseUuid,
-          })),
-        );
+          await trx<schema.PlaylistEntity>('PlaylistEntity').insert(
+            input.tracks.map<schema.NewPlaylistEntity>((track, i) => ({
+              listId: playlistId!,
+              trackId: track.id,
+              nextEntityId:
+                i === input.tracks.length - 1 //
+                  ? 0
+                  : lastEntityId + 2 + i,
+              membershipReference: 0,
+              databaseUuid: this.databaseUuid,
+            })),
+          );
+        }
 
         return playlist!;
       },

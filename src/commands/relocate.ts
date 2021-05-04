@@ -1,65 +1,80 @@
-import Command from '@oclif/command';
 import chalk from 'chalk';
-import cli from 'cli-ux';
 import inquirer from 'inquirer';
 import { keyBy, partition } from 'lodash';
 import path from 'path';
 import { trueCasePath } from 'true-case-path';
 
-import { appConf, AppConfKey } from '../conf';
+import { BaseEngineCommand } from '../base-commands';
 import * as engine from '../engine';
-import { checkPathExists, checkPathIsDir, getFilesInDir } from '../utils';
+import {
+  checkPathExists,
+  checkPathIsDir,
+  getFilesInDir,
+  spinner,
+} from '../utils';
 
-export default class Relocate extends Command {
+export default class Relocate extends BaseEngineCommand {
   static readonly description = 'relocate missing tracks';
 
-  private libraryFolder!: string;
-  private engineDb!: engine.EngineDB;
-
   async run() {
-    const {} = this.parse(Relocate);
+    await this.connectToEngine();
 
-    this.libraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
+    const missingTracks = await spinner({
+      text: 'Find missing tracks',
+      run: async ctx => {
+        const missing = await this.findMissingTracks();
+        if (missing.length) {
+          ctx.succeed(
+            chalk`Found {red ${missing.length.toString()}} missing tracks`,
+          );
+          this.logTracks(missing);
+        } else {
+          ctx.warn(`Didn't find any missing tracks`);
+        }
+        return missing;
+      },
+    });
 
-    cli.action.start('Connecting to Engine DB');
-    this.engineDb = await engine.connect(this.libraryFolder);
-    cli.action.stop();
-
-    cli.action.start('Find missing tracks');
-    const missingTracks = await this.findMissingTracks();
-    cli.action.stop();
-    this.log();
-
-    this.log(
-      chalk`Found {red ${missingTracks.length.toString()}} missing tracks:`,
-    );
-    this.logTracks(missingTracks);
+    if (!missingTracks.length) {
+      return;
+    }
 
     const searchFolder = await this.promptForSearchFolder();
 
-    cli.action.start('Relocate missing tracks');
-    const { relocated, stillMissing } = await this.relocateMissingTracks({
-      missingTracks,
-      searchFolder,
+    const relocated = await spinner({
+      text: 'Relocate missing tracks',
+      run: async ctx => {
+        const { relocated, stillMissing } = await this.relocateMissingTracks({
+          missingTracks,
+          searchFolder,
+        });
+
+        const numRelocated = relocated.length.toString();
+        const numMissing = stillMissing.length.toString();
+
+        if (!relocated.length) {
+          ctx.fail(chalk`Couldn't find {red ${numMissing}} tracks`);
+        } else if (stillMissing.length) {
+          ctx.warn(
+            chalk`Relocated {green ${numRelocated}} tracks, couldn't find {red ${numMissing}} tracks`,
+          );
+        } else {
+          ctx.succeed(chalk`Relocated {green ${numRelocated}} tracks`);
+        }
+        this.logTracks(relocated);
+        if (stillMissing.length) {
+          this.log('  [still missing]');
+          this.logTracks(stillMissing, { color: 'red' });
+        }
+
+        return relocated;
+      },
     });
-    cli.action.stop();
-    this.log();
 
-    this.log(chalk`Relocated {green ${relocated.length.toString()}} tracks:`);
-    this.logTracks(relocated);
-
-    this.log(
-      chalk`Couldn't find {red ${stillMissing.length.toString()}} tracks:`,
-    );
-    this.logTracks(stillMissing);
-
-    cli.action.start('Save relocated tracks in Engine');
-    await this.engineDb.updateTrackPaths(relocated);
-    cli.action.stop();
-  }
-
-  protected async finally() {
-    await this.engineDb.disconnect();
+    await spinner({
+      text: 'Save relocated tracks to Engine',
+      run: async () => this.engineDb.updateTrackPaths(relocated),
+    });
   }
 
   private async findMissingTracks(): Promise<engine.Track[]> {
@@ -92,6 +107,7 @@ export default class Relocate extends Command {
       return true;
     }
 
+    this.log();
     const { searchFolder } = await inquirer.prompt<{ searchFolder: string }>({
       type: 'input',
       name: 'searchFolder',
@@ -130,10 +146,5 @@ export default class Relocate extends Command {
     });
 
     return { relocated, stillMissing };
-  }
-
-  private logTracks(tracks: engine.Track[]) {
-    tracks.forEach(t => this.log(chalk`\t{blue ${t.path}}`));
-    this.log();
   }
 }

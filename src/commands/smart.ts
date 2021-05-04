@@ -1,65 +1,79 @@
-import { Command, flags } from '@oclif/command';
+import { flags } from '@oclif/command';
+import chalk from 'chalk';
 import { every, some } from 'lodash';
 
-import { appConf, AppConfKey } from '../conf';
+import { BaseEngineCommand } from '../base-commands';
 import * as engine from '../engine';
 import { LibraryConfigFile, readLibraryConfig } from '../library-config';
 import * as def from '../library-config/smart-playlist';
-import { asyncSeries } from '../utils';
+import { asyncSeries, spinner } from '../utils';
 
-export default class Smart extends Command {
+export default class Smart extends BaseEngineCommand {
   static readonly description = 'generate smart playlists';
 
   static readonly flags = {
     help: flags.help({ char: 'h' }),
   };
 
-  private libraryFolder!: string;
   private libraryConfig!: LibraryConfigFile;
-  private engineDb!: engine.EngineDB;
 
   private get smartPlaylists(): def.SmartPlaylist[] {
     return this.libraryConfig.smartPlaylists;
   }
 
   async run() {
-    const {} = this.parse(Smart);
-
-    this.libraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
+    await this.connectToEngine();
     this.libraryConfig = await readLibraryConfig(this.libraryFolder);
-    this.engineDb = await engine.connect(this.libraryFolder);
-
-    const outputs = await this.createSmartPlaylists();
-
-    this.log(`SUCCESS - Created ${outputs.length} smart playlists`);
-
-    outputs.forEach(x => this.log(`\t${x.title} [${x.tracks.length} tracks]`));
-  }
-
-  protected async finally() {
-    await this.engineDb.disconnect();
-  }
-
-  private async createSmartPlaylists(): Promise<engine.PlaylistWithTracks[]> {
-    const tracks = await this.engineDb.getTracks();
 
     if (this.smartPlaylists.some(x => x.sources)) {
-      console.warn('"sources" filter not yet supported; ignoring...');
+      this.warn('"sources" filter not yet supported; ignoring...');
     }
 
-    const inputs = this.smartPlaylists.map<engine.PlaylistInput>(
-      playlistConfig => ({
-        title: playlistConfig.name,
-        tracks: filterTracks({ tracks, playlistConfig }),
-      }),
-    );
+    const inputs = await spinner({
+      text: 'Build smart playlists',
+      run: async ctx => {
+        const tracks = await this.engineDb.getTracks();
+        const inputs = this.smartPlaylists.map<engine.PlaylistInput>(
+          playlistConfig => ({
+            title: playlistConfig.name,
+            tracks: filterTracks({ tracks, playlistConfig }),
+          }),
+        );
 
-    return asyncSeries<engine.PlaylistWithTracks>(
-      inputs.map(input => async () => ({
-        ...(await this.engineDb.createOrUpdatePlaylist(input)),
-        tracks: input.tracks,
-      })),
-    );
+        const numEmpty = inputs.filter(x => !x.tracks.length).length;
+        if (numEmpty) {
+          ctx.warn(
+            chalk`Built {blue ${inputs.length.toString()}} smart playlists, but {yellow ${numEmpty.toString()}} didn't match any tracks`,
+          );
+        } else {
+          ctx.succeed(
+            chalk`Built {blue ${inputs.length.toString()}} smart playlists`,
+          );
+        }
+        inputs.forEach(({ title, tracks }) => {
+          if (tracks.length) {
+            this.log(
+              chalk`    {blue ${title}} [{green ${tracks.length.toString()}} tracks]`,
+            );
+          } else {
+            this.log(chalk`    {blue ${title}} [{yellow 0} tracks]`);
+          }
+        });
+
+        return inputs;
+      },
+    });
+
+    await spinner({
+      text: 'Save smart playlists to Engine',
+      run: async () =>
+        asyncSeries<engine.PlaylistWithTracks>(
+          inputs.map(input => async () => ({
+            ...(await this.engineDb.createOrUpdatePlaylist(input)),
+            tracks: input.tracks,
+          })),
+        ),
+    });
   }
 }
 

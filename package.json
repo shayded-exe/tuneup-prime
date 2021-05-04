@@ -48,7 +48,7 @@
       "@oclif/plugin-warn-if-update-available"
     ],
     "warn-if-update-available": {
-      "timeoutInDays": 2,
+      "timeoutInDays": 1,
       "message": "Update available from <%=chalk.yellow(config.version)%> to <%=chalk.greenBright(latest)%>"
     }
   },
@@ -72,7 +72,6 @@
     "ajv": "8.1.0",
     "chalk": "2.4.2",
     "chalk-animation": "1.6.0",
-    "cli-ux": "5.5.1",
     "conf": "10.0.1",
     "figlet": "1.5.0",
     "gradient-string": "1.2.0",
@@ -81,6 +80,7 @@
     "knex": "0.95.4",
     "lodash": "4.17.21",
     "moment": "2.29.1",
+    "ora": "5.4.0",
     "sqlite3": "5.0.2",
     "terminal-link": "2.1.1",
     "true-case-path": "2.2.1",

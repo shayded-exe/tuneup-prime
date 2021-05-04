@@ -7,7 +7,7 @@ import { trueCasePath } from 'true-case-path';
 
 import { appConf, AppConfKey } from '../../conf';
 import * as engine from '../../engine';
-import { checkPathExists, checkPathIsDir } from '../../utils';
+import { checkPathExists, checkPathIsDir, spinner } from '../../utils';
 
 export default prerunEngineLibrary;
 
@@ -31,10 +31,12 @@ export const prerunEngineLibrary: Hook<'prerun'> = async function () {
     appConf.set(AppConfKey.EngineLibraryFolder, folder);
   }
 
-  const { version } = await engine.detectLibraryVersion(folder);
-  this.log('Engine library:');
-  this.log(chalk`\t{blue ${folder}} [{green v${version}}]`);
-  this.log('');
+  const version = await spinner({
+    text: 'Detecting Engine library',
+    run: async () => engine.getLibraryInfo(folder).then(x => x.version),
+  });
+
+  this.log(chalk`  [{green v${version}}] {blue ${folder}}`);
 };
 
 async function promptForLibraryFolder(): Promise<string> {
@@ -61,7 +63,7 @@ async function validateLibraryFolder(folder: string): Promise<true | string> {
   }
 
   try {
-    await engine.detectLibraryVersion(folder);
+    await engine.getLibraryInfo(folder);
   } catch {
     return `Path isn't an Engine library`;
   }

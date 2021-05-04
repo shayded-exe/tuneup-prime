@@ -1,4 +1,5 @@
 import fs from 'fs';
+import ora from 'ora';
 import path from 'path';
 
 export async function asyncSeries<T>(
@@ -11,6 +12,30 @@ export async function asyncSeries<T>(
   }
 
   return results;
+}
+
+export async function spinner<T = void>({
+  run,
+  ...options
+}: ora.Options & {
+  run: (ctx: ora.Ora) => Promise<T>;
+}): Promise<T> {
+  const ctx = ora({
+    spinner: 'dots3',
+    ...options,
+  }).start();
+
+  try {
+    const result = await run(ctx);
+    if (ctx.isSpinning) {
+      ctx.succeed();
+    }
+
+    return result;
+  } catch (e) {
+    ctx.fail(e.message);
+    throw e;
+  }
 }
 
 export async function checkPathExists(path: string): Promise<boolean> {

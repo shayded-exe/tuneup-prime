@@ -1,10 +1,6 @@
 ## Future
 
-### v1.1.1
-
-- Prettier, uniform, command output
-
-### Unknown
+### Unknown Version
 
 - Standalone builds
 - (relocate) More complex file matching
@@ -14,8 +10,20 @@
 - (smart) Filter on camelot key
 - (smart) Filter on source playlist
 - Better auto backup (don't overwrite, store in folder, maybe don't backup until before save op)
+- More detailed library version detection and validation
+- Multiple library switching
+- Non-interactive mode with command args
 
 ## Released
+
+### v1.1.1
+
+- Prettier, uniform, command output
+
+### v1.1.0
+
+- Autoupdate
+- (smart) Numeric filters
 
 ### v1.0.0
 
@@ -26,8 +34,3 @@
 - (relocate) Track relocation
 - Auto backup
 - ASCII ART
-
-### v1.1.0
-
-- Autoupdate
-- (smart) Numeric filters

@@ -83,16 +83,18 @@ export class EngineDB_1_6 extends EngineDB {
             .delete();
         }
 
-        await trx<schema.ListTrackList>('ListTrackList').insert(
-          input.tracks.map<schema.NewListTrackList>((track, i) => ({
-            listId: playlistId!,
-            listType: schema.ListType.Playlist,
-            trackId: track.id,
-            trackIdInOriginDatabase: track.id,
-            trackNumber: i + 1,
-            databaseUuid: this.databaseUuid,
-          })),
-        );
+        if (input.tracks.length) {
+          await trx<schema.ListTrackList>('ListTrackList').insert(
+            input.tracks.map<schema.NewListTrackList>((track, i) => ({
+              listId: playlistId!,
+              listType: schema.ListType.Playlist,
+              trackId: track.id,
+              trackIdInOriginDatabase: track.id,
+              trackNumber: i + 1,
+              databaseUuid: this.databaseUuid,
+            })),
+          );
+        }
 
         return playlist!;
       },
