@@ -39,6 +39,7 @@
     "helpClass": "./lib/help",
     "hooks": {
       "prerun": [
+        "./lib/hooks/init/init-conf",
         "./lib/hooks/prerun/prerun-engine-library"
       ]
     },
