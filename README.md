@@ -4,9 +4,9 @@
 
 &nbsp;&nbsp;_by [SHAYDED](http://shayded.com)_
 
-- [🚀 Installation](#-installation)
-- [❓ How To Use](#-how-to-use)
-- [🔨 Commands](#-commands)
+- 🚀 [Installation](#-installation)
+- ❓ [How To Use](#-how-to-use)
+- 🔨 [Commands](#-commands)
 
 ## 🌟 Features
 
@@ -39,7 +39,7 @@ $ enjinn
 #### Updating
 
 ```
-$ enjinn update
+$ npm install -g enjinn@latest
 ```
 
 > ENJINN will notify you when an update is available.
@@ -65,8 +65,8 @@ In the future, you'll be able to specify multiple Engine libraries and even swit
 
 ## 🔨 Commands
 
-- [`smart` - Generate smart playlists](#smart)
-- [`relocate` - Relocate missing tracks](#relocate)
+- 🧠 [`smart` - Generate smart playlists](#-smart)
+- 🔍 [`relocate` - Relocate missing tracks](#-relocate)
 
 ### 🧠 Smart
 
