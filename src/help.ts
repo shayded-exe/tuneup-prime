@@ -6,6 +6,8 @@ import { partialRight } from 'lodash';
 import { EOL } from 'os';
 import terminalLink from 'terminal-link';
 
+import { isStandalone } from './utils';
+
 export default class EnjinnHelp extends Help {
   showRootHelp() {
     const figletText = figlet.textSync('ENJINN', {
@@ -32,6 +34,14 @@ export default class EnjinnHelp extends Help {
     });
     console.log(chalk`  {blue ${gitHubLink}}${EOL}`);
 
+    if (!isStandalone()) {
+      this.showDonationLinks();
+    }
+
+    super.showRootHelp();
+  }
+
+  private showDonationLinks() {
     console.log(
       chalk`If this tool saved you some headache, please consider donating a few bucks!`,
     );
@@ -45,7 +55,5 @@ export default class EnjinnHelp extends Help {
       'https://paypal.me/SHAYDEDmusic',
     );
     console.log(chalk`  PayPal {blue ${payPalLink}}${EOL}`);
-
-    super.showRootHelp();
   }
 }

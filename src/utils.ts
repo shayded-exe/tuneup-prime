@@ -2,6 +2,10 @@ import fs from 'fs';
 import ora from 'ora';
 import path from 'path';
 
+export function isStandalone(): boolean {
+  return __dirname.includes('snapshot');
+}
+
 export async function asyncSeries<T>(
   asyncFuncs: readonly (() => Promise<T>)[],
 ): Promise<T[]> {

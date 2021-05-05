@@ -36,7 +36,7 @@ export const prerunEngineLibrary: Hook<'prerun'> = async function () {
     run: async () => engine.getLibraryInfo(folder).then(x => x.version),
   });
 
-  this.log(chalk`  [{green v${version}}] {blue ${folder}}`);
+  this.log(chalk`    [{green v${version}}] {blue ${folder}}`);
 };
 
 async function promptForLibraryFolder(): Promise<string> {

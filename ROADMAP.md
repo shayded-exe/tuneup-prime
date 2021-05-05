@@ -1,8 +1,11 @@
 ## Future
 
+### v1.1.2
+
+- Standalone build
+
 ### Unknown Version
 
-- Standalone builds
 - (relocate) More complex file matching
 - (relocate) Support source playlist filter
 - (smart) Filter on multiple fields in one rule

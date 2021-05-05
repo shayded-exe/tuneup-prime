@@ -13,5 +13,9 @@
     "listr",
     "metas"
   ],
+  "files.exclude": {
+    "lib": true,
+    "oclif.manifest.json": true
+  },
   "typescript.tsdk": "node_modules\\typescript\\lib"
 }
