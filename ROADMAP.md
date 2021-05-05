@@ -1,9 +1,5 @@
 ## Future
 
-### v1.1.2
-
-- Standalone build
-
 ### Unknown Version
 
 - (relocate) More complex file matching
@@ -18,6 +14,10 @@
 - Non-interactive mode with command args
 
 ## Released
+
+### v1.1.2
+
+- Standalone build
 
 ### v1.1.1
 
