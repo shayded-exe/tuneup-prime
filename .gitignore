@@ -1,6 +1,8 @@
-dist
 lib
+dist
+tmp
 
+npm-shrinkwrap.json
 oclif.manifest.json
 tsconfig.tsbuildinfo
 
