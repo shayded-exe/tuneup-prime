@@ -1,4 +1,6 @@
-## Future
+### v1.2.0
+
+- (import) Import playlists from external libraries
 
 ### Unknown Version
 
@@ -12,28 +14,3 @@
 - More detailed library version detection and validation
 - Multiple library switching
 - Non-interactive mode with command args
-
-## Released
-
-### v1.1.2
-
-- Standalone build
-
-### v1.1.1
-
-- Prettier, uniform, command output
-
-### v1.1.0
-
-- Autoupdate
-- (smart) Numeric filters
-
-### v1.0.0
-
-- First time run setup
-- Support Engine 1.6 DB
-- (smart) Filter logic groups (AND, OR)
-- (smart) Clear playlist if it already exists
-- (relocate) Track relocation
-- Auto backup
-- ASCII ART
