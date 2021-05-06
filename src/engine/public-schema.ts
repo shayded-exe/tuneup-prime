@@ -14,10 +14,6 @@ export interface Playlist {
   path: string;
 }
 
-export interface PlaylistWithTracks extends Playlist {
-  tracks: Track[];
-}
-
 export interface PlaylistInput {
   title: string;
   parentListId?: number;

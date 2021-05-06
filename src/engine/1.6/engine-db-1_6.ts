@@ -3,9 +3,14 @@ import { camelCase, groupBy, transform } from 'lodash';
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import * as publicSchema from '../public-schema';
+import { EngineVersion } from '../version-detection';
 import * as schema from './schema-1_6';
 
 export class EngineDB_1_6 extends EngineDB {
+  get version(): EngineVersion {
+    return EngineVersion.V1_6;
+  }
+
   static async connect(dbPath: string): Promise<EngineDB_1_6> {
     const db = new EngineDB_1_6(dbPath);
     await db.init();

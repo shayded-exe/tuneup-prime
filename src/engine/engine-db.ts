@@ -3,11 +3,14 @@ import knex, { Knex } from 'knex';
 
 import * as schema from './public-schema';
 import { SQLITE_SEQUENCE } from './sqlite-types';
+import { EngineVersion } from './version-detection';
 
 export abstract class EngineDB {
   protected readonly knex: Knex;
 
   protected databaseUuid!: string;
+
+  abstract get version(): EngineVersion;
 
   protected constructor(private readonly dbPath: string) {
     this.knex = knex({

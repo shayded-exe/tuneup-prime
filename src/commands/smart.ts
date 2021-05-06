@@ -67,11 +67,10 @@ export default class Smart extends BaseEngineCommand {
     await spinner({
       text: 'Save smart playlists to Engine',
       run: async () =>
-        asyncSeries<engine.PlaylistWithTracks>(
-          inputs.map(input => async () => ({
-            ...(await this.engineDb.createOrUpdatePlaylist(input)),
-            tracks: input.tracks,
-          })),
+        asyncSeries(
+          inputs.map(input => async () =>
+            this.engineDb.createOrUpdatePlaylist(input),
+          ),
         ),
     });
   }
