@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Don't want to have to worry about automatically breaking people's shit if I fuck up
+process.env.ENJINN_DISABLE_AUTOUPDATE = true;
+
 require('@oclif/command') //
   .run()
   .then(require('@oclif/command/flush'))
