@@ -11,7 +11,11 @@ import { checkPathExists, checkPathIsDir, spinner } from '../../utils';
 
 export default prerunEngineLibrary;
 
-export const prerunEngineLibrary: Hook<'prerun'> = async function () {
+export const prerunEngineLibrary: Hook<'prerun'> = async function (ctx) {
+  if (ctx.Command.id === 'update') {
+    return;
+  }
+
   let needsUpdate = false;
   let folder = appConf.get(AppConfKey.EngineLibraryFolder);
 
@@ -31,12 +35,15 @@ export const prerunEngineLibrary: Hook<'prerun'> = async function () {
     appConf.set(AppConfKey.EngineLibraryFolder, folder);
   }
 
-  const version = await spinner({
+  await spinner({
     text: 'Detecting Engine library',
-    run: async () => engine.getLibraryInfo(folder).then(x => x.version),
+    run: async ctx => {
+      const { version } = await engine.getLibraryInfo(folder);
+      ctx.succeed(chalk`Detected Engine library [{green v${version}}]`);
+    },
   });
 
-  this.log(chalk`    [{green v${version}}] {blue ${folder}}`);
+  this.log(chalk`    {blue ${folder}}`);
 };
 
 async function promptForLibraryFolder(): Promise<string> {

@@ -38,8 +38,11 @@
     "commands": "./lib/commands",
     "helpClass": "./lib/help",
     "hooks": {
-      "prerun": [
+      "init": [
         "./lib/hooks/init/init-conf",
+        "./lib/hooks/init/init-update"
+      ],
+      "prerun": [
         "./lib/hooks/prerun/prerun-engine-library"
       ]
     },

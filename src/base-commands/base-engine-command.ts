@@ -20,7 +20,11 @@ export abstract class BaseEngineCommand extends Command {
   protected async connectToEngine() {
     this.engineDb = await spinner({
       text: 'Connect to Engine DB',
-      run: async () => engine.connect(this.libraryFolder),
+      run: async ctx => {
+        const db = await engine.connect(this.libraryFolder);
+        ctx.succeed('Connected to Engine DB');
+        return db;
+      },
     });
   }
 
