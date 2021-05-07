@@ -2,6 +2,8 @@ lib
 dist
 tmp
 
+*.code-workspace
+
 npm-shrinkwrap.json
 oclif.manifest.json
 tsconfig.tsbuildinfo
