@@ -51,6 +51,11 @@
       "@oclif/plugin-update",
       "@oclif/plugin-warn-if-update-available"
     ],
+    "update": {
+      "s3": {
+        "bucket": "enjinn-releases"
+      }
+    },
     "warn-if-update-available": {
       "timeoutInDays": 1,
       "message": "Update available from <%=chalk.yellow(config.version)%> to <%=chalk.greenBright(latest)%>"
