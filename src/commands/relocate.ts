@@ -97,11 +97,9 @@ export default class Relocate extends BaseEngineCommand {
     ): Promise<true | string> {
       if (!(await checkPathExists(folder))) {
         return `Path doesn't exist`;
-      }
-      if (!(await checkPathIsDir(folder))) {
+      } else if (!(await checkPathIsDir(folder))) {
         return `Path isn't a folder`;
-      }
-      if (!path.isAbsolute(folder)) {
+      } else if (!path.isAbsolute(folder)) {
         return 'Path must be absolute';
       }
       return true;

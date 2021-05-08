@@ -1,5 +1,6 @@
 import Command from '@oclif/command';
 import gradient from 'gradient-string';
+import inquirer from 'inquirer';
 
 import { activateLicense } from '../licensing';
 import { spinner } from '../utils';
@@ -8,27 +9,18 @@ export class Activate extends Command {
   static readonly description =
     'unlock the full version of ENJINN with a license key';
 
-  static readonly args = [
-    {
-      name: 'license_key',
-      required: true,
-    },
-  ];
-
   async run() {
     if (Activate.hidden) {
       return;
     }
 
-    const {
-      args: { license_key },
-    } = this.parse(Activate);
+    const licenseKey = await this.promptForLicenseKey();
 
     await spinner({
       text: 'Activating license',
       run: async ctx => {
         try {
-          const result = await activateLicense(license_key);
+          const result = await activateLicense(licenseKey);
           if (!result) {
             ctx.fail(`License isn't valid`);
             return;
@@ -46,5 +38,26 @@ export class Activate extends Command {
         );
       },
     });
+  }
+
+  private async promptForLicenseKey(): Promise<string> {
+    function validateLicenseKey(licenseKey: string): true | string {
+      const LICENSE_KEY_REGEX = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/;
+      const sampleFormat = Array(4).fill('X'.repeat(8)).join('-');
+
+      if (!LICENSE_KEY_REGEX.test(licenseKey)) {
+        return `Format is invalid. Should look like '${sampleFormat}'`;
+      }
+      return true;
+    }
+
+    const { licenseKey } = await inquirer.prompt<{ licenseKey: string }>({
+      type: 'input',
+      name: 'licenseKey',
+      message: 'What is your license key?',
+      validate: validateLicenseKey,
+    });
+
+    return licenseKey;
   }
 }
