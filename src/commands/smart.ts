@@ -5,7 +5,10 @@ import { BaseEngineCommand } from '../base-commands';
 import * as engine from '../engine';
 import { LibraryConfigFile, readLibraryConfig } from '../library-config';
 import * as def from '../library-config/smart-playlist';
+import { licenseState, LicenseState } from '../licensing';
 import { asyncSeries, spinner } from '../utils';
+
+const MAX_FREE_PLAYLISTS = 5;
 
 export default class Smart extends BaseEngineCommand {
   static readonly description = 'generate smart playlists';
@@ -17,12 +20,16 @@ export default class Smart extends BaseEngineCommand {
   }
 
   async run() {
-    await this.connectToEngine();
     this.libraryConfig = await readLibraryConfig(this.libraryFolder);
+    if (!this.checkLicense()) {
+      return;
+    }
 
     if (this.smartPlaylists.some(x => x.sources)) {
       this.warn('"sources" filter not yet supported; ignoring...');
     }
+
+    await this.connectToEngine();
 
     const inputs = await spinner({
       text: 'Build smart playlists',
@@ -69,6 +76,32 @@ export default class Smart extends BaseEngineCommand {
         ),
     });
   }
+
+  private checkLicense(): boolean {
+    if (licenseState() === LicenseState.Licensed) {
+      return true;
+    }
+
+    const numPlaylists = this.smartPlaylists.length;
+    if (numPlaylists > MAX_FREE_PLAYLISTS) {
+      this.log(
+        chalk`{yellow Warning} The free version only supports up to {green ${MAX_FREE_PLAYLISTS.toString()}}, but you have {yellow ${numPlaylists.toString()}}.`,
+      );
+      return false;
+    }
+    const withNestedRules = this.smartPlaylists.filter(p =>
+      normalizeRuleGroup(p.rules).nodes.some(isNodeGroup),
+    );
+    if (withNestedRules.length) {
+      this.log(
+        chalk`{yellow Warning} The free version doesn't support nested rules. The following playlists contain nested rules:`,
+      );
+      withNestedRules.forEach(p => this.log(`    ${p.name}`));
+      return false;
+    }
+
+    return true;
+  }
 }
 
 function filterTracks({
@@ -81,29 +114,27 @@ function filterTracks({
   return tracks.filter(track => applyRuleGroup(track, playlistConfig.rules));
 }
 
-function applyRuleGroup(
-  track: engine.Track,
-  group: def.PlaylistRuleGroup,
-): boolean {
+interface NormalizedRuleGroup {
+  type: '&&' | '||';
+  nodes: def.PlaylistRuleNode[];
+}
+
+function normalizeRuleGroup(group: def.PlaylistRuleGroup): NormalizedRuleGroup {
   function isAndRuleGroup(
     group: def.PlaylistRuleGroup,
   ): group is def.PlaylistRuleAndGroup {
     return 'and' in group;
   }
 
-  interface NormalizedRuleGroup {
-    type: '&&' | '||';
-    nodes: def.PlaylistRuleNode[];
-  }
+  return isAndRuleGroup(group)
+    ? { type: '&&', nodes: group.and }
+    : { type: '||', nodes: group.or };
+}
 
-  function normalizeRuleGroup(
-    group: def.PlaylistRuleGroup,
-  ): NormalizedRuleGroup {
-    return isAndRuleGroup(group)
-      ? { type: '&&', nodes: group.and }
-      : { type: '||', nodes: group.or };
-  }
-
+function applyRuleGroup(
+  track: engine.Track,
+  group: def.PlaylistRuleGroup,
+): boolean {
   const { type, nodes } = normalizeRuleGroup(group);
 
   const results = nodes.map(n => applyRuleNode(track, n));
@@ -112,16 +143,16 @@ function applyRuleGroup(
   return operator(results);
 }
 
+function isNodeGroup(
+  node: def.PlaylistRuleNode,
+): node is def.PlaylistRuleGroup {
+  return 'and' in node || 'or' in node;
+}
+
 function applyRuleNode(
   track: engine.Track,
   node: def.PlaylistRuleNode,
 ): boolean {
-  function isNodeGroup(
-    node: def.PlaylistRuleNode,
-  ): node is def.PlaylistRuleGroup {
-    return 'and' in node || 'or' in node;
-  }
-
   return isNodeGroup(node)
     ? applyRuleGroup(track, node)
     : applyRule(track, node);

@@ -100,7 +100,7 @@ $ enjinn activate
 
 The free version has several restrictions:
 
-- Smart playlists: Up to 5 playlists, 2 filters each
+- Smart playlists: Up to 5 playlists, no nested filters
 - Relocate: Basic macthing only. Premium will add the ability to fix individual tracks as well as handle renamed files.
 - Playlist import: Will be premium only.
 

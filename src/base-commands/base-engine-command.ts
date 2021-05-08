@@ -14,7 +14,7 @@ export abstract class BaseEngineCommand extends Command {
   }
 
   protected async finally() {
-    await this.engineDb.disconnect();
+    await this.engineDb?.disconnect();
   }
 
   protected async connectToEngine() {
