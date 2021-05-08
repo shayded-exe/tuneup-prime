@@ -10,7 +10,7 @@ export abstract class BaseEngineCommand extends Command {
   protected engineDb!: engine.EngineDB;
 
   protected async init() {
-    this.libraryFolder = appConf.get(AppConfKey.EngineLibraryFolder);
+    this.libraryFolder = appConf().get(AppConfKey.EngineLibraryFolder);
   }
 
   protected async finally() {

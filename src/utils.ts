@@ -1,6 +1,9 @@
 import fs from 'fs';
+import { partialRight } from 'lodash';
+import fetch, { RequestInfo, RequestInit, Response } from 'node-fetch';
 import ora from 'ora';
 import path from 'path';
+import terminalLink from 'terminal-link';
 
 export function isStandalone(): boolean {
   return __dirname.includes('snapshot');
@@ -17,6 +20,10 @@ export async function asyncSeries<T>(
 
   return results;
 }
+
+export const urlFallbackLink = partialRight(terminalLink, {
+  fallback: (_, url) => url,
+});
 
 export async function spinner<T = void>({
   run,
@@ -101,4 +108,20 @@ export async function getFilesInDir({
   }
 
   return filesWithPath;
+}
+
+export async function postJson<T = object>(
+  url: RequestInfo,
+  body: T,
+  opts?: RequestInit,
+): Promise<Response> {
+  return fetch(url, {
+    ...opts,
+    method: 'POST',
+    headers: {
+      ...opts?.headers,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
 }

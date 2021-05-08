@@ -5,6 +5,7 @@ import os from 'os';
 import path from 'path';
 import { trueCasePath } from 'true-case-path';
 
+import { Activate } from '../../commands/activate';
 import { appConf, AppConfKey } from '../../conf';
 import * as engine from '../../engine';
 import { checkPathExists, checkPathIsDir, spinner } from '../../utils';
@@ -12,12 +13,12 @@ import { checkPathExists, checkPathIsDir, spinner } from '../../utils';
 export default prerunEngineLibrary;
 
 export const prerunEngineLibrary: Hook<'prerun'> = async function (ctx) {
-  if (ctx.Command.id === 'update') {
+  if ([Activate.id, 'update'].includes(ctx.Command.id)) {
     return;
   }
 
   let needsUpdate = false;
-  let folder = appConf.get(AppConfKey.EngineLibraryFolder);
+  let folder = appConf().get(AppConfKey.EngineLibraryFolder);
 
   if (!folder) {
     needsUpdate = true;
@@ -32,7 +33,7 @@ export const prerunEngineLibrary: Hook<'prerun'> = async function (ctx) {
 
   if (needsUpdate) {
     folder = await promptForLibraryFolder();
-    appConf.set(AppConfKey.EngineLibraryFolder, folder);
+    appConf().set(AppConfKey.EngineLibraryFolder, folder);
   }
 
   await spinner({

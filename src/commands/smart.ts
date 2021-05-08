@@ -1,4 +1,3 @@
-import { flags } from '@oclif/command';
 import chalk from 'chalk';
 import { every, some } from 'lodash';
 
@@ -10,10 +9,6 @@ import { asyncSeries, spinner } from '../utils';
 
 export default class Smart extends BaseEngineCommand {
   static readonly description = 'generate smart playlists';
-
-  static readonly flags = {
-    help: flags.help({ char: 'h' }),
-  };
 
   private libraryConfig!: LibraryConfigFile;
 

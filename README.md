@@ -28,12 +28,26 @@ If there's a feature you'd like added that would be useful to you, please open a
 
 ## 🚀 Installation
 
-Requires [NodeJS v14+](https://nodejs.org/en/)  
-_Standalone version coming soon_
+### Standalone version
+
+The standalone version can be purchased on [Gumroad](https://gum.co/enjinn).
+
+#### Updating
+
+```
+$ enjinn update
+```
+
+> ENJINN will notify you when an update is available.
+
+### npm version
+
+You can also install ENJINN with `npm`.
+
+Requires [NodeJS v14+](https://nodejs.org/en/)
 
 ```
 $ npm install -g enjinn
-$ enjinn
 ```
 
 #### Updating
@@ -42,12 +56,10 @@ $ enjinn
 $ npm install -g enjinn@latest
 ```
 
-> ENJINN will notify you when an update is available.
-
 ## ❓ How To Use
 
 ```
-$ enjinn [COMMAND]
+$ enjinn
 ```
 
 [Available commands](#-commands)
