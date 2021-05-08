@@ -28,9 +28,9 @@ If there's a feature you'd like added that would be useful to you, please open a
 
 ## 🚀 Installation
 
-### Standalone version
+ENJINN can be purchased on [Gumroad](https://gum.co/enjinn).
 
-The standalone version can be purchased on [Gumroad](https://gum.co/enjinn).
+After purchasing, simply download and run the installer.
 
 #### Updating
 
@@ -43,6 +43,8 @@ $ enjinn update
 ### npm version
 
 You can also install ENJINN with `npm`.
+
+_You will still need to [purchase a license key](https://gum.co/enjinn) to use all features._
 
 Requires [NodeJS v14+](https://nodejs.org/en/)
 
@@ -58,11 +60,43 @@ $ npm install -g enjinn@latest
 
 ## ❓ How To Use
 
+ENJINN is a command line app, which means you will need to run it from your terminal.
+
+Depending on your OS, here's how you can open up a terminal:
+
+#### Windows 10
+
+- Press `Windows Key` and `R` on your keyboard
+- Type `cmd` and hit `enter`
+
+#### macOS
+
+- Press `Command` and `space` on your keyboard
+- Type `terminal` and hit `enter`
+
+Once your terminal is open, simply run the `enjinn` command to view the help info.
+
+> Only type the text _after_ the `$`
+
 ```
 $ enjinn
 ```
 
 [Available commands](#-commands)
+
+### Activating
+
+To use all features of ENJINN, you need to activate it with a [license key](https://gum.co/enjinn).
+
+> ENJINN only requires an internet connection during activation and never again.
+
+To activate ENJINN, run the `activate` command. Paste in your license key when prompted and you're all set!
+
+```
+$ enjinn activate
+```
+
+### Library configuration
 
 The first time you run a command, it will ask you to enter the location of your Engine library.
 
