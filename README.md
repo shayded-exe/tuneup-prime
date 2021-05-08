@@ -96,6 +96,14 @@ To activate ENJINN, run the `activate` command. Paste in your license key when p
 $ enjinn activate
 ```
 
+### Free vs Paid
+
+The free version has several restrictions:
+
+- Smart playlists: Up to 5 playlists, 200 tracks each.
+- Relocate: Basic macthing only. Premium will add the ability to fix individual tracks as well as handle renamed files.
+- Playlist import: Will be premium only.
+
 ### Library configuration
 
 The first time you run a command, it will ask you to enter the location of your Engine library.
