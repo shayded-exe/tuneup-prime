@@ -61,18 +61,6 @@
       "message": "Update available from <%=chalk.yellow(config.version)%> to <%=chalk.greenBright(latest)%>"
     }
   },
-  "pkg": {
-    "scripts": "./lib/**/*.js",
-    "assets": [
-      "./oclif.manifest.json",
-      "./node_modules/figlet/fonts/Jacky.flf"
-    ],
-    "targets": [
-      "node14-win-x64",
-      "node14-macos-x64"
-    ],
-    "outputPath": "dist"
-  },
   "files": [
     "/bin",
     "/lib",
@@ -81,8 +69,7 @@
   ],
   "scripts": {
     "build": "shx rm -rf lib && tsc -b",
-    "prepkg": "shx rm -rf dist && npm run build && oclif-dev manifest",
-    "pkg": "pkg .",
+    "build:standalone": "shx rm -rf pack && npx webpack && node scripts/build-standalone.js",
     "prerelease": "npm run build && npm shrinkwrap",
     "release": "np --no-tests --message v%s",
     "prepack": "npm run build && oclif-dev manifest && shx cp package-lock.json npm-shrinkwrap.json",
@@ -118,6 +105,7 @@
     "@types/chalk": "2.2.0",
     "@types/chalk-animation": "1.6.0",
     "@types/figlet": "1.5.1",
+    "@types/fs-extra": "9.0.11",
     "@types/gradient-string": "1.1.1",
     "@types/inquirer": "7.3.1",
     "@types/js-yaml": "4.0.1",
@@ -125,10 +113,17 @@
     "@types/node": "14.14.41",
     "@types/node-fetch": "2.5.10",
     "@types/node-rsa": "1.1.0",
+    "aws-sdk": "2.903.0",
+    "fs-extra": "8.1.0",
+    "json-loader": "0.5.7",
+    "node-loader": "2.0.0",
     "np": "7.5.0",
     "pkg": "5.1.0",
     "shx": "0.3.3",
+    "ts-loader": "9.1.2",
     "ts-node": "9.1.1",
-    "typescript": "4.2.4"
+    "typescript": "4.2.4",
+    "webpack": "5.36.2",
+    "webpack-cli": "4.7.0"
   }
 }

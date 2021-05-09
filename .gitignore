@@ -1,6 +1,7 @@
-lib
-dist
-tmp
+/dist
+/lib
+/pack
+/tmp
 
 *.code-workspace
 
