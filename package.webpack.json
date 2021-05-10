@@ -1,0 +1,21 @@
+{
+  "files": [
+    "/bin",
+    "/lib",
+    "/fonts",
+    "package-lock.json",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "prepack": "oclif-dev manifest && npm install --package-lock-only"
+  },
+  "dependencies": {
+    "@oclif/command": "",
+    "@oclif/config": "",
+    "@oclif/plugin-help": "",
+    "@oclif/plugin-update": "",
+    "@oclif/plugin-warn-if-update-available": "",
+    "knex": "",
+    "sqlite3": ""
+  }
+}

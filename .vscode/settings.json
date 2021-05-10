@@ -8,6 +8,7 @@
     "SHAYDED",
     "Venmo",
     "enjinn",
+    "execa",
     "keyby",
     "khaled",
     "listr",
@@ -15,8 +16,8 @@
   ],
   "files.exclude": {
     "lib": true,
-    "tmp": true,
-    "oclif.manifest.json": true
+    "pack": true,
+    "tmp": true
   },
   "typescript.tsdk": "node_modules/typescript/lib"
 }
