@@ -73,6 +73,7 @@ export default class Relocate extends BaseEngineCommand {
 
     await spinner({
       text: 'Save relocated tracks to Engine',
+      successMessage: 'Saved relocated tracks to Engine',
       run: async () => this.engineDb.updateTrackPaths(relocated),
     });
   }

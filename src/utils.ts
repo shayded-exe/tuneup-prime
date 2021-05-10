@@ -30,6 +30,7 @@ export async function spinner<T = void>({
   ...options
 }: ora.Options & {
   run: (ctx: ora.Ora) => Promise<T>;
+  successMessage?: string;
 }): Promise<T> {
   const ctx = ora({
     spinner: 'dots3',
@@ -39,7 +40,7 @@ export async function spinner<T = void>({
   try {
     const result = await run(ctx);
     if (ctx.isSpinning) {
-      ctx.succeed();
+      ctx.succeed(options.successMessage);
     }
 
     return result;
