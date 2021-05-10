@@ -1,5 +1,4 @@
-// @ts-check
-const fs = require('fs');
+const execa = require('execa');
 const fse = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
@@ -9,9 +8,10 @@ const BIN_DIR = 'bin';
 const PACK_DIR = 'pack';
 
 async function run() {
-  await makePackage();
-  await copyBin();
-  await copyFonts();
+  // await makePackage();
+  // await copyBin();
+  // await copyFonts();
+  await pack();
 }
 
 async function makePackage() {
@@ -44,6 +44,20 @@ async function copyFonts() {
   for (let font of fonts) {
     await fse.copy(fontFile(font), outFile(font));
   }
+}
+
+async function pack() {
+  const packScript = root('scripts', 'pack.sh');
+  const packTarget = async target => {
+    console.log(`Packing ${target}`);
+    const sub = execa('bash', [packScript, target]);
+    sub.stdout.pipe(process.stdout);
+    await sub;
+    await fse.remove(root(PACK_DIR, 'tmp'));
+  };
+
+  await packTarget('win');
+  await packTarget('macos');
 }
 
 run().catch(e => console.error(e));
