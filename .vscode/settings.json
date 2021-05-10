@@ -12,7 +12,8 @@
     "keyby",
     "khaled",
     "listr",
-    "metas"
+    "metas",
+    "nsis"
   ],
   "files.exclude": {
     "lib": true,
