@@ -43,7 +43,9 @@ jobs:
 
       - name: Get package.json version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@master
+        run: |
+          PACKAGE_VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+          echo ::set-output name=current-version::$PACKAGE_VERSION
 
       - name: Run webpack
         run: npm run standalone:webpack
