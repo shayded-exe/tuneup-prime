@@ -3,6 +3,8 @@ name: Standalone CI
 on:
   - workflow_dispatch
   # push:
+  #   tags:
+  #     - 'v*.*.*'
   #   branches: [$default-branch]
   # pull_request:
   #   branches: [$default-branch]
