@@ -20,7 +20,7 @@ case $TARGET_PLATFORM in
         oclif-dev pack:win -r pack
         ;;
     "darwin")
-        oclif-dev pack -r pack -t darwin-x64,darwin-x86
+        oclif-dev pack -r pack -t darwin-x64
         oclif-dev pack:macos -r pack
         ;;
 esac
