@@ -56,8 +56,8 @@ async function pack() {
     await fse.remove(root(PACK_DIR, 'tmp'));
   };
 
-  await packTarget('win');
-  await packTarget('macos');
+  await packTarget('win32');
+  await packTarget('darwin');
 }
 
 run().catch(e => console.error(e));

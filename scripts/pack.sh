@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 TARGET_PLATFORM=$1
 
 if [ -z "$TARGET_PLATFORM" ]; then
-    echo 'A target platform (win/macos/deb) is required'
+    echo 'A target platform (linux/win32/darwin) is required'
     exit 1
 fi
 
@@ -15,11 +15,11 @@ export npm_config_platform=$TARGET_PLATFORM
 export npm_config_target_platform=$TARGET_PLATFORM
 
 case $TARGET_PLATFORM in
-    "win")
+    "win32")
         oclif-dev pack -r pack -t win32-x64,win32-x86
         oclif-dev pack:win -r pack
         ;;
-    "macos")
+    "darwin")
         oclif-dev pack -r pack -t darwin-x64,darwin-x86
         oclif-dev pack:macos -r pack
         ;;
