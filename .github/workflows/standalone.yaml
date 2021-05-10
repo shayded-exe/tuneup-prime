@@ -30,18 +30,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install node modules
-        run: npm ci
-
       - name: Cache node modules
         uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-node-
+
+      - name: Install node modules
+        run: npm ci
 
       - name: Run webpack
         run: npm run standalone:webpack
@@ -52,12 +50,20 @@ jobs:
 
       - name: Pack Windows
         if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: npm run standalone:pack:win
+
+      - name: Publish Windows
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          npm run standalone:pack:win
-          npm run standalone:publish:win
+          npx oclif-dev publish -r pack -t win32-x64,win32-x86
+          npx oclif-dev publish:win -r pack
 
       - name: Pack macOS
         if: ${{ matrix.os == 'macos-latest' }}
+        run: npm run standalone:pack:macos
+
+      - name: Publish macOS
+        if: ${{ matrix.os == 'macos-latest' }}
         run: |
-          npm run standalone:pack:macos
-          npm run standalone:publish:macos
+          npx oclif-dev publish -r pack -t darwin-x64
+          npx oclif-dev publish:macos -r pack

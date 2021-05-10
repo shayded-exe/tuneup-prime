@@ -78,9 +78,7 @@
     "postpack": "shx rm oclif.manifest.json npm-shrinkwrap.json",
     "standalone:webpack": "shx rm -rf pack && npx webpack && node scripts/post-webpack.js",
     "standalone:pack:win": "bash scripts/pack.sh win32",
-    "standalone:pack:macos": "bash scripts/pack.sh darwin",
-    "standalone:publish:win": "oclif-dev publish -r pack -t win32-x64,win32-x86",
-    "standalone:publish:macos": "oclif-dev publish -r pack -t darwin-x64"
+    "standalone:pack:macos": "bash scripts/pack.sh darwin"
   },
   "dependencies": {
     "@oclif/command": "1.8.0",
