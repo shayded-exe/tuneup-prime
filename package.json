@@ -72,7 +72,6 @@
   ],
   "scripts": {
     "build": "shx rm -rf lib && tsc -b",
-    "prerelease": "npm run build && npm shrinkwrap",
     "release": "np --no-tests --message v%s",
     "prepack": "npm run build && oclif-dev manifest && shx cp package-lock.json npm-shrinkwrap.json",
     "postpack": "shx rm oclif.manifest.json npm-shrinkwrap.json",
