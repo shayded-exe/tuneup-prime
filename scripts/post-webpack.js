@@ -8,10 +8,10 @@ const BIN_DIR = 'bin';
 const PACK_DIR = 'pack';
 
 async function run() {
-  // await makePackage();
-  // await copyBin();
-  // await copyFonts();
-  await pack();
+  await makePackage();
+  await copyBin();
+  await copyFonts();
+  // await pack();
 }
 
 async function makePackage() {

@@ -59,6 +59,9 @@
     "warn-if-update-available": {
       "timeoutInDays": 1,
       "message": "Update available from <%=chalk.yellow(config.version)%> to <%=chalk.greenBright(latest)%>"
+    },
+    "macos": {
+      "identifier": "com.shayded.enjinn"
     }
   },
   "files": [
@@ -69,11 +72,15 @@
   ],
   "scripts": {
     "build": "shx rm -rf lib && tsc -b",
-    "build:standalone": "shx rm -rf pack && npx webpack && node scripts/build-standalone.js",
     "prerelease": "npm run build && npm shrinkwrap",
     "release": "np --no-tests --message v%s",
     "prepack": "npm run build && oclif-dev manifest && shx cp package-lock.json npm-shrinkwrap.json",
-    "postpack": "shx rm oclif.manifest.json npm-shrinkwrap.json"
+    "postpack": "shx rm oclif.manifest.json npm-shrinkwrap.json",
+    "standalone:webpack": "shx rm -rf pack && npx webpack && node scripts/post-webpack.js",
+    "standalone:pack:win": "bash scripts/pack.sh win32",
+    "standalone:pack:macos": "bash scripts/pack.sh darwin",
+    "standalone:publish:win": "oclif-dev publish -r pack -t win32-x64,win32-x86",
+    "standalone:publish:macos": "oclif-dev publish -r pack -t darwin-x64"
   },
   "dependencies": {
     "@oclif/command": "1.8.0",

@@ -1,0 +1,36 @@
+name: Standalone CI
+
+on:
+  - workflow_dispatch
+  # push:
+  #   branches: [$default-branch]
+  # pull_request:
+  #   branches: [$default-branch]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run standalone:webpack
+      - name: Pack Windows
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          npm run standalone:pack:win
+          npm run standalone:publish:win
+      - name: Pack macOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          npm run standalone:pack:macos
+          npm run standalone:publish:macos
