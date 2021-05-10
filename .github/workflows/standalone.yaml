@@ -41,6 +41,10 @@ jobs:
       - name: Install node modules
         run: npm ci
 
+      - name: Get package.json version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
+
       - name: Run webpack
         run: npm run standalone:webpack
 
@@ -52,18 +56,34 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: npm run standalone:pack:win
 
-      - name: Publish Windows
+      - name: Publish Windows (tar)
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          npx oclif-dev publish -r pack -t win32-x64,win32-x86
-          npx oclif-dev publish:win -r pack
+        run: npx oclif-dev publish -r pack -t win32-x64,win32-x86
+
+      - name: Publish Windows (installer)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: 'pack/dist/win'
+          destination_dir: 'enjinn-v${{ steps.package-version.outputs.current-version }}'
 
       - name: Pack macOS
         if: ${{ matrix.os == 'macos-latest' }}
         run: npm run standalone:pack:macos
 
-      - name: Publish macOS
+      - name: Publish macOS (tar)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: |
-          npx oclif-dev publish -r pack -t darwin-x64
-          npx oclif-dev publish:macos -r pack
+        run: npx oclif-dev publish -r pack -t darwin-x64
+
+      - name: Publish macOS (installer)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: 'pack/dist/macos'
+          destination_dir: 'enjinn-v${{ steps.package-version.outputs.current-version }}'

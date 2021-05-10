@@ -12,8 +12,10 @@
     "keyby",
     "khaled",
     "listr",
+    "martinbeentjes",
     "metas",
-    "nsis"
+    "nsis",
+    "shallwefootball"
   ],
   "files.exclude": {
     "lib": true,
