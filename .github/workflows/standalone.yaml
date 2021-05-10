@@ -81,7 +81,7 @@ jobs:
         run: npx oclif-dev publish -r pack -t darwin-x64
 
       - name: Publish macOS (installer)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'macos-latest' }}
         uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
