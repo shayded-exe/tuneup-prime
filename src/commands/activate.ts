@@ -1,6 +1,6 @@
 import Command from '@oclif/command';
 import gradient from 'gradient-string';
-import inquirer from 'inquirer';
+import prompts from 'prompts';
 
 import { activateLicense } from '../licensing';
 import { spinner } from '../utils';
@@ -33,6 +33,7 @@ export class Activate extends Command {
         }
 
         ctx.succeed('Activated license');
+        this.log();
         this.log(
           gradient.morning('  Thanks for buying the full version of ENJINN!'),
         );
@@ -43,7 +44,8 @@ export class Activate extends Command {
 
   private async promptForLicenseKey(): Promise<string> {
     function validateLicenseKey(licenseKey: string): true | string {
-      const LICENSE_KEY_REGEX = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/;
+      const LICENSE_KEY_REGEX =
+        /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/;
       const sampleFormat = Array(4).fill('X'.repeat(8)).join('-');
 
       if (!LICENSE_KEY_REGEX.test(licenseKey)) {
@@ -52,13 +54,11 @@ export class Activate extends Command {
       return true;
     }
 
-    const { licenseKey } = await inquirer.prompt<{ licenseKey: string }>({
-      type: 'input',
+    return prompts<'licenseKey'>({
+      type: 'text',
       name: 'licenseKey',
       message: 'What is your license key?',
       validate: validateLicenseKey,
-    });
-
-    return licenseKey;
+    }).then(x => x.licenseKey);
   }
 }
