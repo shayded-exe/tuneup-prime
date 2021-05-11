@@ -2,7 +2,7 @@ import fs from 'fs';
 import { partialRight } from 'lodash';
 import fetch, { RequestInfo, RequestInit, Response } from 'node-fetch';
 import ora from 'ora';
-import path from 'path';
+import nodePath from 'path';
 import terminalLink from 'terminal-link';
 
 export function isStandalone(): boolean {
@@ -79,14 +79,20 @@ export async function checkPathIsFile(path: string): Promise<boolean> {
   }
 }
 
+export function resolvePathToCwdIfRelative(path: string): string {
+  return nodePath.isAbsolute(path)
+    ? path
+    : nodePath.resolve(process.cwd(), path);
+}
+
 export async function getFilesInDir({
-  path: _path,
+  path,
   maxDepth = 0,
 }: {
   path: string;
   maxDepth?: number;
 }): Promise<{ name: string; path: string }[]> {
-  const entries = await fs.promises.readdir(_path, {
+  const entries = await fs.promises.readdir(path, {
     withFileTypes: true,
   });
 
@@ -94,14 +100,14 @@ export async function getFilesInDir({
     .filter(x => x.isFile())
     .map(x => ({
       name: x.name,
-      path: path.resolve(_path, x.name),
+      path: nodePath.resolve(path, x.name),
     }));
 
   if (maxDepth > 0) {
     for (const dir of entries.filter(x => x.isDirectory())) {
       filesWithPath.push(
         ...(await getFilesInDir({
-          path: path.resolve(_path, dir.name),
+          path: nodePath.resolve(path, dir.name),
           maxDepth: maxDepth - 1,
         })),
       );

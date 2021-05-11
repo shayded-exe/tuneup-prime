@@ -1,14 +1,19 @@
 import { Hook } from '@oclif/config';
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 import os from 'os';
 import path from 'path';
+import prompts from 'prompts';
 import { trueCasePath } from 'true-case-path';
 
 import { Activate } from '../../commands/activate';
 import { appConf, AppConfKey } from '../../conf';
 import * as engine from '../../engine';
-import { checkPathExists, checkPathIsDir, spinner } from '../../utils';
+import {
+  checkPathExists,
+  checkPathIsDir,
+  resolvePathToCwdIfRelative,
+  spinner,
+} from '../../utils';
 
 export default prerunEngineLibrary;
 
@@ -48,15 +53,14 @@ export const prerunEngineLibrary: Hook<'prerun'> = async function (ctx) {
 };
 
 async function promptForLibraryFolder(): Promise<string> {
-  return inquirer
-    .prompt<{ folder: string }>({
-      type: 'input',
-      name: 'folder',
-      message: 'Where is your Engine library folder?',
-      default: path.join(os.homedir(), 'Music', 'Engine Library'),
-      validate: validateLibraryFolder,
-    })
-    .then(x => trueCasePath(x.folder));
+  return prompts<'folder'>({
+    type: 'text',
+    name: 'folder',
+    message: 'Where is your Engine library folder?',
+    initial: path.join(os.homedir(), 'Music', 'Engine Library'),
+    validate: v => validateLibraryFolder(resolvePathToCwdIfRelative(v)),
+    format: v => trueCasePath(resolvePathToCwdIfRelative(v)),
+  }).then(x => x.folder);
 }
 
 async function validateLibraryFolder(folder: string): Promise<true | string> {

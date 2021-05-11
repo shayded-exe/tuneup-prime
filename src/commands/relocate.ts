@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import inquirer from 'inquirer';
 import { keyBy, partition } from 'lodash';
 import path from 'path';
+import prompts from 'prompts';
 import { trueCasePath } from 'true-case-path';
 
 import { BaseEngineCommand } from '../base-commands';
@@ -10,6 +10,7 @@ import {
   checkPathExists,
   checkPathIsDir,
   getFilesInDir,
+  resolvePathToCwdIfRelative,
   spinner,
 } from '../utils';
 
@@ -39,7 +40,9 @@ export default class Relocate extends BaseEngineCommand {
       return;
     }
 
+    this.log();
     const searchFolder = await this.promptForSearchFolder();
+    this.log();
 
     const relocated = await spinner({
       text: 'Relocate missing tracks',
@@ -106,16 +109,13 @@ export default class Relocate extends BaseEngineCommand {
       return true;
     }
 
-    this.log();
-    const { searchFolder } = await inquirer.prompt<{ searchFolder: string }>({
-      type: 'input',
-      name: 'searchFolder',
+    return prompts<'folder'>({
+      type: 'text',
+      name: 'folder',
       message: 'What folder would you like to search for your tracks in?',
-      validate: validateSearchFolder,
-    });
-    this.log();
-
-    return trueCasePath(searchFolder);
+      validate: v => validateSearchFolder(resolvePathToCwdIfRelative(v)),
+      format: v => trueCasePath(resolvePathToCwdIfRelative(v)),
+    }).then(x => x.folder);
   }
 
   private async relocateMissingTracks({
