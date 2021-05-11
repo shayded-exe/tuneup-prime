@@ -1,10 +1,9 @@
 ---
-name: "\U0001F41B Bug report"
+name: '🐛 Bug report'
 about: Report something that isn't working as it should
 title: ''
 labels: bug
 assignees: rshea0
-
 ---
 
 <!--
@@ -14,6 +13,7 @@ assignees: rshea0
 -->
 
 ### Issue description
+
 <!--
   Please include any error messages you receive.
 -->
@@ -21,22 +21,27 @@ assignees: rshea0
 ### Steps to reproduce
 
 ### Screenshots
+
 <!--
   If applicable, please add screenshots to help explain your problem.
 -->
 
 ### ENJINN Version
+
 <!--
   Please copy and paste the version shown when you run ENJINN.
 
   It should look like this:
     enjinn/1.2.0 win32-x64 node-v14.16.1
 -->
+
 - **your version**
 
 ### OS
+
 <!--
   Please put an "x" in the box for your OS
 -->
+
 - [ ] Windows
 - [ ] macOS
