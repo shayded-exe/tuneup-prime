@@ -57,7 +57,7 @@ export default class EnjinnHelp extends Help {
       case LicenseState.Invalid:
         console.log(chalk.bgRed('LICENSE INVALID'));
         console.log(
-          `  Please re-enter your license key with 'enjinn activate <LICENSE KEY>'${EOL}`,
+          `  Please re-enter your license key with 'enjinn activate${EOL}`,
         );
         break;
     }

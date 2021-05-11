@@ -36,6 +36,7 @@ export class Activate extends Command {
         this.log(
           gradient.morning('  Thanks for buying the full version of ENJINN!'),
         );
+        this.log();
       },
     });
   }

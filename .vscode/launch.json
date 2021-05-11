@@ -8,7 +8,7 @@
       "type": "pwa-node",
       "request": "launch",
       "name": "Debug command",
-      "program": "${workspaceFolder}\\bin\\run",
+      "program": "${workspaceFolder}/bin/run",
       "args": ["${input:command}"],
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"]
