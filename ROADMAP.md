@@ -4,6 +4,7 @@
 
 ### Unknown Version
 
+- (dedupe) Remove duplicates from playlists
 - (relocate) More complex file matching
 - (relocate) Support source playlist filter
 - (smart) Filter on multiple fields in one rule
