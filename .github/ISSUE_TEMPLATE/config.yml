@@ -1,4 +1,5 @@
+blank_issues_enabled: false
 contact_links:
   - name: 🤔 Questions, general support, and help
     url: https://github.com/rshea0/enjinn/discussions/categories/help
-    description: Are you having trouble figuring out how to use ENJINN? Please make a post on the help forum instead.
+    about: Are you having trouble figuring out how to use ENJINN? Please make a post on the help forum instead.
