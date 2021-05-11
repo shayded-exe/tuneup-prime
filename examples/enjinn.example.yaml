@@ -1,24 +1,43 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/rshea0/enjinn/master/src/library-config/enjinn.schema.json
 
-# Supported fields:
-#   album
-#   artist
-#   comment
-#   composer
-#   filename
-#   fileType
-#   genre
-#   label
-#   path
-#   remixer
-#   title
+# Supported fields
+#
+#   [string]
+#     album
+#     artist
+#     comment
+#     composer
+#     filename
+#     fileType
+#     genre
+#     label
+#     path
+#     remixer
+#     title
+#
+#  [numeric]
+#    bitrate
+#    bpm
+#    length
+#    rating
+#    year
 
-# Supported operators:
-#   equals
-#   notequal
-#   contains
-#   excludes
-#   regex
+# Supported operators
+#
+#   [string]
+#     equals
+#     notequal
+#     contains
+#     excludes
+#     regex
+#
+#  [numeric]
+#     =
+#     !=
+#     >
+#     >=
+#     <
+#     <=
 
 smartPlaylists:
   - name: Single filter
@@ -38,11 +57,12 @@ smartPlaylists:
         - field: artist
           operator: equals
           value: ILLENIUM
-          # optional (default: false)
+          # Optional (default: false)
           caseSensitive: true
-        - field: fileType
-          operator: excludes
-          value: m4a
+          # Filter on numeric fields
+        - field: bpm
+          operator: '>='
+          value: 128
 
   - name: Complex logic
     rules:
