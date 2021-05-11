@@ -29,12 +29,12 @@ assignees: rshea0
 ### Environment
 
 <!--
-  You can find your enjinn version by simply running enjinn
+  You can find your enjinn version by simply running enjinn.
 
   It should look like this:
     enjinn/1.2.0 win32-x64 node-v14.16.1
 -->
 
-- Engine PRIME version: **your version**
 - `enjinn` version: **your version**
+- Engine PRIME version: **your version**
 - Operating System: **your OS**
