@@ -29,7 +29,7 @@
 #     notequal
 #     contains
 #     excludes
-#     regex
+#     regex (Don't know what Regex is? Read https://regexone.com/)
 #
 #  [numeric]
 #     =
