@@ -26,22 +26,15 @@ assignees: rshea0
   If applicable, please add screenshots to help explain your problem.
 -->
 
-### ENJINN Version
+### Environment
 
 <!--
-  Please copy and paste the version shown when you run ENJINN.
+  You can find your enjinn version by simply running enjinn
 
   It should look like this:
     enjinn/1.2.0 win32-x64 node-v14.16.1
 -->
 
-- **your version**
-
-### OS
-
-<!--
-  Please put an "x" in the box for your OS
--->
-
-- [ ] Windows
-- [ ] macOS
+- Engine PRIME version: **your version**
+- `enjinn` version: **your version**
+- Operating System: **your OS**
