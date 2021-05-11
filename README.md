@@ -114,8 +114,8 @@ In the future, you'll be able to specify multiple Engine libraries and even swit
 
 #### Config file locations:
 
-- Windows: `%APPDATA%\enjinn-nodejs\Config\config.yaml`
-- macOS: `~Library/Preferences/enjinn-nodejs/config.yaml`
+- Windows: `%LOCALAPPDATA%\enjinn\config.yaml`
+- macOS: `~/.config/enjinn/config.yaml`
 
 ## 🔨 Commands
 
