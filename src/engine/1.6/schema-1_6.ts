@@ -128,7 +128,7 @@ export interface MetaDataInteger {
 }
 
 export interface CopiedTrack {
-  trackId: string;
+  trackId: number;
   uuidOfSourceDatabase: string;
-  idOfTrackInSourceDatabase: string;
+  idOfTrackInSourceDatabase: number;
 }

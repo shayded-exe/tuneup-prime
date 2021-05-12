@@ -1,4 +1,4 @@
-import { camelCase, groupBy, transform } from 'lodash';
+import { camelCase, Dictionary, fromPairs, groupBy, transform } from 'lodash';
 
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
@@ -80,13 +80,16 @@ export class EngineDB_1_6 extends EngineDB {
           .delete();
       }
 
-      if (input.tracks.length) {
+      const trackIds = input.tracks.map(t =>
+        typeof t === 'number' ? t : t.id,
+      );
+      if (trackIds.length) {
         await trx<schema.ListTrackList>('ListTrackList').insert(
-          input.tracks.map<schema.NewListTrackList>((track, i) => ({
+          trackIds.map<schema.NewListTrackList>((trackId, i) => ({
             listId: playlistId!,
             listType: schema.ListType.Playlist,
-            trackId: track.id,
-            trackIdInOriginDatabase: track.id,
+            trackId,
+            trackIdInOriginDatabase: trackId,
             trackNumber: i + 1,
             databaseUuid: this.databaseUuid,
           })),
@@ -136,7 +139,9 @@ export class EngineDB_1_6 extends EngineDB {
   }
 
   async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
-    const subQuery = this.table('ListTrackList').where('listId', playlistId);
+    const subQuery = this.table('ListTrackList')
+      .select('trackId')
+      .where('listId', playlistId);
 
     return this.table('Track') //
       .select('*')
@@ -155,10 +160,18 @@ export class EngineDB_1_6 extends EngineDB {
     });
   }
 
-  async mapExternalTrackIdsToInternal(
+  async getExtTrackMapping(
     tracks: publicSchema.Track[],
-  ): Promise<publicSchema.Track[]> {
-    throw new Error('Not implemented');
+  ): Promise<Dictionary<number>> {
+    const copiedTracks = await this.table('CopiedTrack')
+      .select('*')
+      .whereIn(
+        'trackId',
+        tracks.map(t => t.id),
+      );
+    return fromPairs(
+      copiedTracks.map(x => [x.trackId, x.idOfTrackInSourceDatabase]),
+    );
   }
 }
 

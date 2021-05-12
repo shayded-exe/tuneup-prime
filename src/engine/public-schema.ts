@@ -17,7 +17,7 @@ export interface Playlist {
 export interface PlaylistInput {
   title: string;
   parentListId?: number;
-  tracks: Track[];
+  tracks: (number | Track)[];
 }
 
 export interface Track {

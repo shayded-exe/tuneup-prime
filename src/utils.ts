@@ -7,7 +7,10 @@ import ora from 'ora';
 import nodePath from 'path';
 import terminalLink from 'terminal-link';
 
-export const MULTISELECT_PROMPT_HINT = 'use space to select, enter to submit';
+export const PromptHints = {
+  Select: 'use arrow keys, enter to submit',
+  Multiselect: 'use arrow keys, space to select, enter to submit',
+};
 
 export function isStandalone(): boolean {
   return __dirname.includes('snapshot');

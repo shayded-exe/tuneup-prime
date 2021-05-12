@@ -15,3 +15,7 @@ export function licenseState(value?: LicenseState): LicenseState {
   }
   return _licenseState;
 }
+
+export function isLicensed(): boolean {
+  return _licenseState === LicenseState.Licensed;
+}

@@ -5,7 +5,7 @@ import { BaseEngineCommand } from '../base-commands';
 import * as engine from '../engine';
 import { LibraryConfigFile, readLibraryConfig } from '../library-config';
 import * as def from '../library-config/smart-playlist';
-import { licenseState, LicenseState } from '../licensing';
+import { isLicensed } from '../licensing';
 import { asyncSeries, spinner } from '../utils';
 
 const MAX_FREE_PLAYLISTS = 5;
@@ -71,15 +71,15 @@ export default class Smart extends BaseEngineCommand {
       successMessage: 'Saved smart playlists to Engine',
       run: async () =>
         asyncSeries(
-          inputs.map(input => async () =>
-            this.engineDb.createOrUpdatePlaylist(input),
+          inputs.map(
+            input => async () => this.engineDb.createOrUpdatePlaylist(input),
           ),
         ),
     });
   }
 
   private checkLicense(): boolean {
-    if (licenseState() === LicenseState.Licensed) {
+    if (isLicensed()) {
       return true;
     }
 

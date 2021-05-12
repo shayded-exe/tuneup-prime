@@ -1,3 +1,5 @@
+import { Dictionary, fromPairs } from 'lodash';
+
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import { formatDate } from '../format';
@@ -7,7 +9,7 @@ import * as schema from './schema-2_0';
 
 export class EngineDB_2_0 extends EngineDB {
   get version(): Version {
-    return Version.V1_6;
+    return Version.V2_0;
   }
 
   private table<T extends schema.TableNames>(table: T) {
@@ -85,18 +87,21 @@ export class EngineDB_2_0 extends EngineDB {
             .delete();
         }
 
-        if (input.tracks.length) {
+        const trackIds = input.tracks.map(t =>
+          typeof t === 'number' ? t : t.id,
+        );
+        if (trackIds.length) {
           const lastEntityId = await this.getLastGeneratedId(
             'PlaylistEntity',
             trx,
           );
 
           await trx<schema.PlaylistEntity>('PlaylistEntity').insert(
-            input.tracks.map<schema.NewPlaylistEntity>((track, i) => ({
+            trackIds.map<schema.NewPlaylistEntity>((trackId, i) => ({
               listId: playlistId!,
-              trackId: track.id,
+              trackId,
               nextEntityId:
-                i === input.tracks.length - 1 //
+                i === trackIds.length - 1 //
                   ? 0
                   : lastEntityId + 2 + i,
               membershipReference: 0,
@@ -160,9 +165,16 @@ export class EngineDB_2_0 extends EngineDB {
     });
   }
 
-  async mapExternalTrackIdsToInternal(
+  async getExtTrackMapping(
     tracks: publicSchema.Track[],
-  ): Promise<publicSchema.Track[]> {
-    throw new Error('Not implemented');
+  ): Promise<Dictionary<number>> {
+    const trackIds = await this.table('Track')
+      .select('id', 'originTrackId')
+      .whereIn(
+        'id',
+        tracks.map(t => t.id),
+      );
+
+    return fromPairs(trackIds.map(x => [x.id, x.originTrackId]));
   }
 }

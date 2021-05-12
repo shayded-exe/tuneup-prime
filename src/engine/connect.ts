@@ -7,6 +7,7 @@ import { getLibraryInfo, LibraryInfo, Version } from './version-detection';
 
 export async function connect(
   library: string | LibraryInfo,
+  opts: { skipBackup?: boolean } = {},
 ): Promise<EngineDB> {
   const { version, dbPath } =
     typeof library === 'object' ? library : await getLibraryInfo(library);
@@ -14,9 +15,9 @@ export async function connect(
   const engineDb = (() => {
     switch (version) {
       case Version.V1_6:
-        return new EngineDB_1_6({ dbPath });
+        return new EngineDB_1_6({ ...opts, dbPath });
       case Version.V2_0:
-        return new EngineDB_2_0({ dbPath });
+        return new EngineDB_2_0({ ...opts, dbPath });
     }
   })();
 
@@ -27,9 +28,10 @@ export async function connect(
 
 export async function multiConnect(
   libraries: string | LibraryInfo[],
+  opts: { skipBackup?: boolean } = {},
 ): Promise<MultiEngineDB> {
   const multi = new MultiEngineDB(libraries);
-  await multi.connect();
+  await multi.connect(opts);
   return multi;
 }
 
@@ -38,10 +40,10 @@ export class MultiEngineDB extends Array<EngineDB> {
     super();
   }
 
-  async connect() {
+  async connect(opts: { skipBackup?: boolean } = {}) {
     try {
       for (let input of this.libraries) {
-        const con = await connect(input);
+        const con = await connect(input, opts);
         this.push(con);
       }
     } catch {

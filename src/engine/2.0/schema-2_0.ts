@@ -68,6 +68,7 @@ export interface Track {
   label: string;
   length: number;
   originDatabaseUuid: string;
+  originTrackId: number;
   path: string;
   rating: number;
   remixer: string;
