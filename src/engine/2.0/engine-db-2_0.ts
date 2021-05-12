@@ -2,12 +2,12 @@ import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import { formatDate } from '../format';
 import * as publicSchema from '../public-schema';
-import { EngineVersion } from '../version-detection';
+import { Version } from '../version-detection';
 import * as schema from './schema-2_0';
 
 export class EngineDB_2_0 extends EngineDB {
-  get version(): EngineVersion {
-    return EngineVersion.V1_6;
+  get version(): Version {
+    return Version.V1_6;
   }
 
   static async connect(dbPath: string): Promise<EngineDB_2_0> {

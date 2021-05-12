@@ -17,7 +17,8 @@
     "metas",
     "nsis",
     "rshea",
-    "shallwefootball"
+    "shallwefootball",
+    "tempfs"
   ],
   "files.exclude": {
     "lib": true,

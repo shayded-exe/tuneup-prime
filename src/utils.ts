@@ -1,5 +1,7 @@
 import fs from 'fs';
 import { partialRight } from 'lodash';
+import { getDiskInfo } from 'node-disk-info';
+import Drive from 'node-disk-info/dist/classes/drive';
 import fetch, { RequestInfo, RequestInit, Response } from 'node-fetch';
 import ora from 'ora';
 import nodePath from 'path';
@@ -115,6 +117,42 @@ export async function getFilesInDir({
   }
 
   return filesWithPath;
+}
+
+export enum SupportedOS {
+  Windows = 'win32',
+  MacOS = 'darwin',
+  Linux = 'linux',
+}
+
+export function getOS(): SupportedOS {
+  const os = process.platform;
+
+  if (!Object.values(SupportedOS).includes(os as any)) {
+    throw new Error(`Unsupported OS ${os}`);
+  }
+
+  return os as SupportedOS;
+}
+
+export type ExternalDrive = Drive;
+
+export async function getExternalDrives(): Promise<ExternalDrive[]> {
+  function filterDrive(drive: Drive): boolean {
+    switch (os) {
+      case SupportedOS.Windows:
+        return /^[ABD-Z]:$/.test(drive.mounted);
+      case SupportedOS.MacOS:
+        return /^\/dev\/disk/.test(drive.filesystem);
+      case SupportedOS.Linux:
+        return drive.filesystem !== 'tempfs' && /^\/mnt\//.test(drive.mounted);
+    }
+  }
+
+  const os = getOS();
+  const drives = await getDiskInfo();
+
+  return drives.filter(filterDrive);
 }
 
 export async function postJson<T = object>(
