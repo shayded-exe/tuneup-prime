@@ -4,10 +4,13 @@ import prompts from 'prompts';
 
 import { BaseEngineCommand } from '../base-commands';
 import * as engine from '../engine';
-import { getExternalDrives, spinner } from '../utils';
+import { multiConnect, MultiEngineDB } from '../engine';
+import { getExtDrives, MULTISELECT_PROMPT_HINT, spinner } from '../utils';
 
 export default class ImportExt extends BaseEngineCommand {
   static readonly description = 'import playlists from libraries on USB drives';
+
+  private extEngineDbs?: MultiEngineDB;
 
   async run() {
     await this.connectToEngine();
@@ -19,7 +22,7 @@ export default class ImportExt extends BaseEngineCommand {
     const extLibraries = await spinner({
       text: 'Detect external Engine libraries',
       run: async ctx => {
-        const libraries = await this.getExternalLibraries();
+        const libraries = await this.getExtLibraries();
         const numLibraries = libraries.length;
         if (numLibraries) {
           ctx.succeed(
@@ -41,11 +44,24 @@ export default class ImportExt extends BaseEngineCommand {
     const selectedLibraries = await this.promptForLibrarySelection(
       extLibraries,
     );
-    console.log(selectedLibraries);
+
+    this.extEngineDbs = await spinner({
+      text: 'Connect to external Engine DBs',
+      successMessage: 'Connected to external Engine DBs',
+      run: async () => multiConnect(selectedLibraries),
+    });
   }
 
-  private async getExternalLibraries(): Promise<engine.LibraryInfo[]> {
-    const drives = await getExternalDrives();
+  async finally() {
+    if (this.extEngineDbs) {
+      await this.extEngineDbs.disconnect();
+    }
+
+    await super.finally();
+  }
+
+  private async getExtLibraries(): Promise<engine.LibraryInfo[]> {
+    const drives = await getExtDrives();
     const libraries = [];
 
     for (let drive of drives) {
@@ -74,7 +90,9 @@ export default class ImportExt extends BaseEngineCommand {
       choices: libraries.map(l => ({ title: l.folder, value: l })),
       min: 1,
       instructions: false,
-      hint: 'use space to select, enter to submit',
+      hint: MULTISELECT_PROMPT_HINT,
     }).then(x => x.libraries);
   }
+
+  // private async getPlaylistsInLibraries(libraries: engine.LibraryInfo[])
 }

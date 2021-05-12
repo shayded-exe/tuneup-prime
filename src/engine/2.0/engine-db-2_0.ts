@@ -10,13 +10,6 @@ export class EngineDB_2_0 extends EngineDB {
     return Version.V1_6;
   }
 
-  static async connect(dbPath: string): Promise<EngineDB_2_0> {
-    const db = new EngineDB_2_0(dbPath);
-    await db.init();
-
-    return db;
-  }
-
   private table<T extends schema.TableNames>(table: T) {
     return this.knex.table<schema.Tables[T]>(table);
   }
@@ -151,6 +144,10 @@ export class EngineDB_2_0 extends EngineDB {
     ]);
   }
 
+  async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
+    throw new Error('Not implemented');
+  }
+
   async updateTrackPaths(tracks: publicSchema.Track[]) {
     this.knex.transaction(async trx => {
       await asyncSeries(
@@ -161,5 +158,11 @@ export class EngineDB_2_0 extends EngineDB {
         }),
       );
     });
+  }
+
+  async mapExternalTrackIdsToInternal(
+    tracks: publicSchema.Track[],
+  ): Promise<publicSchema.Track[]> {
+    throw new Error('Not implemented');
   }
 }

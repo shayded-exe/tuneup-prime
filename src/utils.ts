@@ -7,6 +7,8 @@ import ora from 'ora';
 import nodePath from 'path';
 import terminalLink from 'terminal-link';
 
+export const MULTISELECT_PROMPT_HINT = 'use space to select, enter to submit';
+
 export function isStandalone(): boolean {
   return __dirname.includes('snapshot');
 }
@@ -135,9 +137,9 @@ export function getOS(): SupportedOS {
   return os as SupportedOS;
 }
 
-export type ExternalDrive = Drive;
+export type ExtDrive = Drive;
 
-export async function getExternalDrives(): Promise<ExternalDrive[]> {
+export async function getExtDrives(): Promise<ExtDrive[]> {
   function filterDrive(drive: Drive): boolean {
     switch (os) {
       case SupportedOS.Windows:

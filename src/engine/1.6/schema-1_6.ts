@@ -13,6 +13,7 @@ export interface Tables {
   Track: Track;
   MetaData: MetaData;
   MetaDataInteger: MetaDataInteger;
+  CopiedTrack: CopiedTrack;
 }
 
 export type TableNames = keyof Tables;
@@ -124,4 +125,10 @@ export interface MetaDataInteger {
   id: number;
   type: MetaDataIntegerType;
   value: number;
+}
+
+export interface CopiedTrack {
+  trackId: string;
+  uuidOfSourceDatabase: string;
+  idOfTrackInSourceDatabase: string;
 }

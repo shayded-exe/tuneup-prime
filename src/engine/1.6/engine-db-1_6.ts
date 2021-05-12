@@ -11,13 +11,6 @@ export class EngineDB_1_6 extends EngineDB {
     return Version.V1_6;
   }
 
-  static async connect(dbPath: string): Promise<EngineDB_1_6> {
-    const db = new EngineDB_1_6(dbPath);
-    await db.init();
-
-    return db;
-  }
-
   private table<T extends schema.TableNames>(table: T) {
     return this.knex.table<schema.Tables[T]>(table);
   }
@@ -105,24 +98,13 @@ export class EngineDB_1_6 extends EngineDB {
   }
 
   async getTracks(): Promise<publicSchema.Track[]> {
-    const tracks = await this.getTracksInternal();
+    const tracks = await this.getTracksWithMeta();
 
     return tracks.map(track => ({ ...track, ...track.meta }));
   }
 
-  private async getTracksInternal(): Promise<schema.TrackWithMeta[]> {
-    const tracks = await this.table('Track').select([
-      'id',
-      'bitrate',
-      'bpmAnalyzed',
-      'filename',
-      'isBeatGridLocked',
-      'isExternalTrack',
-      'length',
-      'path',
-      'trackType',
-      'year',
-    ]);
+  private async getTracksWithMeta(): Promise<schema.TrackWithMeta[]> {
+    const tracks = await this.table('Track').select('*');
     const textMetas = await this.table('MetaData').select('*');
     const textMetaMap = groupBy(textMetas, x => x.id);
     const intMetas = await this.table('MetaDataInteger').select('*');
@@ -153,6 +135,14 @@ export class EngineDB_1_6 extends EngineDB {
     });
   }
 
+  async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
+    const subQuery = this.table('ListTrackList').where('listId', playlistId);
+
+    return this.table('Track') //
+      .select('*')
+      .whereIn('id', subQuery);
+  }
+
   async updateTrackPaths(tracks: publicSchema.Track[]) {
     this.knex.transaction(async trx => {
       await asyncSeries(
@@ -164,16 +154,23 @@ export class EngineDB_1_6 extends EngineDB {
       );
     });
   }
+
+  async mapExternalTrackIdsToInternal(
+    tracks: publicSchema.Track[],
+  ): Promise<publicSchema.Track[]> {
+    throw new Error('Not implemented');
+  }
 }
 
-function getMetaValue(
-  meta: schema.MetaData | schema.MetaDataInteger,
-): string | number {
-  return isTextMeta(meta) ? meta.text : meta.value;
-}
-
-function isTextMeta(
-  meta: schema.MetaData | schema.MetaDataInteger,
-): meta is schema.MetaData {
-  return 'text' in meta;
-}
+// const TRACK_SELECT_COLS: (keyof schema.Track)[] = [
+//   'id',
+//   'bitrate',
+//   'bpmAnalyzed',
+//   'filename',
+//   'isBeatGridLocked',
+//   'isExternalTrack',
+//   'length',
+//   'path',
+//   'trackType',
+//   'year',
+// ];
