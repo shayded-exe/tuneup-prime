@@ -1,0 +1,26 @@
+name: Mac diskinfo test
+
+on:
+  - workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Test diskinfo
+        run: |
+          npm i node-disk-info
+          node ./scripts/diskinfo-test.js
