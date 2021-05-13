@@ -33,7 +33,7 @@ export interface Track {
   filename: string;
   fileType?: string;
   genre?: string;
-  isBeatGridLocked: boolean;
+  isBeatGridLocked?: boolean;
   key?: CamelotKeyId;
   label?: string;
   length: number;

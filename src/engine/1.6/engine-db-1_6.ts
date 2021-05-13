@@ -88,10 +88,10 @@ export class EngineDB_1_6 extends EngineDB {
           trackIds.map<schema.NewListTrackList>((trackId, i) => ({
             listId: playlistId!,
             listType: schema.ListType.Playlist,
-            trackId,
+            trackId: trackId,
             trackIdInOriginDatabase: trackId,
             trackNumber: i + 1,
-            databaseUuid: this.databaseUuid,
+            databaseUuid: this.uuid,
           })),
         );
       }
@@ -106,7 +106,11 @@ export class EngineDB_1_6 extends EngineDB {
   }): Promise<publicSchema.Track[]> {
     const tracks = await this.getTracksInternal(opts);
 
-    return tracks.map(track => ({ ...track, ...track.meta }));
+    return tracks.map(track => ({
+      ...track,
+      ...track.meta,
+      isBeatGridLocked: !!track.isBeatGridLocked,
+    }));
   }
 
   private async getTracksInternal({
@@ -117,9 +121,12 @@ export class EngineDB_1_6 extends EngineDB {
     skipMeta?: boolean;
   } = {}): Promise<schema.TrackWithMeta[]> {
     const tracks = await (() => {
-      let qb = this.table('Track').select('*');
+      let qb = this.table('Track')
+        .select('*')
+        .whereNotNull('path')
+        .andWhere('isExternalTrack', 0);
       if (ids) {
-        qb = qb.whereIn('id', ids);
+        qb = qb.and.whereIn('id', ids);
       }
       return qb;
     })();
@@ -164,13 +171,12 @@ export class EngineDB_1_6 extends EngineDB {
   }
 
   async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
-    const subQuery = this.table('ListTrackList')
-      .select('trackId')
-      .where('listId', playlistId);
-
-    return this.table('Track') //
-      .select('*')
-      .whereIn('id', subQuery);
+    return this.getTracks({
+      ids: await this.table('ListTrackList')
+        .pluck('trackId')
+        .where('listId', playlistId),
+      skipMeta: true,
+    });
   }
 
   async updateTrackPaths(tracks: publicSchema.Track[]) {

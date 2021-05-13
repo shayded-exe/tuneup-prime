@@ -105,7 +105,7 @@ export class EngineDB_2_0 extends EngineDB {
                   ? 0
                   : lastEntityId + 2 + i,
               membershipReference: 0,
-              databaseUuid: this.databaseUuid,
+              databaseUuid: this.uuid,
             })),
           );
         }
@@ -120,33 +120,39 @@ export class EngineDB_2_0 extends EngineDB {
   }
 
   private async getTracksInternal(): Promise<schema.Track[]> {
-    return this.table('Track').select([
-      'id',
-      'album',
-      'artist',
-      'bitrate',
-      'bpmAnalyzed',
-      'comment',
-      'composer',
-      'dateAdded',
-      'dateCreated',
-      'explicitLyrics',
-      'filename',
-      'fileType',
-      'genre',
-      'isAnalyzed',
-      'isMetadataImported',
-      'label',
-      'length',
-      'originDatabaseUuid',
-      'path',
-      'rating',
-      'remixer',
-      'thirdPartySourceId',
-      'timeLastPlayed',
-      'title',
-      'year',
-    ]);
+    return this.table('Track')
+      .select([
+        'id',
+        'album',
+        'artist',
+        'bitrate',
+        'bpmAnalyzed',
+        'comment',
+        'composer',
+        'dateAdded',
+        'dateCreated',
+        'explicitLyrics',
+        'filename',
+        'fileType',
+        'genre',
+        'isAnalyzed',
+        'isBeatGridLocked',
+        'isMetadataImported',
+        'key',
+        'label',
+        'length',
+        'originDatabaseUuid',
+        'originTrackId',
+        'path',
+        'rating',
+        'remixer',
+        'thirdPartySourceId',
+        'timeLastPlayed',
+        'title',
+        'year',
+      ])
+      .whereNotNull('path')
+      .andWhere('originDatabaseUuid', this.uuid);
   }
 
   async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {

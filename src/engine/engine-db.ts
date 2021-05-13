@@ -21,9 +21,13 @@ export abstract class EngineDB {
 
   protected readonly knex: Knex;
 
-  protected databaseUuid!: string;
+  protected schemaInfo!: schema.Information;
 
   abstract get version(): Version;
+
+  get uuid(): string {
+    return this.schemaInfo.uuid;
+  }
 
   constructor(opts: EngineDB.Options) {
     Object.assign(this, opts);
@@ -43,9 +47,7 @@ export abstract class EngineDB {
       await this.backup();
     }
 
-    const { uuid } = await this.getSchemaInfo();
-
-    this.databaseUuid = uuid;
+    this.schemaInfo = await this.getSchemaInfo();
     this.isInitialized = true;
   }
 
