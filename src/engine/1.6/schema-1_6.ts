@@ -95,7 +95,7 @@ export interface TrackMeta {
 }
 
 export interface TrackWithMeta extends Track {
-  meta: TrackMeta;
+  meta?: TrackMeta;
 }
 
 export enum MetaDataType {

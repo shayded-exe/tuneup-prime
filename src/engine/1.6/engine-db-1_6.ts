@@ -100,17 +100,42 @@ export class EngineDB_1_6 extends EngineDB {
     });
   }
 
-  async getTracks(): Promise<publicSchema.Track[]> {
-    const tracks = await this.getTracksWithMeta();
+  async getTracks(opts?: {
+    ids?: number[];
+    skipMeta?: boolean;
+  }): Promise<publicSchema.Track[]> {
+    const tracks = await this.getTracksInternal(opts);
 
     return tracks.map(track => ({ ...track, ...track.meta }));
   }
 
-  private async getTracksWithMeta(): Promise<schema.TrackWithMeta[]> {
-    const tracks = await this.table('Track').select('*');
-    const textMetas = await this.table('MetaData').select('*');
+  private async getTracksInternal({
+    ids,
+    skipMeta,
+  }: {
+    ids?: number[];
+    skipMeta?: boolean;
+  } = {}): Promise<schema.TrackWithMeta[]> {
+    const tracks = await (() => {
+      let qb = this.table('Track').select('*');
+      if (ids) {
+        qb = qb.whereIn('id', ids);
+      }
+      return qb;
+    })();
+
+    if (skipMeta) {
+      return tracks;
+    }
+
+    const trackIds = tracks.map(t => t.id);
+    const textMetas = await this.table('MetaData')
+      .select('*')
+      .whereIn('id', trackIds);
     const textMetaMap = groupBy(textMetas, x => x.id);
-    const intMetas = await this.table('MetaDataInteger').select('*');
+    const intMetas = await this.table('MetaDataInteger')
+      .select('*')
+      .whereIn('id', trackIds);
     const intMetaMap = groupBy(intMetas, x => x.id);
 
     return tracks.map<schema.TrackWithMeta>(track => {
