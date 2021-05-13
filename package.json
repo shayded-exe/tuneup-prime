@@ -1,6 +1,6 @@
 {
   "name": "enjinn",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "preferGlobal": true,
   "description": "A library management tool for Denon Engine PRIME",
   "author": "SHAYDED <shayded@shayded.com> (http://shayded.com)",
