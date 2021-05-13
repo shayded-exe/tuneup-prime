@@ -122,33 +122,35 @@ export class EngineDB_2_0 extends EngineDB {
   }
 
   private async getTracksInternal(): Promise<schema.Track[]> {
-    return this.table('Track').select([
-      'id',
-      'album',
-      'artist',
-      'bitrate',
-      'bpmAnalyzed',
-      'comment',
-      'composer',
-      'dateAdded',
-      'dateCreated',
-      'explicitLyrics',
-      'filename',
-      'fileType',
-      'genre',
-      'isAnalyzed',
-      'isMetadataImported',
-      'label',
-      'length',
-      'originDatabaseUuid',
-      'path',
-      'rating',
-      'remixer',
-      'thirdPartySourceId',
-      'timeLastPlayed',
-      'title',
-      'year',
-    ]);
+    return this.table('Track')
+      .select([
+        'id',
+        'album',
+        'artist',
+        'bitrate',
+        'bpmAnalyzed',
+        'comment',
+        'composer',
+        'dateAdded',
+        'dateCreated',
+        'explicitLyrics',
+        'filename',
+        'fileType',
+        'genre',
+        'isAnalyzed',
+        'isMetadataImported',
+        'label',
+        'length',
+        'originDatabaseUuid',
+        'path',
+        'rating',
+        'remixer',
+        'thirdPartySourceId',
+        'timeLastPlayed',
+        'title',
+        'year',
+      ])
+      .whereNotNull('path');
   }
 
   async updateTrackPaths(tracks: publicSchema.Track[]) {

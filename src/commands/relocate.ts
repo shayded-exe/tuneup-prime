@@ -86,7 +86,9 @@ export default class Relocate extends BaseEngineCommand {
     const missing = [];
 
     for (const track of tracks) {
-      const resolvedPath = path.resolve(this.libraryFolder, track.path);
+      const resolvedPath = path.isAbsolute(track.path)
+        ? track.path
+        : path.resolve(this.libraryFolder, track.path);
       if (!(await checkPathExists(resolvedPath))) {
         missing.push(track);
       }
