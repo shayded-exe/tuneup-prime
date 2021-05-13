@@ -71,8 +71,8 @@ export interface Track {
   bitrate: number;
   bpmAnalyzed: number;
   filename: string;
-  isBeatGridLocked: boolean;
-  isExternalTrack: boolean;
+  isBeatGridLocked: IntBoolean;
+  isExternalTrack: IntBoolean;
   length: number;
   path: string;
   trackType: TrackType;

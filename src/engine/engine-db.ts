@@ -8,9 +8,13 @@ import { EngineVersion } from './version-detection';
 export abstract class EngineDB {
   protected readonly knex: Knex;
 
-  protected databaseUuid!: string;
+  protected schemaInfo!: schema.Information;
 
   abstract get version(): EngineVersion;
+
+  get uuid(): string {
+    return this.schemaInfo.uuid;
+  }
 
   protected constructor(private readonly dbPath: string) {
     this.knex = knex({
@@ -22,9 +26,7 @@ export abstract class EngineDB {
 
   protected async init() {
     await this.backup();
-    const { uuid } = await this.getSchemaInfo();
-
-    this.databaseUuid = uuid;
+    this.schemaInfo = await this.getSchemaInfo();
   }
 
   async disconnect() {

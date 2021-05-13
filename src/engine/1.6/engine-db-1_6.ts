@@ -95,7 +95,7 @@ export class EngineDB_1_6 extends EngineDB {
             trackId: track.id,
             trackIdInOriginDatabase: track.id,
             trackNumber: i + 1,
-            databaseUuid: this.databaseUuid,
+            databaseUuid: this.uuid,
           })),
         );
       }
@@ -107,7 +107,11 @@ export class EngineDB_1_6 extends EngineDB {
   async getTracks(): Promise<publicSchema.Track[]> {
     const tracks = await this.getTracksInternal();
 
-    return tracks.map(track => ({ ...track, ...track.meta }));
+    return tracks.map(track => ({
+      ...track,
+      ...track.meta,
+      isBeatGridLocked: !!track.isBeatGridLocked,
+    }));
   }
 
   private async getTracksInternal(): Promise<schema.TrackWithMeta[]> {
@@ -124,7 +128,8 @@ export class EngineDB_1_6 extends EngineDB {
         'trackType',
         'year',
       ])
-      .whereNotNull('path');
+      .whereNotNull('path')
+      .andWhere('isExternalTrack', 0);
     const textMetas = await this.table('MetaData').select('*');
     const textMetaMap = groupBy(textMetas, x => x.id);
     const intMetas = await this.table('MetaDataInteger').select('*');
