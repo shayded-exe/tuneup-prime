@@ -107,7 +107,7 @@ export class EngineDB_2_0 extends EngineDB {
                   ? 0
                   : lastEntityId + 2 + i,
               membershipReference: 0,
-              databaseUuid: this.databaseUuid,
+              databaseUuid: this.uuid,
             })),
           );
         }
@@ -150,7 +150,8 @@ export class EngineDB_2_0 extends EngineDB {
         'title',
         'year',
       ])
-      .whereNotNull('path');
+      .whereNotNull('path')
+      .andWhere('originDatabaseUuid', this.uuid);
   }
 
   async updateTrackPaths(tracks: publicSchema.Track[]) {
