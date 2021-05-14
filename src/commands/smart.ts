@@ -84,8 +84,8 @@ export default class Smart extends BaseEngineCommand {
 
     const numPlaylists = this.smartPlaylists.length;
     if (numPlaylists > MAX_FREE_PLAYLISTS) {
-      this.log(
-        chalk`{yellow Warning} The free version only supports up to {green ${MAX_FREE_PLAYLISTS.toString()}} smart playlists, but you have {yellow ${numPlaylists.toString()}}.`,
+      this.warnBlock(
+        chalk`The free version only supports up to {green ${MAX_FREE_PLAYLISTS.toString()}} smart playlists, but you have {yellow ${numPlaylists.toString()}}.`,
       );
       return false;
     }
@@ -93,10 +93,10 @@ export default class Smart extends BaseEngineCommand {
       normalizeRuleGroup(p.rules).nodes.some(isNodeGroup),
     );
     if (withNestedRules.length) {
-      this.log(
-        chalk`{yellow Warning} The free version doesn't support nested rules. The following playlists contain nested rules:`,
+      this.warnBlock(
+        `The free version doesn't support nested rules. The following playlists contain nested rules:`,
       );
-      withNestedRules.forEach(p => this.log(`    ${p.name}`));
+      withNestedRules.forEach(p => this.log(p.name, { indent: 4 }));
       return false;
     }
 

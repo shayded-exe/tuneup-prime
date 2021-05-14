@@ -9,6 +9,28 @@ export abstract class BaseEngineCommand extends Command {
   protected libraryFolder!: string;
   protected engineDb!: engine.EngineDB;
 
+  log(message?: string, { indent = 0 }: { indent?: number } = {}) {
+    const indentStr = ' '.repeat(indent);
+    super.log(indentStr + message);
+  }
+
+  logBlock(message: string, opts?: { indent?: number }) {
+    super.log();
+    this.log(message, opts);
+    super.log();
+  }
+
+  warn(message: string, opts?: { indent?: number }) {
+    this.log(chalk`{yellow Warning}  ${message}`, opts);
+  }
+
+  warnBlock(message: string, { indent = 0 }: { indent?: number } = {}) {
+    super.log();
+    this.warn('', { indent });
+    this.log(message, { indent: indent + 2 });
+    super.log();
+  }
+
   protected async init() {
     this.libraryFolder = appConf().get(AppConfKey.EngineLibraryFolder);
   }
@@ -35,25 +57,24 @@ export abstract class BaseEngineCommand extends Command {
       color?: string;
     } = {},
   ) {
-    const indentStr = ' '.repeat(indent);
-    tracks.forEach(t =>
-      this.log(`${indentStr}${(chalk as any)[color](t.path)}`),
-    );
+    tracks.forEach(t => {
+      this.log((chalk as any)[color](t.path), { indent });
+    });
   }
 
   protected logPlaylistsWithTrackCount(
     playlists: engine.PlaylistInput[],
     { indent = 4 }: { indent?: number } = {},
   ) {
-    const indentStr = ' '.repeat(indent);
     playlists.forEach(({ title, tracks }) => {
       const numTracks = tracks.length;
       if (numTracks) {
         this.log(
-          chalk`${indentStr}{blue ${title}} [{green ${numTracks.toString()}} tracks]`,
+          chalk`{blue ${title}} [{green ${numTracks.toString()}} tracks]`,
+          { indent },
         );
       } else {
-        this.log(chalk`${indentStr}{blue ${title}} [{yellow 0} tracks]`);
+        this.log(chalk`{blue ${title}} [{yellow 0} tracks]`, { indent });
       }
     });
   }

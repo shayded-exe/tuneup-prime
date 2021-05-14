@@ -124,8 +124,8 @@ export default class ImportExt extends BaseEngineCommand {
 
   private checkLicense(): boolean {
     if (!isLicensed()) {
-      this.log(
-        chalk`{yellow Warning} The {cyan ${ImportExt.name}} command isn't included in the free version.`,
+      this.warnBlock(
+        chalk`The {cyan ${ImportExt.name}} command isn't included in the free version.`,
       );
       return false;
     }
