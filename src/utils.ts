@@ -13,10 +13,6 @@ export const PromptHints = {
     '(↑/↓) to choose, (space) to select, (a) to select all, (enter) to submit',
 };
 
-export function isStandalone(): boolean {
-  return __dirname.includes('snapshot');
-}
-
 export async function asyncSeries<T>(
   asyncFuncs: readonly (() => Promise<T>)[],
 ): Promise<T[]> {
