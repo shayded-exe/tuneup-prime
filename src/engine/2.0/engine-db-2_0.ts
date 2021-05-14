@@ -162,7 +162,7 @@ export class EngineDB_2_0 extends EngineDB {
   }
 
   async updateTrackPaths(tracks: publicSchema.Track[]) {
-    this.knex.transaction(async trx => {
+    await this.knex.transaction(async trx => {
       await asyncSeries(
         tracks.map(track => async () => {
           await this.table('Track', trx)
