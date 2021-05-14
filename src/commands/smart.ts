@@ -58,6 +58,10 @@ export default class Smart extends BaseEngineCommand {
       },
     });
 
+    if (!inputs.length) {
+      return;
+    }
+
     await spinner({
       text: 'Save smart playlists to Engine',
       successMessage: 'Saved smart playlists to Engine',

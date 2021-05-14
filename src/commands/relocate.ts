@@ -20,6 +20,7 @@ export default class Relocate extends BaseEngineCommand {
   async run() {
     await this.connectToEngine();
 
+    this.log();
     const missingTracks = await spinner({
       text: 'Find missing tracks',
       run: async ctx => {
@@ -66,13 +67,20 @@ export default class Relocate extends BaseEngineCommand {
         }
         this.logTracks(relocated);
         if (stillMissing.length) {
-          this.log('  [still missing]');
+          if (relocated.length) {
+            this.log('  [still missing]');
+          }
           this.logTracks(stillMissing, { color: 'red' });
         }
 
         return relocated;
       },
     });
+    this.log();
+
+    if (!relocated.length) {
+      return;
+    }
 
     await spinner({
       text: 'Save relocated tracks to Engine',
