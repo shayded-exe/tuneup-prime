@@ -32,6 +32,7 @@ module.exports = {
   entry: {
     ...libEntry('help'),
     ...commandEntry('activate'),
+    ...commandEntry('import-ext'),
     ...commandEntry('relocate'),
     ...commandEntry('smart'),
     ...hookEntry('init', 'conf'),
