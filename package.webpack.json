@@ -13,7 +13,7 @@
     "@oclif/command": "",
     "@oclif/config": "",
     "@oclif/plugin-help": "",
-    "@oclif/plugin-update": "",
+    "@oclif/plugin-update": "1.3.10",
     "@oclif/plugin-warn-if-update-available": "",
     "knex": "",
     "sqlite3": ""

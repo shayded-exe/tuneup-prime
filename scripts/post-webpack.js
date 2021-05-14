@@ -23,9 +23,10 @@ async function makePackage() {
     // Copy package versions from root
     dependencies: _.mapValues(
       webpackPackage.dependencies,
-      (_, key) => rootPackage.dependencies[key],
+      (value, key) => rootPackage.dependencies[key] || value,
     ),
   };
+  newPackage.oclif.plugins.push('@oclif/plugin-update');
   delete newPackage.devDependencies;
 
   await fse.writeJson(root(PACK_DIR, 'package.json'), newPackage);

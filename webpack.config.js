@@ -36,7 +36,6 @@ module.exports = {
     ...commandEntry('relocate'),
     ...commandEntry('smart'),
     ...hookEntry('init', 'conf'),
-    ...hookEntry('init', 'update'),
     ...hookEntry('prerun', 'engine-library'),
   },
   output: {
