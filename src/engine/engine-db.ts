@@ -3,30 +3,51 @@ import knex, { Knex } from 'knex';
 
 import * as schema from './public-schema';
 import { SQLITE_SEQUENCE } from './sqlite-types';
-import { EngineVersion } from './version-detection';
+import { Version } from './version-detection';
+
+export namespace EngineDB {
+  export interface Options {
+    dbPath: string;
+    skipBackup?: boolean;
+  }
+}
 
 export abstract class EngineDB {
+  private readonly dbPath!: string;
+  private readonly skipBackup?: boolean;
+
+  private isInitialized = false;
+
   protected readonly knex: Knex;
 
   protected schemaInfo!: schema.Information;
 
-  abstract get version(): EngineVersion;
+  abstract get version(): Version;
 
   get uuid(): string {
     return this.schemaInfo.uuid;
   }
 
-  protected constructor(private readonly dbPath: string) {
+  constructor(opts: EngineDB.Options) {
+    Object.assign(this, opts);
+
     this.knex = knex({
       client: 'sqlite3',
-      connection: { filename: dbPath },
+      connection: { filename: opts.dbPath },
       useNullAsDefault: true,
     });
   }
 
-  protected async init() {
-    await this.backup();
+  async init() {
+    if (this.isInitialized) {
+      throw new Error('Already initialized');
+    }
+    if (!this.skipBackup) {
+      await this.backup();
+    }
+
     this.schemaInfo = await this.getSchemaInfo();
+    this.isInitialized = true;
   }
 
   async disconnect() {
@@ -43,7 +64,12 @@ export abstract class EngineDB {
     input: schema.PlaylistInput,
   ): Promise<schema.Playlist>;
 
-  abstract getTracks(): Promise<schema.Track[]>;
+  abstract getTracks(opts?: {
+    ids?: number[];
+    skipMeta?: boolean;
+  }): Promise<schema.Track[]>;
+
+  abstract getPlaylistTracks(playlistId: number): Promise<schema.Track[]>;
 
   abstract updateTrackPaths(tracks: schema.Track[]): Promise<void>;
 

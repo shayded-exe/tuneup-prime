@@ -62,12 +62,13 @@ export interface Track {
   fileType: string;
   genre: string;
   isAnalyzed: boolean;
-  isBeatGridLocked?: boolean;
+  isBeatGridLocked: boolean;
   isMetadataImported: boolean;
-  key?: publicSchema.CamelotKeyId;
+  key: publicSchema.CamelotKeyId;
   label: string;
   length: number;
   originDatabaseUuid: string;
+  originTrackId: number;
   path: string;
   rating: number;
   remixer: string;

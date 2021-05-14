@@ -57,7 +57,7 @@ async function promptForLibraryFolder(): Promise<string> {
     type: 'text',
     name: 'folder',
     message: 'Where is your Engine library folder?',
-    initial: path.join(os.homedir(), 'Music', 'Engine Library'),
+    initial: path.join(os.homedir(), 'Music', engine.DEFAULT_LIBRARY_FOLDER),
     validate: v => validateLibraryFolder(resolvePathToCwdIfRelative(v)),
     format: v => trueCasePath(resolvePathToCwdIfRelative(v)),
   }).then(x => x.folder);

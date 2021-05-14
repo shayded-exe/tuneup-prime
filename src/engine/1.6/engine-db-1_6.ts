@@ -1,25 +1,32 @@
-import { camelCase, groupBy, transform } from 'lodash';
+import { Knex } from 'knex';
+import {
+  camelCase,
+  Dictionary,
+  fromPairs,
+  groupBy,
+  pullAt,
+  transform,
+} from 'lodash';
 
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import * as publicSchema from '../public-schema';
-import { EngineVersion } from '../version-detection';
+import { Version } from '../version-detection';
 import * as schema from './schema-1_6';
 
+const PLAYLIST_PATH_DELIMITER = ';';
+
 export class EngineDB_1_6 extends EngineDB {
-  get version(): EngineVersion {
-    return EngineVersion.V1_6;
+  get version(): Version {
+    return Version.V1_6;
   }
 
-  static async connect(dbPath: string): Promise<EngineDB_1_6> {
-    const db = new EngineDB_1_6(dbPath);
-    await db.init();
-
-    return db;
-  }
-
-  private table<T extends schema.TableNames>(table: T) {
-    return this.knex.table<schema.Tables[T]>(table);
+  private table<T extends schema.TableNames>(table: T, trx?: Knex.Transaction) {
+    let qb = this.knex.table<schema.Tables[T]>(table);
+    if (trx) {
+      qb = qb.transacting(trx);
+    }
+    return qb;
   }
 
   getPlaylists(): Promise<publicSchema.Playlist[]> {
@@ -27,59 +34,71 @@ export class EngineDB_1_6 extends EngineDB {
   }
 
   private async getPlaylistsInternal(): Promise<schema.List[]> {
-    return this.table('List').select('*');
+    return this.table('List') //
+      .select('*')
+      .where('isFolder', 0);
+  }
+
+  private async getPlaylistById(
+    id: number,
+    trx?: Knex.Transaction,
+  ): Promise<schema.List | undefined> {
+    return this.table('List', trx) //
+      .select('*')
+      .where('id', id)
+      .first();
   }
 
   private async getPlaylistByTitle(
     title: string,
+    trx?: Knex.Transaction,
   ): Promise<schema.List | undefined> {
-    return this.table('List') //
+    return this.table('List', trx) //
       .select('*')
       .where('title', title)
       .first();
   }
 
+  private async getPlaylistByPath(
+    path: string,
+    trx?: Knex.Transaction,
+  ): Promise<schema.List | undefined> {
+    return this.table('List', trx) //
+      .select('*')
+      .where('path', path)
+      .first();
+  }
+
   async createOrUpdatePlaylist(
-    input: publicSchema.PlaylistInput,
+    input: schema.PlaylistInput,
   ): Promise<publicSchema.Playlist> {
     return this.createOrUpdatePlaylistInternal(input);
   }
 
   private async createOrUpdatePlaylistInternal(
-    input: publicSchema.PlaylistInput,
+    input: schema.PlaylistInput,
   ): Promise<schema.List> {
     let playlist = await this.getPlaylistByTitle(input.title);
     let playlistId = playlist?.id;
 
     return this.knex.transaction(async (trx): Promise<schema.List> => {
       if (!playlist) {
-        const { maxId } = (await trx<schema.List>('List')
-          .max('id', { as: 'maxId' })
-          .first())!;
-        playlistId = +maxId + 1;
+        playlistId = await this.getNextPlaylistId(trx);
 
         const newPlaylist: schema.NewList = {
           id: playlistId,
-          title: input.title,
           type: schema.ListType.Playlist,
-          path: `${input.title};`,
+          title: input.title,
+          path: input.path ?? input.title + PLAYLIST_PATH_DELIMITER,
           isFolder: 0,
           isExplicitlyExported: 1,
         };
-        await trx<schema.List>('List').insert(newPlaylist);
-        playlist = await trx<schema.List>('Playlist')
-          .select('*')
-          .where('id', playlistId!)
-          .first();
+        await this.table('List', trx).insert(newPlaylist);
+        playlist = (await this.getPlaylistById(playlistId, trx))!;
 
-        await trx<schema.ListParentList>('ListParentList').insert({
-          listOriginId: newPlaylist.id,
-          listOriginType: newPlaylist.type,
-          listParentId: newPlaylist.id,
-          listParentType: newPlaylist.type,
-        });
+        await this.createPlaylistHierarchy(playlist, trx);
       } else {
-        await trx<schema.ListTrackList>('ListTrackList')
+        await this.table('ListTrackList', trx)
           .where({
             listId: playlistId,
             listType: schema.ListType.Playlist,
@@ -87,13 +106,16 @@ export class EngineDB_1_6 extends EngineDB {
           .delete();
       }
 
-      if (input.tracks.length) {
-        await trx<schema.ListTrackList>('ListTrackList').insert(
-          input.tracks.map<schema.NewListTrackList>((track, i) => ({
+      const trackIds = input.tracks.map(t =>
+        typeof t === 'number' ? t : t.id,
+      );
+      if (trackIds.length) {
+        await this.table('ListTrackList', trx).insert(
+          trackIds.map<schema.NewListTrackList>((trackId, i) => ({
             listId: playlistId!,
             listType: schema.ListType.Playlist,
-            trackId: track.id,
-            trackIdInOriginDatabase: track.id,
+            trackId: trackId,
+            trackIdInOriginDatabase: trackId,
             trackNumber: i + 1,
             databaseUuid: this.uuid,
           })),
@@ -104,8 +126,122 @@ export class EngineDB_1_6 extends EngineDB {
     });
   }
 
-  async getTracks(): Promise<publicSchema.Track[]> {
-    const tracks = await this.getTracksInternal();
+  private async createPlaylistHierarchy(
+    playlist: schema.List,
+    trx?: Knex.Transaction,
+  ) {
+    const getOrCreatePlaylistFolder = async (
+      path: string,
+    ): Promise<schema.List> => {
+      const existing = await this.getPlaylistByPath(path, trx);
+      if (existing) {
+        return existing;
+      }
+
+      const id = await this.getNextPlaylistId(trx);
+      const newFolder: schema.NewList = {
+        id,
+        type: schema.ListType.Playlist,
+        title: playlistPathToTitle(path),
+        path,
+        isFolder: 1,
+        isExplicitlyExported: 1,
+      };
+      await this.table('List', trx).insert(newFolder);
+
+      return (await this.getPlaylistById(id, trx))!;
+    };
+
+    const createListChild = async ({
+      list,
+      child,
+    }: {
+      list: schema.List;
+      child: schema.List;
+    }) => {
+      const value: schema.ListHierarchy = {
+        listId: list.id,
+        listType: list.type,
+        listIdChild: child.id,
+        listTypeChild: child.type,
+      };
+      const existing = await this.table('ListHierarchy', trx)
+        .where(value)
+        .first();
+
+      if (!existing) {
+        await this.table('ListHierarchy', trx).insert(value);
+      }
+    };
+
+    const createListParent = async ({
+      list,
+      parent,
+    }: {
+      list: schema.List;
+      parent: schema.List;
+    }) => {
+      const value: schema.ListParentList = {
+        listOriginId: list.id,
+        listOriginType: list.type,
+        listParentId: parent.id,
+        listParentType: parent.type,
+      };
+      const existing = await this.table('ListParentList', trx)
+        .where(value)
+        .first();
+
+      if (!existing) {
+        await this.table('ListParentList', trx).insert(value);
+      }
+    };
+
+    const paths = destructurePlaylistPath(playlist.path);
+    const folderPaths = paths.slice(0, -1);
+
+    const folders = await asyncSeries(
+      folderPaths.map(path => async () => {
+        const folder = await getOrCreatePlaylistFolder(path);
+        if (!folder.isFolder) {
+          throw new Error(
+            `EngineDB: Can't create playlist as child of non-folder playlist "${path}"`,
+          );
+        }
+        return folder;
+      }),
+    );
+
+    const lists = [playlist, ...folders];
+
+    await asyncSeries(
+      lists.map(list => async () => {
+        const children = lists.filter(
+          l => l !== list && l.path.startsWith(list.path),
+        );
+        await asyncSeries(
+          children.map(child => async () => createListChild({ list, child })),
+        );
+
+        const parentPath = getPlaylistPathParent(list.path);
+        const parent = lists.find(l => l.path === parentPath)!;
+        await createListParent({ list, parent });
+      }),
+    );
+  }
+
+  private async getNextPlaylistId(trx?: Knex.Transaction): Promise<number> {
+    const [{ maxId }] = await this.table('List', trx).max('id', {
+      as: 'maxId',
+    });
+
+    return +maxId + 1;
+  }
+
+  async getTracks(opts?: {
+    ids?: number[];
+    skipMeta?: boolean;
+  }): Promise<publicSchema.Track[]> {
+    const tracks = await this.getTracksInternal(opts);
 
     return tracks.map(track => ({
       ...track,
@@ -114,25 +250,36 @@ export class EngineDB_1_6 extends EngineDB {
     }));
   }
 
-  private async getTracksInternal(): Promise<schema.TrackWithMeta[]> {
-    const tracks = await this.table('Track')
-      .select([
-        'id',
-        'bitrate',
-        'bpmAnalyzed',
-        'filename',
-        'isBeatGridLocked',
-        'isExternalTrack',
-        'length',
-        'path',
-        'trackType',
-        'year',
-      ])
-      .whereNotNull('path')
-      .andWhere('isExternalTrack', 0);
-    const textMetas = await this.table('MetaData').select('*');
+  private async getTracksInternal({
+    ids,
+    skipMeta,
+  }: {
+    ids?: number[];
+    skipMeta?: boolean;
+  } = {}): Promise<schema.TrackWithMeta[]> {
+    const tracks = await (() => {
+      let qb = this.table('Track')
+        .select('*')
+        .whereNotNull('path')
+        .andWhere('isExternalTrack', 0);
+      if (ids) {
+        qb = qb.and.whereIn('id', ids);
+      }
+      return qb;
+    })();
+
+    if (skipMeta) {
+      return tracks;
+    }
+
+    const trackIds = tracks.map(t => t.id);
+    const textMetas = await this.table('MetaData')
+      .select('*')
+      .whereIn('id', trackIds);
     const textMetaMap = groupBy(textMetas, x => x.id);
-    const intMetas = await this.table('MetaDataInteger').select('*');
+    const intMetas = await this.table('MetaDataInteger')
+      .select('*')
+      .whereIn('id', trackIds);
     const intMetaMap = groupBy(intMetas, x => x.id);
 
     return tracks.map<schema.TrackWithMeta>(track => {
@@ -160,27 +307,63 @@ export class EngineDB_1_6 extends EngineDB {
     });
   }
 
+  async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
+    return this.getTracks({
+      ids: await this.table('ListTrackList')
+        .pluck('trackId')
+        .where('listId', playlistId),
+      skipMeta: true,
+    });
+  }
+
   async updateTrackPaths(tracks: publicSchema.Track[]) {
     this.knex.transaction(async trx => {
       await asyncSeries(
         tracks.map(track => async () => {
-          await trx<schema.Track>('Track')
+          await this.table('Track', trx)
             .where('id', track.id)
             .update({ path: track.path });
         }),
       );
     });
   }
+
+  async getExtTrackMapping(
+    tracks: publicSchema.Track[],
+  ): Promise<Dictionary<number>> {
+    const copiedTracks = await this.table('CopiedTrack')
+      .select('*')
+      .whereIn(
+        'trackId',
+        tracks.map(t => t.id),
+      );
+    return fromPairs(
+      copiedTracks.map(x => [x.trackId, x.idOfTrackInSourceDatabase]),
+    );
+  }
 }
 
-function getMetaValue(
-  meta: schema.MetaData | schema.MetaDataInteger,
-): string | number {
-  return isTextMeta(meta) ? meta.text : meta.value;
+function playlistPathToTitle(path: string): string {
+  const parts = path.split(PLAYLIST_PATH_DELIMITER);
+  return parts[parts.length - 2];
 }
 
-function isTextMeta(
-  meta: schema.MetaData | schema.MetaDataInteger,
-): meta is schema.MetaData {
-  return 'text' in meta;
+function getPlaylistPathParent(path: string): string {
+  const parts = path.split(PLAYLIST_PATH_DELIMITER);
+  if (parts.length <= 2) {
+    return path;
+  }
+  pullAt(parts, parts.length - 2);
+  return parts.join(PLAYLIST_PATH_DELIMITER);
+}
+
+function destructurePlaylistPath(path: string): string[] {
+  return path
+    .split(PLAYLIST_PATH_DELIMITER)
+    .filter(p => p)
+    .map(
+      (_, i, parts) =>
+        parts.slice(0, i + 1).join(PLAYLIST_PATH_DELIMITER) +
+        PLAYLIST_PATH_DELIMITER,
+    );
 }

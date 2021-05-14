@@ -8,6 +8,7 @@
     "SHAYDED",
     "Venmo",
     "dedupe",
+    "destructure",
     "enjinn",
     "execa",
     "keyby",
@@ -17,7 +18,8 @@
     "metas",
     "nsis",
     "rshea",
-    "shallwefootball"
+    "shallwefootball",
+    "tempfs"
   ],
   "files.exclude": {
     "lib": true,

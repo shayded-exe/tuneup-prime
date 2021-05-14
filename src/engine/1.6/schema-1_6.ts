@@ -9,10 +9,12 @@ export interface Tables {
   List: List;
   ListTrackList: ListTrackList;
   ListParentList: ListParentList;
+  ListHierarchy: ListHierarchy;
   Crate: Crate;
   Track: Track;
   MetaData: MetaData;
   MetaDataInteger: MetaDataInteger;
+  CopiedTrack: CopiedTrack;
 }
 
 export type TableNames = keyof Tables;
@@ -37,6 +39,10 @@ export interface List {
 
 export type NewList = Except<List, 'trackCount' | 'ordering'>;
 
+export interface PlaylistInput extends publicSchema.PlaylistInput {
+  path?: string;
+}
+
 export interface ListTrackList {
   id: number;
   listId: number;
@@ -54,6 +60,13 @@ export interface ListParentList {
   listOriginType: ListType;
   listParentId: number;
   listParentType: ListType;
+}
+
+export interface ListHierarchy {
+  listId: number;
+  listType: ListType;
+  listIdChild: number;
+  listTypeChild: ListType;
 }
 
 export interface Crate {
@@ -94,7 +107,7 @@ export interface TrackMeta {
 }
 
 export interface TrackWithMeta extends Track {
-  meta: TrackMeta;
+  meta?: TrackMeta;
 }
 
 export enum MetaDataType {
@@ -124,4 +137,10 @@ export interface MetaDataInteger {
   id: number;
   type: MetaDataIntegerType;
   value: number;
+}
+
+export interface CopiedTrack {
+  trackId: number;
+  uuidOfSourceDatabase: string;
+  idOfTrackInSourceDatabase: number;
 }

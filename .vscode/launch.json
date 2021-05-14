@@ -19,7 +19,7 @@
       "id": "command",
       "type": "pickString",
       "description": "Which command do you want to run?",
-      "options": ["smart", "relocate", "help"],
+      "options": ["smart", "relocate", "import-ext", "help"],
       "default": "smart"
     }
   ]

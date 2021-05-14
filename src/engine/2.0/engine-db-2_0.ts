@@ -1,24 +1,23 @@
+import { Knex } from 'knex';
+
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import { formatDate } from '../format';
 import * as publicSchema from '../public-schema';
-import { EngineVersion } from '../version-detection';
+import { Version } from '../version-detection';
 import * as schema from './schema-2_0';
 
 export class EngineDB_2_0 extends EngineDB {
-  get version(): EngineVersion {
-    return EngineVersion.V1_6;
+  get version(): Version {
+    return Version.V2_0;
   }
 
-  static async connect(dbPath: string): Promise<EngineDB_2_0> {
-    const db = new EngineDB_2_0(dbPath);
-    await db.init();
-
-    return db;
-  }
-
-  private table<T extends schema.TableNames>(table: T) {
-    return this.knex.table<schema.Tables[T]>(table);
+  private table<T extends schema.TableNames>(table: T, trx?: Knex.Transaction) {
+    let qb = this.knex.table<schema.Tables[T]>(table);
+    if (trx) {
+      qb = qb.transacting(trx);
+    }
+    return qb;
   }
 
   async getPlaylists(): Promise<publicSchema.Playlist[]> {
@@ -73,10 +72,8 @@ export class EngineDB_2_0 extends EngineDB {
             isPersisted: true,
             lastEditTime: formatDate(new Date()),
           };
-          [playlistId] = await trx<schema.Playlist>('Playlist').insert(
-            newPlaylist,
-          );
-          playlist = await trx<schema.Playlist>('Playlist')
+          [playlistId] = await this.table('Playlist', trx).insert(newPlaylist);
+          playlist = await this.table('Playlist', trx)
             .join<schema.PlaylistPath>(
               'PlaylistPath',
               'Playlist.id',
@@ -87,23 +84,26 @@ export class EngineDB_2_0 extends EngineDB {
             .where('Playlist.id', playlistId)
             .first();
         } else {
-          await trx<schema.PlaylistEntity>('PlaylistEntity') //
+          await this.table('PlaylistEntity', trx) //
             .where('listId', playlistId)
             .delete();
         }
 
-        if (input.tracks.length) {
+        const trackIds = input.tracks.map(t =>
+          typeof t === 'number' ? t : t.id,
+        );
+        if (trackIds.length) {
           const lastEntityId = await this.getLastGeneratedId(
             'PlaylistEntity',
             trx,
           );
 
-          await trx<schema.PlaylistEntity>('PlaylistEntity').insert(
-            input.tracks.map<schema.NewPlaylistEntity>((track, i) => ({
+          await this.table('PlaylistEntity', trx).insert(
+            trackIds.map<schema.NewPlaylistEntity>((trackId, i) => ({
               listId: playlistId!,
-              trackId: track.id,
+              trackId,
               nextEntityId:
-                i === input.tracks.length - 1 //
+                i === trackIds.length - 1 //
                   ? 0
                   : lastEntityId + 2 + i,
               membershipReference: 0,
@@ -138,10 +138,13 @@ export class EngineDB_2_0 extends EngineDB {
         'fileType',
         'genre',
         'isAnalyzed',
+        'isBeatGridLocked',
         'isMetadataImported',
+        'key',
         'label',
         'length',
         'originDatabaseUuid',
+        'originTrackId',
         'path',
         'rating',
         'remixer',
@@ -154,11 +157,15 @@ export class EngineDB_2_0 extends EngineDB {
       .andWhere('originDatabaseUuid', this.uuid);
   }
 
+  async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
+    throw new Error('Not implemented');
+  }
+
   async updateTrackPaths(tracks: publicSchema.Track[]) {
     this.knex.transaction(async trx => {
       await asyncSeries(
         tracks.map(track => async () => {
-          await trx<schema.Track>('Track')
+          await this.table('Track', trx)
             .where('id', track.id)
             .update({ path: track.path });
         }),
