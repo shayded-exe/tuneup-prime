@@ -40,4 +40,21 @@ export abstract class BaseEngineCommand extends Command {
       this.log(`${indentStr}${(chalk as any)[color](t.path)}`),
     );
   }
+
+  protected logPlaylistsWithTrackCount(
+    playlists: engine.PlaylistInput[],
+    { indent = 4 }: { indent?: number } = {},
+  ) {
+    const indentStr = ' '.repeat(indent);
+    playlists.forEach(({ title, tracks }) => {
+      const numTracks = tracks.length;
+      if (numTracks) {
+        this.log(
+          chalk`${indentStr}{blue ${title}} [{green ${numTracks.toString()}} tracks]`,
+        );
+      } else {
+        this.log(chalk`${indentStr}{blue ${title}} [{yellow 0} tracks]`);
+      }
+    });
+  }
 }

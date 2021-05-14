@@ -52,15 +52,7 @@ export default class Smart extends BaseEngineCommand {
             chalk`Built {blue ${inputs.length.toString()}} smart playlists`,
           );
         }
-        inputs.forEach(({ title, tracks }) => {
-          if (tracks.length) {
-            this.log(
-              chalk`    {blue ${title}} [{green ${tracks.length.toString()}} tracks]`,
-            );
-          } else {
-            this.log(chalk`    {blue ${title}} [{yellow 0} tracks]`);
-          }
-        });
+        this.logPlaylistsWithTrackCount(inputs);
 
         return inputs;
       },

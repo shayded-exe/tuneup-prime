@@ -1,4 +1,4 @@
-import { Dictionary, fromPairs } from 'lodash';
+import { Knex } from 'knex';
 
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
@@ -12,8 +12,12 @@ export class EngineDB_2_0 extends EngineDB {
     return Version.V2_0;
   }
 
-  private table<T extends schema.TableNames>(table: T) {
-    return this.knex.table<schema.Tables[T]>(table);
+  private table<T extends schema.TableNames>(table: T, trx?: Knex.Transaction) {
+    let qb = this.knex.table<schema.Tables[T]>(table);
+    if (trx) {
+      qb = qb.transacting(trx);
+    }
+    return qb;
   }
 
   async getPlaylists(): Promise<publicSchema.Playlist[]> {
@@ -68,10 +72,8 @@ export class EngineDB_2_0 extends EngineDB {
             isPersisted: true,
             lastEditTime: formatDate(new Date()),
           };
-          [playlistId] = await trx<schema.Playlist>('Playlist').insert(
-            newPlaylist,
-          );
-          playlist = await trx<schema.Playlist>('Playlist')
+          [playlistId] = await this.table('Playlist', trx).insert(newPlaylist);
+          playlist = await this.table('Playlist', trx)
             .join<schema.PlaylistPath>(
               'PlaylistPath',
               'Playlist.id',
@@ -82,7 +84,7 @@ export class EngineDB_2_0 extends EngineDB {
             .where('Playlist.id', playlistId)
             .first();
         } else {
-          await trx<schema.PlaylistEntity>('PlaylistEntity') //
+          await this.table('PlaylistEntity', trx) //
             .where('listId', playlistId)
             .delete();
         }
@@ -96,7 +98,7 @@ export class EngineDB_2_0 extends EngineDB {
             trx,
           );
 
-          await trx<schema.PlaylistEntity>('PlaylistEntity').insert(
+          await this.table('PlaylistEntity', trx).insert(
             trackIds.map<schema.NewPlaylistEntity>((trackId, i) => ({
               listId: playlistId!,
               trackId,
@@ -163,24 +165,11 @@ export class EngineDB_2_0 extends EngineDB {
     this.knex.transaction(async trx => {
       await asyncSeries(
         tracks.map(track => async () => {
-          await trx<schema.Track>('Track')
+          await this.table('Track', trx)
             .where('id', track.id)
             .update({ path: track.path });
         }),
       );
     });
-  }
-
-  async getExtTrackMapping(
-    tracks: publicSchema.Track[],
-  ): Promise<Dictionary<number>> {
-    const trackIds = await this.table('Track')
-      .select('id', 'originTrackId')
-      .whereIn(
-        'id',
-        tracks.map(t => t.id),
-      );
-
-    return fromPairs(trackIds.map(x => [x.id, x.originTrackId]));
   }
 }

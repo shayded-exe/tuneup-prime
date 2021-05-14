@@ -1,6 +1,5 @@
 import fs from 'fs';
 import knex, { Knex } from 'knex';
-import { Dictionary } from 'lodash';
 
 import * as schema from './public-schema';
 import { SQLITE_SEQUENCE } from './sqlite-types';
@@ -73,10 +72,6 @@ export abstract class EngineDB {
   abstract getPlaylistTracks(playlistId: number): Promise<schema.Track[]>;
 
   abstract updateTrackPaths(tracks: schema.Track[]): Promise<void>;
-
-  abstract getExtTrackMapping(
-    tracks: schema.Track[],
-  ): Promise<Dictionary<number>>;
 
   protected async getSchemaInfo(): Promise<schema.Information> {
     const results = await this.knex<schema.Information>('Information') //

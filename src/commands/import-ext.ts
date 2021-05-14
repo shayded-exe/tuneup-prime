@@ -10,7 +10,9 @@ import { asyncSeries, getExtDrives, PromptHints, spinner } from '../utils';
 export default class ImportExt extends BaseEngineCommand {
   static readonly description = 'import playlists from libraries on USB drives';
 
-  private extEngineDb?: engine.EngineDB;
+  protected engineDb!: engine.V1_6.EngineDB_1_6;
+
+  private extEngineDb?: engine.V1_6.EngineDB_1_6;
 
   async run() {
     if (!this.checkLicense()) {
@@ -20,7 +22,7 @@ export default class ImportExt extends BaseEngineCommand {
     await this.connectToEngine();
 
     if (this.engineDb.version === engine.Version.V2_0) {
-      this.error(`import-ext doesn't support Engine 2.0 yet`);
+      this.error(`import-ext doesn't support Engine 2.0`);
     }
 
     const extLibraries = await spinner({
@@ -52,7 +54,10 @@ export default class ImportExt extends BaseEngineCommand {
     this.extEngineDb = await spinner({
       text: 'Connect to external Engine DB',
       successMessage: 'Connected to external Engine DB',
-      run: async () => engine.connect(selectedLibrary, { skipBackup: true }),
+      run: async () =>
+        engine.connect<engine.V1_6.EngineDB_1_6>(selectedLibrary, {
+          skipBackup: true,
+        }),
     });
 
     const extPlaylists = await spinner({
@@ -62,7 +67,7 @@ export default class ImportExt extends BaseEngineCommand {
         const length = extPlaylists.length;
         if (length) {
           ctx.succeed(
-            chalk`Fond {blue ${length.toString()}} external playlists`,
+            chalk`Found {blue ${length.toString()}} external playlists`,
           );
         } else {
           ctx.warn(`Didn't find any external playlists`);
@@ -75,11 +80,29 @@ export default class ImportExt extends BaseEngineCommand {
       extPlaylists,
     );
 
-    const importedPlaylists = await spinner({
-      text: 'Import playlists',
+    const inputs = await spinner({
+      text: 'Import external playlists',
       run: async ctx => {
         const imported = await this.importPlaylists(selectedPlaylists);
+
+        ctx.succeed(
+          chalk`Imported {blue ${imported.length.toString()}} external playlists`,
+        );
+        this.logPlaylistsWithTrackCount(imported);
+
+        return imported;
       },
+    });
+
+    await spinner({
+      text: 'Save external playlists to Engine',
+      successMessage: 'Saved external playlists to Engine',
+      run: async () =>
+        asyncSeries(
+          inputs.map(
+            input => async () => this.engineDb.createOrUpdatePlaylist(input),
+          ),
+        ),
     });
   }
 
@@ -150,7 +173,7 @@ export default class ImportExt extends BaseEngineCommand {
 
   private async importPlaylists(
     extPlaylists: engine.Playlist[],
-  ): Promise<engine.Playlist[]> {
+  ): Promise<engine.V1_6.PlaylistInput[]> {
     return asyncSeries(
       extPlaylists.map(extPlaylist => async () => {
         const tracks = await this.extEngineDb!.getPlaylistTracks(
@@ -158,10 +181,11 @@ export default class ImportExt extends BaseEngineCommand {
         );
         const mapping = await this.extEngineDb!.getExtTrackMapping(tracks);
 
-        return this.engineDb.createOrUpdatePlaylist({
+        return {
           title: extPlaylist.title,
+          path: extPlaylist.path,
           tracks: tracks.map(t => mapping[t.id]),
-        });
+        };
       }),
     );
   }
