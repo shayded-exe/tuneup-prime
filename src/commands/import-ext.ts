@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import * as path from 'path';
+import pluralize from 'pluralize';
 import prompts from 'prompts';
 
 import { BaseEngineCommand } from '../base-commands';
@@ -22,7 +23,7 @@ export default class ImportExt extends BaseEngineCommand {
     await this.connectToEngine();
 
     if (this.engineDb.version === engine.Version.V2_0) {
-      this.error(`import-ext doesn't support Engine 2.0`);
+      this.error(`${ImportExt.name} doesn't support Engine 2.0`);
     }
 
     const extLibraries = await spinner({
@@ -32,9 +33,10 @@ export default class ImportExt extends BaseEngineCommand {
         const length = libraries.length;
         if (length) {
           ctx.succeed(
-            chalk`Found {blue ${length.toString()}} external ${
-              length > 1 ? 'libraries' : 'library'
-            }`,
+            chalk`Found {blue ${length.toString()}} external ${pluralize(
+              'library',
+              length,
+            )}`,
           );
         } else {
           ctx.warn(`Didn't find any external Engine libraries`);
@@ -67,7 +69,10 @@ export default class ImportExt extends BaseEngineCommand {
         const length = extPlaylists.length;
         if (length) {
           ctx.succeed(
-            chalk`Found {blue ${length.toString()}} external playlists`,
+            chalk`Found {blue ${length.toString()}} external ${pluralize(
+              'playlist',
+              length,
+            )}`,
           );
         } else {
           ctx.warn(`Didn't find any external playlists`);
@@ -86,7 +91,10 @@ export default class ImportExt extends BaseEngineCommand {
         const imported = await this.importPlaylists(selectedPlaylists);
 
         ctx.succeed(
-          chalk`Imported {blue ${imported.length.toString()}} external playlists`,
+          chalk`Imported {blue ${imported.length.toString()}} external ${pluralize(
+            'playlist',
+            imported.length,
+          )}`,
         );
         this.logPlaylistsWithTrackCount(imported);
 
@@ -117,7 +125,7 @@ export default class ImportExt extends BaseEngineCommand {
   private checkLicense(): boolean {
     if (!isLicensed()) {
       this.log(
-        chalk`{yellow Warning} The import-ext command isn't included in the free version.`,
+        chalk`{yellow Warning} The {cyan ${ImportExt.name}} command isn't included in the free version.`,
       );
       return false;
     }

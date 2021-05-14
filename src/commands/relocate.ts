@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { keyBy, partition } from 'lodash';
 import path from 'path';
+import pluralize from 'pluralize';
 import prompts from 'prompts';
 import { trueCasePath } from 'true-case-path';
 
@@ -25,9 +26,13 @@ export default class Relocate extends BaseEngineCommand {
       text: 'Find missing tracks',
       run: async ctx => {
         const missing = await this.findMissingTracks();
-        if (missing.length) {
+        const length = missing.length;
+        if (length) {
           ctx.succeed(
-            chalk`Found {red ${missing.length.toString()}} missing tracks`,
+            chalk`Found {red ${length.toString()}} missing ${pluralize(
+              'track',
+              length,
+            )}`,
           );
           this.logTracks(missing);
         } else {
@@ -53,17 +58,23 @@ export default class Relocate extends BaseEngineCommand {
           searchFolder,
         });
 
-        const numRelocated = relocated.length.toString();
-        const numMissing = stillMissing.length.toString();
+        const relocatedLength = relocated.length;
+        const missingLength = stillMissing.length;
+        const relocatedTrackWord = pluralize('track', relocatedLength);
+        const missingTrackWord = pluralize('track', missingLength);
 
         if (!relocated.length) {
-          ctx.fail(chalk`Couldn't find {red ${numMissing}} tracks`);
-        } else if (stillMissing.length) {
+          ctx.fail(
+            chalk`Couldn't find {red ${missingLength.toString()}} ${missingTrackWord}`,
+          );
+        } else if (missingLength) {
           ctx.warn(
-            chalk`Relocated {green ${numRelocated}} tracks, couldn't find {red ${numMissing}} tracks`,
+            chalk`Relocated {green ${relocatedLength.toString()}} ${relocatedTrackWord}, couldn't find {red ${missingLength.toString()}} ${missingTrackWord}`,
           );
         } else {
-          ctx.succeed(chalk`Relocated {green ${numRelocated}} tracks`);
+          ctx.succeed(
+            chalk`Relocated {green ${relocatedLength.toString()}} ${relocatedTrackWord}`,
+          );
         }
         this.logTracks(relocated);
         if (stillMissing.length) {
