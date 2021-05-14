@@ -36,7 +36,13 @@ export abstract class BaseEngineCommand extends Command {
   }
 
   protected async finally() {
-    await this.engineDb?.disconnect();
+    if (this.engineDb) {
+      await spinner({
+        text: 'Disconnect from Engine DB',
+        successMessage: 'Disconnected from Engine DB',
+        run: async () => this.engineDb.disconnect(),
+      });
+    }
   }
 
   protected async connectToEngine() {
