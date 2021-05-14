@@ -96,9 +96,15 @@ export async function getFilesInDir({
   path: string;
   maxDepth?: number;
 }): Promise<{ name: string; path: string }[]> {
-  const entries = await fs.promises.readdir(path, {
-    withFileTypes: true,
-  });
+  let entries;
+
+  try {
+    entries = await fs.promises.readdir(path, {
+      withFileTypes: true,
+    });
+  } catch (e) {
+    return [];
+  }
 
   const filesWithPath = entries
     .filter(x => x.isFile())
