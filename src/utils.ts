@@ -8,8 +8,9 @@ import nodePath from 'path';
 import terminalLink from 'terminal-link';
 
 export const PromptHints = {
-  Select: 'use arrow keys, enter to submit',
-  Multiselect: 'use arrow keys, space to select, enter to submit',
+  Select: '(↑/↓) to choose, (enter) to submit',
+  Multiselect:
+    '(↑/↓) to choose, (space) to select, (a) to select all, (enter) to submit',
 };
 
 export function isStandalone(): boolean {

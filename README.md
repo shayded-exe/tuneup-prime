@@ -18,6 +18,7 @@
 - Library relocation
   - Relocate missing tracks
   - Provide a folder to search for tracks in
+- Imports playlists created on smart consoles like the Prime 4 or SC6000
 - Automatically backs up library before running
 - Supports Engine 1.6.x
 - Cross platform
@@ -62,6 +63,8 @@ $ npm install -g enjinn@latest
 
 ENJINN is a command line app, which means you will need to run it from your terminal.
 
+> ⚠️ **Engine must be closed when running ENJINN!**
+
 Depending on your OS, here's how you can open up a terminal:
 
 #### Windows 10
@@ -76,11 +79,13 @@ Depending on your OS, here's how you can open up a terminal:
 
 Once your terminal is open, simply run the `enjinn` command to view the help info.
 
-> Only type the text _after_ the `$`
+_Only type the text after the `$`_
 
 ```
 $ enjinn
 ```
+
+> To stop ENJINN in the middle of running a command, press `ctrl+c`.
 
 [Available commands](#-commands)
 
@@ -102,7 +107,7 @@ The free version has several restrictions:
 
 - Smart playlists: Up to 5 playlists, no nested filters
 - Relocate: Basic macthing only. Premium will add the ability to fix individual tracks as well as handle renamed files.
-- Playlist import: Will be premium only.
+- Playlist import: Premium only.
 
 ### Library configuration
 
@@ -121,6 +126,7 @@ In the future, you'll be able to specify multiple Engine libraries and even swit
 
 - 🧠 [`smart` - Generate smart playlists](#-smart)
 - 🔍 [`relocate` - Relocate missing tracks](#-relocate)
+- 📼 [`import-ext` - Import playlists from external libraries](#-import-ext)
 
 ### 🧠 Smart
 
@@ -132,7 +138,7 @@ $ enjinn smart
 
 To configure the smart playlists, place a file called `enjinn.yaml` in your Engine library folder. See the [examples](examples/enjinn.example.yaml) to learn how to define playlists.
 
-If a playlist already exists (at the root level) with the same name as one of your smart playlists **IT WILL BE OVERWRITTEN**. In most cases this is desired, as you'll want to update your smart playlists.
+If a playlist already exists with the same name as one of your smart playlists **IT WILL BE OVERWRITTEN**. In most cases this is desired, as you'll want to update your smart playlists.
 
 ### 🔍 Relocate
 
@@ -145,3 +151,13 @@ $ enjinn relocate
 ENJINN will scan your library for tracks that are missing on disk. It will then ask you to specify a folder to search for your tracks in. It will also search up to 5 subfolders deep. After searching, it will print out the relocated tracks and their new paths.
 
 Currently, the filenames have to be the same, but soon you'll be able to specify rules for matching filenames as well as rename individual files.
+
+### 📼 Import External
+
+Imports playlists created on smart consoles like the Prime 4 or SC6000.
+
+```
+$ enjinn import-ext
+```
+
+ENJINN will look for USB drives that contain Engine libraries. It will ask you to select which drive to import from. After selecting a drive, it will ask you which playlists you want to import.
