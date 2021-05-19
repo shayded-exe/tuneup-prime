@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import { pick } from 'lodash';
 
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
@@ -161,15 +162,29 @@ export class EngineDB_2_0 extends EngineDB {
     throw new Error('Not implemented');
   }
 
-  async updateTrackPaths(tracks: publicSchema.Track[]) {
-    await this.knex.transaction(async trx => {
-      await asyncSeries(
+  async updateTracks(tracks: publicSchema.UpdateTrackInput[]) {
+    await this.knex.transaction(async trx =>
+      asyncSeries(
         tracks.map(track => async () => {
+          const updateKeys: (keyof publicSchema.UpdateTrackInput)[] = [
+            'album',
+            'artist',
+            'comment',
+            'composer',
+            'filename',
+            'genre',
+            'label',
+            'path',
+            'rating',
+            'remixer',
+            'title',
+            'year',
+          ];
           await this.table('Track', trx)
             .where('id', track.id)
-            .update({ path: track.path });
+            .update(pick(track, updateKeys));
         }),
-      );
-    });
+      ),
+    );
   }
 }

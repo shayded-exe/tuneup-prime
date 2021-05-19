@@ -71,7 +71,7 @@ export abstract class EngineDB {
 
   abstract getPlaylistTracks(playlistId: number): Promise<schema.Track[]>;
 
-  abstract updateTrackPaths(tracks: schema.Track[]): Promise<void>;
+  abstract updateTracks(tracks: schema.UpdateTrackInput[]): Promise<void>;
 
   protected async getSchemaInfo(): Promise<schema.Information> {
     const results = await this.knex<schema.Information>('Information') //

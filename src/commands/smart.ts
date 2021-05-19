@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { every, some } from 'lodash';
+import pluralize from 'pluralize';
 
 import { BaseEngineCommand } from '../base-commands';
 import * as engine from '../engine';
@@ -41,15 +42,17 @@ export default class Smart extends BaseEngineCommand {
             tracks: filterTracks({ tracks, playlistConfig }),
           }),
         );
+        const length = inputs.length;
 
         const numEmpty = inputs.filter(x => !x.tracks.length).length;
+        const playlistWord = pluralize('playlist', length);
         if (numEmpty) {
           ctx.warn(
-            chalk`Built {blue ${inputs.length.toString()}} smart playlists, but {yellow ${numEmpty.toString()}} didn't match any tracks`,
+            chalk`Built {blue ${length.toString()}} smart ${playlistWord}, but {yellow ${numEmpty.toString()}} didn't match any tracks`,
           );
         } else {
           ctx.succeed(
-            chalk`Built {blue ${inputs.length.toString()}} smart playlists`,
+            chalk`Built {blue ${length.toString()}} smart ${playlistWord}`,
           );
         }
         this.logPlaylistsWithTrackCount(inputs);
@@ -81,8 +84,8 @@ export default class Smart extends BaseEngineCommand {
 
     const numPlaylists = this.smartPlaylists.length;
     if (numPlaylists > MAX_FREE_PLAYLISTS) {
-      this.log(
-        chalk`{yellow Warning} The free version only supports up to {green ${MAX_FREE_PLAYLISTS.toString()}}, but you have {yellow ${numPlaylists.toString()}}.`,
+      this.warnBlock(
+        chalk`The free version only supports up to {green ${MAX_FREE_PLAYLISTS.toString()}} smart playlists, but you have {yellow ${numPlaylists.toString()}}.`,
       );
       return false;
     }
@@ -90,10 +93,10 @@ export default class Smart extends BaseEngineCommand {
       normalizeRuleGroup(p.rules).nodes.some(isNodeGroup),
     );
     if (withNestedRules.length) {
-      this.log(
-        chalk`{yellow Warning} The free version doesn't support nested rules. The following playlists contain nested rules:`,
+      this.warnBlock(
+        `The free version doesn't support nested rules. The following playlists contain nested rules:`,
       );
-      withNestedRules.forEach(p => this.log(`    ${p.name}`));
+      withNestedRules.forEach(p => this.log(p.name, { indent: 4 }));
       return false;
     }
 

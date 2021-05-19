@@ -1,12 +1,13 @@
 import { Knex } from 'knex';
 import {
-  camelCase,
   Dictionary,
   fromPairs,
   groupBy,
+  pick,
   pullAt,
   transform,
 } from 'lodash';
+import { ConditionalKeys } from 'type-fest';
 
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
@@ -289,7 +290,7 @@ export class EngineDB_1_6 extends EngineDB {
           ...transform(
             textMetaMap[track.id] ?? [],
             (result, meta) => {
-              const key = camelCase(schema.MetaDataType[meta.type]);
+              const key = schema.MetaDataType[meta.type];
               result[key] = meta.text;
             },
             {} as any,
@@ -297,7 +298,7 @@ export class EngineDB_1_6 extends EngineDB {
           ...transform(
             intMetaMap[track.id] ?? [],
             (result, meta) => {
-              const key = camelCase(schema.MetaDataIntegerType[meta.type]);
+              const key = schema.MetaDataIntegerType[meta.type];
               result[key] = meta.value;
             },
             {} as any,
@@ -316,16 +317,47 @@ export class EngineDB_1_6 extends EngineDB {
     });
   }
 
-  async updateTrackPaths(tracks: publicSchema.Track[]) {
-    await this.knex.transaction(async trx => {
-      await asyncSeries(
-        tracks.map(track => async () => {
+  async updateTracks(updates: publicSchema.UpdateTrackInput[]) {
+    await this.knex.transaction(async trx =>
+      asyncSeries(
+        updates.map(trackUpdates => async () => {
+          const updateKeys: (keyof publicSchema.UpdateTrackInput)[] = [
+            'filename',
+            'path',
+            'year',
+          ];
           await this.table('Track', trx)
-            .where('id', track.id)
-            .update({ path: track.path });
+            .where('id', trackUpdates.id)
+            .update(pick(trackUpdates, updateKeys));
+
+          const stringMetaUpdateKeys: ConditionalKeys<
+            publicSchema.UpdateTrackInput,
+            string | undefined
+          >[] = [
+            'album',
+            'artist',
+            'comment',
+            'composer',
+            'genre',
+            'label',
+            'title',
+          ];
+
+          await asyncSeries(
+            stringMetaUpdateKeys
+              .filter(key => trackUpdates[key])
+              .map(key => async () => {
+                const metaType = schema.MetaDataType[key as any];
+
+                await this.table('MetaData', trx)
+                  .where('id', trackUpdates.id)
+                  .andWhere('type', metaType)
+                  .update({ text: trackUpdates[key] });
+              }),
+          );
         }),
-      );
-    });
+      ),
+    );
   }
 
   async getExtTrackMapping(
