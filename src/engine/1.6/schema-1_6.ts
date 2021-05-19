@@ -128,6 +128,7 @@ export interface MetaData {
 }
 
 export enum MetaDataIntegerType {
+  DateLastPlayed = 1,
   DateAdded = 2,
   DateCreated = 3,
   Key = 4,

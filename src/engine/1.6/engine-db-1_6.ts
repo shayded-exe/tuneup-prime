@@ -4,9 +4,11 @@ import {
   Dictionary,
   fromPairs,
   groupBy,
+  pick,
   pullAt,
   transform,
 } from 'lodash';
+import { ConditionalKeys } from 'type-fest';
 
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
@@ -316,16 +318,34 @@ export class EngineDB_1_6 extends EngineDB {
     });
   }
 
-  async updateTrackPaths(tracks: publicSchema.Track[]) {
-    await this.knex.transaction(async trx => {
-      await asyncSeries(
+  async updateTracks(tracks: publicSchema.UpdateTrackInput[]) {
+    await this.knex.transaction(async trx =>
+      asyncSeries(
         tracks.map(track => async () => {
+          const updateKeys: (keyof publicSchema.UpdateTrackInput)[] = [
+            'filename',
+            'path',
+            'year',
+          ];
           await this.table('Track', trx)
             .where('id', track.id)
-            .update({ path: track.path });
+            .update(pick(track, updateKeys));
+
+          const stringMetaUpdateKeys: ConditionalKeys<
+            publicSchema.UpdateTrackInput,
+            string | undefined
+          >[] = [
+            'album',
+            'artist',
+            'comment',
+            'composer',
+            'genre',
+            'label',
+            'title',
+          ];
         }),
-      );
-    });
+      ),
+    );
   }
 
   async getExtTrackMapping(

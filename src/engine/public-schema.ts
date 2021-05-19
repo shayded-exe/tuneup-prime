@@ -1,4 +1,4 @@
-import { Opaque } from 'type-fest';
+import { Except, Opaque, SetRequired } from 'type-fest';
 
 export interface Information {
   id: number;
@@ -44,5 +44,18 @@ export interface Track {
   title?: string;
   year?: number;
 }
+
+export type UpdateTrackInput = Except<
+  SetRequired<Partial<Track>, 'id'>,
+  | 'bitrate'
+  | 'bpmAnalyzed'
+  | 'dateAdded'
+  | 'dateCreated'
+  | 'fileType'
+  | 'isBeatGridLocked'
+  | 'key'
+  | 'length'
+  | 'timeLastPlayed'
+>;
 
 export type CamelotKeyId = Opaque<'CamelotKeyId', number>;

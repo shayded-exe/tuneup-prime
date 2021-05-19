@@ -31,6 +31,7 @@ export default class StripAccents extends BaseEngineCommand {
 
         if (length) {
           ctx.succeed(chalk`Found {yellow ${length.toString()}} ${msgSuffix}`);
+          this.logTracks(accented);
         } else {
           ctx.warn(`Didn't find any ${msgSuffix}`);
         }
@@ -38,7 +39,6 @@ export default class StripAccents extends BaseEngineCommand {
         return accented;
       },
     });
-    this.logTracks(accentedTracks);
   }
 
   private checkLicense(): boolean {
