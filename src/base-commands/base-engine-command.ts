@@ -9,7 +9,7 @@ export abstract class BaseEngineCommand extends Command {
   protected libraryFolder!: string;
   protected engineDb!: engine.EngineDB;
 
-  log(message?: string, { indent = 0 }: { indent?: number } = {}) {
+  log(message = '', { indent = 0 }: { indent?: number } = {}) {
     const indentStr = ' '.repeat(indent);
     super.log(indentStr + message);
   }

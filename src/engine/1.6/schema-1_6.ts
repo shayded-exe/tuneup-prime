@@ -111,14 +111,14 @@ export interface TrackWithMeta extends Track {
 }
 
 export enum MetaDataType {
-  Album = 3,
-  Artist = 2,
-  Comment = 5,
-  Composer = 7,
-  FileType = 13,
-  Genre = 4,
-  Label = 6,
-  Title = 1,
+  album = 3,
+  artist = 2,
+  comment = 5,
+  composer = 7,
+  fileType = 13,
+  genre = 4,
+  label = 6,
+  title = 1,
 }
 
 export interface MetaData {
@@ -128,10 +128,10 @@ export interface MetaData {
 }
 
 export enum MetaDataIntegerType {
-  DateLastPlayed = 1,
-  DateAdded = 2,
-  DateCreated = 3,
-  Key = 4,
+  dateLastPlayed = 1,
+  dateAdded = 2,
+  dateCreated = 3,
+  key = 4,
 }
 
 export interface MetaDataInteger {

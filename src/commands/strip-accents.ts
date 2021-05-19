@@ -1,12 +1,17 @@
 import chalk from 'chalk';
+import fs from 'fs';
+import { compact, pick } from 'lodash';
+import path from 'path';
 import pluralize from 'pluralize';
 
 import { BaseEngineCommand } from '../base-commands';
 import * as engine from '../engine';
 import { isLicensed } from '../licensing';
-import { spinner } from '../utils';
+import { asyncSeries, spinner } from '../utils';
 
 export default class StripAccents extends BaseEngineCommand {
+  static readonly description = 'strip accents from tags and filenames';
+
   async run() {
     if (!this.checkLicense()) {
       return;
@@ -18,7 +23,8 @@ export default class StripAccents extends BaseEngineCommand {
 
     await this.connectToEngine();
 
-    const accentedTracks = await spinner({
+    this.log();
+    const accented = await spinner({
       text: 'Find accented tracks',
       run: async ctx => {
         const accented = await this.findTracksWithAccents();
@@ -39,6 +45,22 @@ export default class StripAccents extends BaseEngineCommand {
         return accented;
       },
     });
+    this.log();
+
+    if (!accented.length) {
+      return;
+    }
+
+    await spinner({
+      text: 'Strip accents from tracks and save to Engine DB',
+      successMessage: 'Stripped accents from tracks and saved to Engine DB',
+      run: async () =>
+        asyncSeries(
+          accented.map(
+            track => async () => this.stripAccentsAndSaveTrack(track),
+          ),
+        ),
+    });
   }
 
   private checkLicense(): boolean {
@@ -57,21 +79,48 @@ export default class StripAccents extends BaseEngineCommand {
 
     return tracks.filter(track =>
       ACCENTS_REGEX.test(
-        [
-          track.album,
-          track.artist,
-          track.comment,
-          track.composer,
-          track.filename,
-          track.genre,
-          track.label,
-          track.remixer,
-          track.title,
-        ].join(''),
+        compact(Object.values(pick(track, TRACK_ACCENT_FIELDS))).join(''),
       ),
     );
   }
+
+  private async stripAccentsAndSaveTrack(track: engine.Track) {
+    const origFilename = track.filename;
+
+    TRACK_ACCENT_FIELDS.forEach(field => {
+      const value = track[field];
+
+      if (value) {
+        track[field] = ACCENT_REPLACE_FUNCS.reduce((v, func) => func(v), value);
+      }
+    });
+
+    if (track.filename !== origFilename) {
+      const oldPath = track.path;
+      const parsedPath = path.parse(oldPath);
+      track.path = path.join(parsedPath.dir, track.filename);
+
+      const oldFile = path.resolve(this.libraryFolder, oldPath);
+      const newFile = path.resolve(this.libraryFolder, track.path);
+
+      await fs.promises.rename(oldFile, newFile);
+    }
+
+    await this.engineDb.updateTracks([track]);
+  }
 }
+
+const TRACK_ACCENT_FIELDS = [
+  'album',
+  'artist',
+  'comment',
+  'composer',
+  'filename',
+  'genre',
+  'label',
+  'remixer',
+  'title',
+] as const;
 
 // spell-checker: disable
 const ACCENT_MAP = {
@@ -85,22 +134,26 @@ const ACCENT_MAP = {
   òóôõöø: 'o',
   ÙÚÛÜ: 'U',
   ùúûüµ: 'u',
+  ß: 'B',
+  Ç: 'C',
+  ç: 'c',
   Ææ: 'AE',
   Œœ: 'OE',
   Ðð: 'DH',
   Þþ: 'TH',
-  Çç: 'C',
-  ß: 'S',
   '¢£€¤¥': '$',
-  '©': '©',
-  '«»': '"',
-  // '·': '.',
+  '©': 'c',
   '¡': '!',
-  '¿': '?',
-  '×': '*',
-  '÷': '/',
+  '×': 'x',
+  '·': '.',
+  '¿÷«»': '_',
 } as const;
 // spell-checker: enable
 
 const ALL_ACCENTS = Object.keys(ACCENT_MAP).join('');
-const ACCENTS_REGEX = new RegExp(`[${ALL_ACCENTS}]`);
+const ACCENTS_REGEX = new RegExp(`[${ALL_ACCENTS}]`, 'g');
+const ACCENT_REPLACE_FUNCS = Object.entries(ACCENT_MAP).map(([key, value]) => {
+  const regex = new RegExp(`[${key}]`, 'g');
+
+  return (v: string) => v.replace(regex, value);
+});

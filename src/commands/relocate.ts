@@ -41,12 +41,12 @@ export default class Relocate extends BaseEngineCommand {
         return missing;
       },
     });
+    this.log();
 
     if (!missingTracks.length) {
       return;
     }
 
-    this.log();
     const searchFolder = await this.promptForSearchFolder();
     this.log();
 
