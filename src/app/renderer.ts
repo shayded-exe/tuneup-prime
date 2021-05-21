@@ -1,6 +1,7 @@
 import './scss/app.scss';
 
 import Buefy from 'buefy';
+import { Color, Titlebar } from 'custom-electron-titlebar';
 import Vue from 'vue';
 
 import App from './app.vue';
@@ -13,3 +14,9 @@ new Vue({
   router,
   render: h => h(App),
 }).$mount('#app');
+
+new Titlebar({
+  backgroundColor: Color.fromHex('#1e1e1e'),
+  menu: null,
+  maximizable: false,
+});

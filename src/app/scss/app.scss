@@ -1,3 +1,19 @@
 @import '~bulma';
 @import '~buefy/src/scss/buefy';
 @import './_fonts';
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  overflow-y: auto;
+}
+
+.titlebar {
+  .window-controls-container {
+    // Maximize button
+    :nth-child(2) {
+      display: none !important;
+    }
+  }
+}

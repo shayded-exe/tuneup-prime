@@ -1,5 +1,6 @@
-import { app, BrowserWindow, protocol } from 'electron';
+import { app, BrowserWindow, nativeTheme, protocol } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -19,7 +20,11 @@ async function createWindow() {
   const window = new BrowserWindow({
     width: 800,
     height: 600,
+    resizable: false,
+    titleBarStyle: 'hidden',
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      enableRemoteModule: true,
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: (process.env
@@ -28,6 +33,7 @@ async function createWindow() {
     },
   });
   window.removeMenu();
+  nativeTheme.themeSource = 'dark';
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode

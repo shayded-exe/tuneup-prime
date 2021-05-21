@@ -17,6 +17,7 @@
     "khaled",
     "listr",
     "martinbeentjes",
+    "maximizable",
     "metas",
     "nklayman",
     "nsis",
@@ -24,6 +25,9 @@
     "shallwefootball",
     "tempfs"
   ],
+  "files.associations": {
+    "**/snippets/**/*.vue": "text"
+  },
   "files.exclude": {
     "dist": true,
     "dist_electron": true
