@@ -6,25 +6,25 @@
     "Remixer",
     "SHAYDE",
     "SHAYDED",
+    "VUEJS",
     "Venmo",
     "dedupe",
     "destructure",
     "enjinn",
-    "execa",
     "keyby",
     "khaled",
     "listr",
     "martinbeentjes",
     "metas",
+    "nklayman",
     "nsis",
     "rshea",
     "shallwefootball",
     "tempfs"
   ],
   "files.exclude": {
-    "lib": true,
-    "pack": true,
-    "tmp": true
+    "dist": true,
+    "dist_electron": true
   },
   "typescript.tsdk": "node_modules/typescript/lib"
 }
