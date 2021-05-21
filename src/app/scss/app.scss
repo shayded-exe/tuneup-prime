@@ -1,6 +1,8 @@
 @import '~bulma';
 @import '~buefy/src/scss/buefy';
-@import './_fonts';
+@import '~@fortawesome/fontawesome-free/css/all.css';
+@import './fonts';
+@import './buttons';
 
 html {
   -webkit-font-smoothing: antialiased;
@@ -10,6 +12,10 @@ html {
 }
 
 .titlebar {
+  .window-title {
+    font-size: unset !important;
+  }
+
   .window-controls-container {
     // Maximize button
     :nth-child(2) {

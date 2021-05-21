@@ -1,5 +1,6 @@
 import './scss/app.scss';
 
+import { initStore } from '@/store';
 import Buefy from 'buefy';
 import { Color, Titlebar } from 'custom-electron-titlebar';
 import Vue from 'vue';
@@ -7,16 +8,28 @@ import Vue from 'vue';
 import App from './app.vue';
 import { router } from './router';
 
-Vue.config.productionTip = false;
-Vue.use(Buefy);
+function init() {
+  initStore();
+  initVue();
+}
 
-new Vue({
-  router,
-  render: h => h(App),
-}).$mount('#app');
+function initVue() {
+  Vue.config.productionTip = false;
 
-new Titlebar({
-  backgroundColor: Color.fromHex('#1e1e1e'),
-  menu: null,
-  maximizable: false,
-});
+  Vue.use(Buefy, {
+    defaultIconPack: 'fas',
+  });
+
+  new Vue({
+    router,
+    render: h => h(App),
+  }).$mount('#app');
+
+  new Titlebar({
+    backgroundColor: Color.fromHex('#1e1e1e'),
+    menu: null,
+    maximizable: false,
+  });
+}
+
+init();

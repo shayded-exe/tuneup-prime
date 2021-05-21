@@ -39,13 +39,14 @@
     "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "5.15.3",
     "ajv": "8.4.0",
     "buefy": "0.9.7",
-    "conf": "10.0.1",
     "core-js": "3.12.1",
     "custom-electron-titlebar": "3.2.7",
     "dateformat": "4.5.1",
     "electron-squirrel-startup": "1.0.0",
+    "electron-store": "8.0.0",
     "js-yaml": "4.1.0",
     "knex": "0.95.6",
     "lodash": "4.17.21",

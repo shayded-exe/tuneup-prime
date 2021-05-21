@@ -1,7 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import Home from './views/home.vue';
+import HomePage from './views/home-page.vue';
+import SettingsPage from './views/settings-page.vue';
+import SmartCommand from './views/smart-command.vue';
 
 Vue.use(VueRouter);
 
@@ -10,8 +12,18 @@ export const router = new VueRouter({
   routes: [
     {
       path: '/',
-      name: 'Home',
-      component: Home,
+      name: 'home',
+      component: HomePage,
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: SettingsPage,
+    },
+    {
+      path: '/smart',
+      name: 'smart',
+      component: SmartCommand,
     },
   ],
 });
