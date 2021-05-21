@@ -10,6 +10,15 @@ const vuePluginOptions = {
 
 /** @type {ProjectOptions} */
 module.exports = {
+  css: {
+    loaderOptions: {
+      sass: {
+        additionalData: `
+          @import '@/app/scss/_prepend';
+        `,
+      },
+    },
+  },
   pages: {
     index: {
       entry: 'src/app/renderer.ts',
