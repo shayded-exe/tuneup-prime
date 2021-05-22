@@ -90,8 +90,6 @@ function init() {
 
   const isDevelopment = process.env.NODE_ENV !== 'production';
 
-  console.log(app.getPath('userData'));
-
   // Scheme must be registered before the app is ready
   protocol.registerSchemesAsPrivileged([
     {

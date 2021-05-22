@@ -5,7 +5,8 @@
     <div class="commands"></div>
 
     <b-button
-      @click="$router.push('settings')"
+      tag="router-link"
+      to="settings"
       type="is-primary"
       icon-left="cog"
       class="enjinn-button"
