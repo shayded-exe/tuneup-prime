@@ -4,7 +4,7 @@ $scheme-invert: $white;
 $text: $text-invert;
 $text-strong: $text-invert;
 
-$family-monospace: 'Ubuntu Mono';
+$family-monospace: 'Ubuntu Mono', 'emoji';
 $family-primary: $family-monospace;
 
 $gradient-morning: linear-gradient(

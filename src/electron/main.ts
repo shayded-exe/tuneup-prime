@@ -76,7 +76,6 @@ function init() {
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       // Load the url of the dev server if in development mode
-      console.log(process.env.WEBPACK_DEV_SERVER_URL);
       await window.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
 
       if (!process.env.IS_TEST) {

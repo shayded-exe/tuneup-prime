@@ -11,6 +11,14 @@ import { router } from './router';
 function init() {
   initStore();
   initVue();
+
+  if (module.hot) {
+    window.addEventListener('message', () => {
+      if (process.env.NODE_ENV !== 'production') {
+        console.clear();
+      }
+    });
+  }
 }
 
 function initVue() {

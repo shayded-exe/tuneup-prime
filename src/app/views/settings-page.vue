@@ -9,6 +9,7 @@
       </b-field>
       <b-button
         @click="browseLibraryFolder()"
+        type="is-info is-outlined"
         icon-left="folder-open"
         class="ml-3"
         >browse</b-button
