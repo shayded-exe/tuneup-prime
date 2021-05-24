@@ -1,0 +1,14 @@
+.b-table {
+  &.no-border {
+    .table td {
+      border: none;
+    }
+  }
+
+  .table {
+    tr.detail {
+      background: bulmaLighten($background, 5%);
+      box-shadow: none;
+    }
+  }
+}

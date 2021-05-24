@@ -18,8 +18,7 @@ export abstract class EngineDB {
 
   private isInitialized = false;
 
-  protected readonly knex: Knex;
-
+  protected knex!: Knex;
   protected schemaInfo!: schema.Information;
 
   abstract get version(): Version;
@@ -30,12 +29,6 @@ export abstract class EngineDB {
 
   constructor(opts: EngineDB.Options) {
     Object.assign(this, opts);
-
-    this.knex = knex({
-      client: 'sqlite3',
-      connection: { filename: opts.dbPath },
-      useNullAsDefault: true,
-    });
   }
 
   async init() {
@@ -46,12 +39,20 @@ export abstract class EngineDB {
       await this.backup();
     }
 
+    this.knex = knex({
+      client: 'sqlite3',
+      connection: { filename: this.dbPath },
+      useNullAsDefault: true,
+    });
+
     this.schemaInfo = await this.getSchemaInfo();
     this.isInitialized = true;
+    console.debug(`Connected to Engine DB ${this.uuid}`);
   }
 
   async disconnect() {
     await this.knex.destroy();
+    console.debug(`Disconnected from Engine DB ${this.uuid}`);
   }
 
   async backup() {

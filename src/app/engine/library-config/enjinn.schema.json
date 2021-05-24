@@ -106,5 +106,6 @@
       "type": "string",
       "enum": ["=", "!=", ">", ">=", "<", "<="]
     }
-  }
+  },
+  "additionalProperties": false
 }

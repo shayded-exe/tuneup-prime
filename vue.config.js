@@ -15,6 +15,7 @@ const vuePluginOptions = {
     config.resolve.alias.delete('@');
     config.resolve.plugin('tsconfig-paths').use(TsconfigPathsPlugin);
   },
+  removeElectronJunk: true,
 };
 
 /** @type {ProjectOptions} */

@@ -4,12 +4,15 @@
 @import './emoji.css';
 @import './fonts';
 @import './buttons';
+@import './messages';
+@import './scrollbars';
+@import './tables';
 
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .titlebar {
@@ -23,4 +26,8 @@ html {
       display: none !important;
     }
   }
+}
+
+.container-after-titlebar {
+  overflow: hidden;
 }

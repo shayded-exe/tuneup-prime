@@ -6,7 +6,10 @@ import { Component, Vue } from 'vue-property-decorator';
 export default class BaseCommand extends Vue {
   protected libraryFolder!: string;
   protected engineDb?: engine.EngineDB;
-  protected libraryConfig?: engine.config.LibraryConfigFile;
+  protected libraryConfig: engine.config.LibraryConfigFile | null = null;
+
+  engineDbConnectError = '';
+  libraryConfigReadError = '';
 
   mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
@@ -16,18 +19,36 @@ export default class BaseCommand extends Vue {
     await this.disconnectFromEngine();
   }
 
+  async readLibraryConfig() {
+    try {
+      this.libraryConfig = await engine.config.readLibraryConfig(
+        this.libraryFolder,
+      );
+      this.libraryConfigReadError = '';
+    } catch (e) {
+      this.libraryConfig = null;
+      console.log(e);
+      this.libraryConfigReadError = e.message;
+    }
+  }
+
   protected async connectToEngine() {
-    this.engineDb = await engine.connect(this.libraryFolder);
+    if (this.engineDb) {
+      console.debug(`Already connected to Engine!`);
+      return;
+    }
+
+    try {
+      this.engineDb = await engine.connect(this.libraryFolder);
+      this.engineDbConnectError = '';
+    } catch (e) {
+      this.engineDb = undefined;
+      this.engineDbConnectError = e.message;
+    }
   }
 
   protected async disconnectFromEngine() {
     await this.engineDb?.disconnect();
-  }
-
-  protected async loadLibraryConfig() {
-    this.libraryConfig = undefined;
-    this.libraryConfig = await engine.config.readLibraryConfig(
-      this.libraryFolder,
-    );
+    this.engineDb = undefined;
   }
 }

@@ -13,7 +13,7 @@ function init() {
   initVue();
 
   if (module.hot) {
-    window.addEventListener('message', () => {
+    window.addEventListener('message', e => {
       if (process.env.NODE_ENV !== 'production') {
         console.clear();
       }

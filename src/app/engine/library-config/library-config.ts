@@ -8,6 +8,7 @@ import smartPlaylistConfigSchema from './enjinn.schema.json';
 import { SmartPlaylist } from './smart-playlist';
 
 export interface LibraryConfigFile {
+  path: string;
   smartPlaylists: SmartPlaylist[];
 }
 
@@ -43,5 +44,8 @@ export async function readLibraryConfig(
     );
   }
 
-  return config;
+  return {
+    ...config,
+    path: configPath,
+  };
 }

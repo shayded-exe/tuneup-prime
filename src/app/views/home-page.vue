@@ -17,8 +17,9 @@
       type="is-primary"
       icon-left="cog"
       class="enjinn-button"
-      >settings</b-button
     >
+      settings
+    </b-button>
   </div>
 </template>
 

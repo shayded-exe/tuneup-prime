@@ -12,8 +12,9 @@
         type="is-info is-outlined"
         icon-left="folder-open"
         class="ml-3"
-        >browse</b-button
       >
+        browse
+      </b-button>
     </div>
 
     <article v-if="isValid" class="message is-success">
@@ -35,13 +36,14 @@
         </div>
         <div class="level-item">
           <b-button
+            :disabled="!isValid"
             @click="save()"
             type="is-primary"
             icon-left="save"
             class="enjinn-button"
-            :disabled="!isValid"
-            >save</b-button
           >
+            save
+          </b-button>
         </div>
       </div>
     </div>
