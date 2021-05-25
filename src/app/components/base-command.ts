@@ -19,7 +19,7 @@ export default class BaseCommand extends Vue {
     await this.disconnectFromEngine();
   }
 
-  async readLibraryConfig() {
+  protected async readLibraryConfig() {
     try {
       this.libraryConfig = await engine.config.readLibraryConfig(
         this.libraryFolder,

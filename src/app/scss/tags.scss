@@ -1,0 +1,11 @@
+.tags.block-taglist {
+  margin-bottom: 0;
+  align-items: stretch;
+}
+
+.tags.block-taglist > .tag,
+.tag.block-tag {
+  border-radius: 0;
+  margin-bottom: 0;
+  height: unset;
+}

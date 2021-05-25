@@ -76,9 +76,12 @@ smartPlaylists:
             - field: artist
               operator: excludes
               value: khaled
-            - field: another one
+            - field: album
               operator: equals
               value: another one
-            - field: another one
+            - field: album
               operator: equals
-            - field: another one
+              value: another one
+            - field: album
+              operator: equals
+              value: another one

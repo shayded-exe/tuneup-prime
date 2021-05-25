@@ -9,6 +9,10 @@
     tr.detail {
       background: bulmaLighten($background, 5%);
       box-shadow: none;
+
+      .detail-container {
+        padding: 0.25rem 1rem;
+      }
     }
   }
 }

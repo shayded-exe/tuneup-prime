@@ -1,36 +1,24 @@
 <template>
   <div class="is-flex is-flex-direction-column">
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <h1 class="title">
-            Smart playlists
-          </h1>
-        </div>
+    <command-header title="Smart playlists" class="mb-6">
+      <div class="level-item">
+        <b-button @click="reloadConfig()" type="is-info is-outlined">
+          reload config
+        </b-button>
       </div>
-      <div class="level-right">
-        <div class="level-item">
-          <b-button @click="readLibraryConfig()" type="is-info is-outlined">
-            reload config
-          </b-button>
-        </div>
 
-        <div class="level-item">
-          <b-button
-            :disabled="!canGenerate"
-            @click="generateSmartPlaylists()"
-            type="is-primary"
-            class="enjinn-button"
-          >
-            generate
-          </b-button>
-        </div>
+      <div class="level-item">
+        <b-button
+          :disabled="!canGenerate"
+          :loading="isGenerating"
+          @click="generateSmartPlaylists()"
+          type="is-primary"
+          class="enjinn-button"
+        >
+          generate
+        </b-button>
       </div>
-    </div>
-
-    <p class="title is-6">
-      The following smart playlists will be generated
-    </p>
+    </command-header>
 
     <div v-if="libraryConfigReadError" class="message is-danger">
       <div class="message-body">
@@ -38,53 +26,97 @@
       </div>
     </div>
 
-    <div v-if="smartPlaylists" class="table-wrapper">
-      <b-table
-        :data="smartPlaylists"
-        :columns="smartPlaylistColumns"
-        :show-header="false"
-        detailed
-        detail-key="name"
-        :show-detail-icon="false"
-        :opened-detailed="smartPlaylistNames"
-        class="no-border"
-      >
-        <template #detail="props">
-          {{ formatRuleGroup(props.row.rules) }}
-        </template>
-      </b-table>
+    <div v-if="smartPlaylists" class="smart-playlists-section">
+      <p class="title is-6 px-4">
+        <span v-if="!wasGenerated">
+          The following smart playlists will be generated
+        </span>
+        <span v-else>
+          Generated {{ smartPlaylists.length }} smart playlists
+        </span>
+      </p>
+
+      <div class="list px-4">
+        <div
+          v-for="playlist of smartPlaylists"
+          :key="playlist.name"
+          class="item mb-4"
+        >
+          <div class="is-flex is-justify-content-space-between pl-4">
+            <span class="has-text-weight-bold is-size-5 py-1">
+              {{ playlist.name }}
+            </span>
+
+            <b-taglist
+              v-if="playlist.wasGenerated"
+              attached
+              class="block-taglist"
+            >
+              <b-tag type="is-dark" size="is-medium" class="block-tag">
+                tracks
+              </b-tag>
+              <b-tag type="is-success" size="is-medium" class="block-tag">
+                {{ playlist.tracks.length }}
+              </b-tag>
+            </b-taglist>
+          </div>
+
+          <p class="rules px-4 py-2 is-family-code">
+            {{ formatRuleGroup(playlist.rules) }}
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.table-wrapper {
-  margin-top: -12px;
+.smart-playlists-section {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  .list {
+    min-height: 0;
+    overflow: auto;
+
+    .item {
+      .rules {
+        background-color: $grey-dark;
+      }
+    }
+  }
 }
 </style>
 
 <script lang="ts">
 import BaseCommand from '@/app/components/base-command';
 import * as engine from '@/app/engine';
-import { every, some } from 'lodash';
+import { cloneDeep, every, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
+import CommandHeader from '../components/command-header.vue';
+import { asyncSeries } from '../utils';
 import def = engine.config;
 
-@Component({})
+interface ActiveSmartPlaylist extends def.SmartPlaylist {
+  wasGenerated?: boolean;
+  tracks?: engine.Track[];
+}
+
+@Component({
+  components: { CommandHeader },
+})
 export default class SmartCommand extends BaseCommand {
-  readonly smartPlaylistColumns = [
-    {
-      field: 'name',
-      label: 'Name',
-    },
-  ];
+  smartPlaylists: ActiveSmartPlaylist[] | null = null;
+  isGenerating = false;
+  generateError = '';
 
   get canGenerate() {
-    return !!this.smartPlaylists;
+    return !!this.smartPlaylists && !this.isGenerating;
   }
 
-  get smartPlaylists() {
-    return this.libraryConfig?.smartPlaylists;
+  get wasGenerated() {
+    return !!this.smartPlaylists?.some(p => p.wasGenerated);
   }
 
   get smartPlaylistNames() {
@@ -92,7 +124,19 @@ export default class SmartCommand extends BaseCommand {
   }
 
   async mounted() {
+    await this.reloadConfig();
+  }
+
+  async reloadConfig() {
     await this.readLibraryConfig();
+
+    if (this.libraryConfig) {
+      this.resetPlaylists();
+    }
+  }
+
+  private resetPlaylists() {
+    this.smartPlaylists = cloneDeep(this.libraryConfig!.smartPlaylists);
   }
 
   formatRuleGroup(group: def.PlaylistRuleGroup): string {
@@ -109,7 +153,39 @@ export default class SmartCommand extends BaseCommand {
   }
 
   async generateSmartPlaylists() {
-    await this.connectToEngine();
+    this.isGenerating = true;
+    this.resetPlaylists();
+
+    try {
+      await this.connectToEngine();
+      await this.generateSmartPlaylistsInternal();
+      this.generateError = '';
+    } catch (e) {
+      this.generateError = e.message;
+    } finally {
+      this.disconnectFromEngine();
+      this.isGenerating = false;
+    }
+  }
+
+  private async generateSmartPlaylistsInternal() {
+    const tracks = await this.engineDb!.getTracks();
+    this.smartPlaylists!.forEach(playlist => {
+      playlist.tracks = filterTracks({
+        tracks,
+        playlistConfig: playlist,
+      });
+    });
+
+    await asyncSeries(
+      this.smartPlaylists!.map(playlist => async () => {
+        await this.engineDb!.createOrUpdatePlaylist({
+          title: playlist.name,
+          tracks: playlist.tracks!,
+        });
+        playlist.wasGenerated = true;
+      }),
+    );
   }
 }
 

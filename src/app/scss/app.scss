@@ -7,6 +7,7 @@
 @import './messages';
 @import './scrollbars';
 @import './tables';
+@import './tags';
 
 html {
   -webkit-font-smoothing: antialiased;
@@ -17,7 +18,7 @@ html {
 
 .titlebar {
   .window-title {
-    font-size: unset !important;
+    font-size: 15px !important;
   }
 
   .window-controls-container {
@@ -29,5 +30,5 @@ html {
 }
 
 .container-after-titlebar {
-  overflow: hidden;
+  overflow: hidden !important;
 }

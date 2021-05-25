@@ -1,13 +1,33 @@
-$scheme-main: $black;
+@import '~bulma/sass/utilities/initial-variables';
+
+// Color
+
+$black-ter: hsl(0, 0%, 12%);
+$grey-dark: hsl(221, 7%, 20%);
+
+$primary: hsl(21, 86%, 63%);
+// $info: hsl(221, 60%, 75%);
+$success-invert: $black;
+$info-invert: $black-ter;
+
+$scheme-main: $black-ter;
+$scheme-main-bis: $black-bis;
+$scheme-main-ter: $black-ter;
 $scheme-invert: $white;
+$scheme-invert-bis: $white-bis;
+$scheme-invert-ter: $white-ter;
 
-$background: $black;
+$background: $scheme-main-ter;
 
-$text: $text-invert;
-$text-strong: $text-invert;
+$text: hsl(0, 0%, 100%);
+$text-strong: $text;
+
+// Text
+
+$size-5: 1.15rem;
 
 $family-monospace: 'Ubuntu Mono', 'emoji';
-$family-primary: $family-monospace;
+$family-sans-serif: $family-monospace;
 
 $gradient-morning: linear-gradient(
   90deg,

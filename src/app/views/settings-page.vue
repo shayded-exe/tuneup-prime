@@ -32,7 +32,13 @@
       <div class="level-left"></div>
       <div class="level-right">
         <div class="level-item">
-          <b-button @click="cancel()" icon-left="times">cancel</b-button>
+          <b-button
+            @click="cancel()"
+            type="is-light is-outlined"
+            icon-left="times"
+          >
+            cancel
+          </b-button>
         </div>
         <div class="level-item">
           <b-button
