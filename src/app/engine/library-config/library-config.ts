@@ -18,10 +18,14 @@ const validateConfig = new Ajv().compile<LibraryConfigFile>(
   smartPlaylistConfigSchema,
 );
 
+export function getLibraryConfigPath(libraryFolder: string): string {
+  return path.resolve(libraryFolder, LIBRARY_CONFIG_FILENAME);
+}
+
 export async function readLibraryConfig(
   libraryFolder: string,
 ): Promise<LibraryConfigFile> {
-  const configPath = path.resolve(libraryFolder, LIBRARY_CONFIG_FILENAME);
+  const configPath = getLibraryConfigPath(libraryFolder);
   let config;
 
   try {
@@ -29,7 +33,7 @@ export async function readLibraryConfig(
     config = yaml.load(configString);
   } catch (e) {
     throw new Error(
-      `Failed to read config, path doesn't exist '${configPath}'`,
+      `Failed to read config, path doesn't exist\n    ${configPath}`,
     );
   }
 

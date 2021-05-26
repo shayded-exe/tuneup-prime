@@ -2,9 +2,16 @@
   <div class="is-flex is-flex-direction-column">
     <command-header title="Smart playlists" class="mb-6">
       <div class="level-item">
-        <b-button @click="reloadConfig()" type="is-info is-outlined">
-          reload config
-        </b-button>
+        <b-tooltip
+          :label="libraryConfigPath"
+          type="is-info"
+          position="is-left"
+          class="big-text"
+        >
+          <b-button @click="reloadConfig()" type="is-info is-outlined">
+            reload config
+          </b-button>
+        </b-tooltip>
       </div>
 
       <div class="level-item">
@@ -20,12 +27,6 @@
       </div>
     </command-header>
 
-    <div v-if="libraryConfigReadError" class="message is-danger">
-      <div class="message-body">
-        {{ libraryConfigReadError }}
-      </div>
-    </div>
-
     <div v-if="smartPlaylists" class="smart-playlists-section">
       <p class="title is-6 px-4">
         <span v-if="!wasGenerated">
@@ -40,7 +41,7 @@
         <div
           v-for="playlist of smartPlaylists"
           :key="playlist.name"
-          class="item mb-4"
+          class="list-item mb-4"
         >
           <div class="is-flex is-justify-content-space-between pl-4">
             <span class="has-text-weight-bold is-size-5 py-1">
@@ -67,6 +68,11 @@
         </div>
       </div>
     </div>
+    <div v-else-if="libraryConfigReadError" class="message is-danger">
+      <div class="message-body">
+        {{ libraryConfigReadError }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -80,7 +86,7 @@
     min-height: 0;
     overflow: auto;
 
-    .item {
+    .list-item {
       .rules {
         background-color: $grey-dark;
       }
@@ -91,11 +97,11 @@
 
 <script lang="ts">
 import BaseCommand from '@/app/components/base-command';
+import CommandHeader from '@/app/components/command-header.vue';
 import * as engine from '@/app/engine';
+import { asyncSeries } from '@/app/utils';
 import { cloneDeep, every, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
-import CommandHeader from '../components/command-header.vue';
-import { asyncSeries } from '../utils';
 import def = engine.config;
 
 interface ActiveSmartPlaylist extends def.SmartPlaylist {
@@ -153,17 +159,22 @@ export default class SmartCommand extends BaseCommand {
   }
 
   async generateSmartPlaylists() {
-    this.isGenerating = true;
-    this.resetPlaylists();
+    if (this.isGenerating) {
+      return;
+    }
 
     try {
+      this.isGenerating = true;
+      this.resetPlaylists();
       await this.connectToEngine();
+
       await this.generateSmartPlaylistsInternal();
+
       this.generateError = '';
     } catch (e) {
       this.generateError = e.message;
     } finally {
-      this.disconnectFromEngine();
+      await this.disconnectFromEngine();
       this.isGenerating = false;
     }
   }

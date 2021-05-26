@@ -9,6 +9,13 @@
           smart
         </div>
       </router-link>
+
+      <router-link to="relocate">
+        <div class="box">
+          <i class="em em-mag"></i>
+          relocate
+        </div>
+      </router-link>
     </div>
 
     <b-button

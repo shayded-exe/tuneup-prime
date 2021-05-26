@@ -8,11 +8,16 @@ export default class BaseCommand extends Vue {
   protected engineDb?: engine.EngineDB;
   protected libraryConfig: engine.config.LibraryConfigFile | null = null;
 
+  libraryConfigPath = '';
+
   engineDbConnectError = '';
   libraryConfigReadError = '';
 
   mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
+    this.libraryConfigPath = engine.config.getLibraryConfigPath(
+      this.libraryFolder,
+    );
   }
 
   async beforeDestroy() {

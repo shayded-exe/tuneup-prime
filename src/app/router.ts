@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import HomePage from './views/home-page.vue';
+import RelocateCommand from './views/relocate-command.vue';
 import SettingsPage from './views/settings-page.vue';
 import SmartCommand from './views/smart-command.vue';
 
@@ -24,6 +25,11 @@ export const router = new VueRouter({
       path: '/smart',
       name: 'smart',
       component: SmartCommand,
+    },
+    {
+      path: '/relocate',
+      name: 'relocate',
+      component: RelocateCommand,
     },
   ],
 });

@@ -12,13 +12,13 @@ function init() {
   initStore();
   initVue();
 
-  if (module.hot) {
-    window.addEventListener('message', e => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.clear();
-      }
-    });
-  }
+  // if (module.hot) {
+  //   window.addEventListener('message', e => {
+  //     if (process.env.NODE_ENV !== 'production') {
+  //       console.clear();
+  //     }
+  //   });
+  // }
 }
 
 function initVue() {

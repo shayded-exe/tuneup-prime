@@ -58,19 +58,13 @@
 
 <script lang="ts">
 import { appStore, AppStoreKey } from '@/store';
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { checkPathExists, checkPathIsDir } from '@/app/utils';
 import path from 'path';
 import * as engine from '@/app/engine';
 import { remote } from 'electron';
 
-@Component<SettingsPage>({
-  watch: {
-    async libraryFolder(value: string) {
-      await this.updateLibrary(value);
-    },
-  },
-})
+@Component
 export default class SettingsPage extends Vue {
   libraryFolder: string | null = null;
 
@@ -107,7 +101,8 @@ export default class SettingsPage extends Vue {
     this.$router.push('/');
   }
 
-  private async updateLibrary(value: string) {
+  @Watch('libraryFolder')
+  async updateLibrary(value: string) {
     const info = await validateLibraryFolder(value);
     if (typeof info === 'string') {
       this.libraryError = info;
