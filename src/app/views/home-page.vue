@@ -1,6 +1,6 @@
 <template>
-  <div class="is-flex is-flex-direction-column is-align-items-stretch">
-    <div class="block is-align-self-center">
+  <div class="is-flex is-flex-direction-column is-align-items-center">
+    <div class="block">
       <img src="../../../img/enjinn.png" alt="ENJINN" />
     </div>
 
@@ -9,11 +9,11 @@
         v-for="command of commands"
         :key="command.route"
         :to="command.route"
-        class="command-link"
+        class="command-link m-2"
       >
         <b-button
-          type="is-light"
-          size="is-large"
+          type="is-light is-outlined"
+          size="is-medium"
           icon-pack="em"
           :icon-left="command.icon"
           class="emoji-button"
@@ -23,7 +23,7 @@
       </router-link>
     </div>
 
-    <div class="level">
+    <div class="level is-align-self-stretch">
       <div class="level-left"></div>
       <div class="level-right">
         <div class="level-item">
@@ -42,11 +42,7 @@
   </div>
 </template>
 
-<style lang="scss" scoped>
-.command-link {
-  display: block;
-}
-</style>
+<style lang="scss" scoped></style>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';

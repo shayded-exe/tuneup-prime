@@ -3,6 +3,7 @@
     <command-header title="Relocate tracks" class="mb-6">
       <div class="level-item">
         <b-button
+          :disabled="!canFind"
           :loading="isFinding"
           @click="findMissingTracks()"
           type="is-info is-outlined"
@@ -110,7 +111,7 @@ export default class RelocateCommand extends BaseCommand {
   isRelocating = false;
   relocateError = '';
 
-  get canFindMissingTracks() {
+  get canFind() {
     return !this.isProcessing;
   }
 
