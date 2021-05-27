@@ -1,5 +1,7 @@
+import { asyncSeries } from '@/app/utils';
 import { Knex } from 'knex';
 import {
+  chunk,
   Dictionary,
   fromPairs,
   groupBy,
@@ -9,7 +11,6 @@ import {
 } from 'lodash';
 import { ConditionalKeys } from 'type-fest';
 
-import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
 import * as publicSchema from '../public-schema';
 import { Version } from '../version-detection';
@@ -82,49 +83,60 @@ export class EngineDB_1_6 extends EngineDB {
     let playlist = await this.getPlaylistByTitle(input.title);
     let playlistId = playlist?.id;
 
-    return this.knex.transaction(async (trx): Promise<schema.List> => {
-      if (!playlist) {
-        playlistId = await this.getNextPlaylistId(trx);
+    return this.knex.transaction(
+      async (trx): Promise<schema.List> => {
+        if (!playlist) {
+          playlistId = await this.getNextPlaylistId(trx);
 
-        const newPlaylist: schema.NewList = {
-          id: playlistId,
-          type: schema.ListType.Playlist,
-          title: input.title,
-          path: input.path ?? input.title + PLAYLIST_PATH_DELIMITER,
-          isFolder: 0,
-          isExplicitlyExported: 1,
-        };
-        await this.table('List', trx).insert(newPlaylist);
-        playlist = (await this.getPlaylistById(playlistId, trx))!;
+          const newPlaylist: schema.NewList = {
+            id: playlistId,
+            type: schema.ListType.Playlist,
+            title: input.title,
+            path: input.path ?? input.title + PLAYLIST_PATH_DELIMITER,
+            isFolder: 0,
+            isExplicitlyExported: 1,
+          };
+          await this.table('List', trx).insert(newPlaylist);
+          playlist = (await this.getPlaylistById(playlistId, trx))!;
 
-        await this.createPlaylistHierarchy(playlist, trx);
-      } else {
-        await this.table('ListTrackList', trx)
-          .where({
-            listId: playlistId,
-            listType: schema.ListType.Playlist,
-          })
-          .delete();
-      }
+          await this.createPlaylistHierarchy(playlist, trx);
+        } else {
+          await this.table('ListTrackList', trx)
+            .where({
+              listId: playlistId,
+              listType: schema.ListType.Playlist,
+            })
+            .delete();
+        }
 
-      const trackIds = input.tracks.map(t =>
-        typeof t === 'number' ? t : t.id,
-      );
-      if (trackIds.length) {
-        await this.table('ListTrackList', trx).insert(
-          trackIds.map<schema.NewListTrackList>((trackId, i) => ({
-            listId: playlistId!,
-            listType: schema.ListType.Playlist,
-            trackId: trackId,
-            trackIdInOriginDatabase: trackId,
-            trackNumber: i + 1,
-            databaseUuid: this.uuid,
-          })),
+        const trackIds = input.tracks.map(t =>
+          typeof t === 'number' ? t : t.id,
         );
-      }
+        if (trackIds.length) {
+          const newListTracks = trackIds.map<schema.NewListTrackList>(
+            (trackId, i) => ({
+              listId: playlistId!,
+              listType: schema.ListType.Playlist,
+              trackId: trackId,
+              trackIdInOriginDatabase: trackId,
+              trackNumber: i + 1,
+              databaseUuid: this.uuid,
+            }),
+          );
 
-      return playlist!;
-    });
+          await asyncSeries(
+            chunk(
+              newListTracks,
+              EngineDB.insertChunkSize,
+            ).map(chunkTracks => async () =>
+              this.table('ListTrackList', trx).insert(chunkTracks),
+            ),
+          );
+        }
+
+        return playlist!;
+      },
+    );
   }
 
   private async createPlaylistHierarchy(

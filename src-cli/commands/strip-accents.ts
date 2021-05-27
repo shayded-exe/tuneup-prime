@@ -10,9 +10,13 @@ import { isLicensed } from '../licensing';
 import { asyncSeries, spinner } from '../utils';
 
 export default class StripAccents extends BaseEngineCommand {
+  static readonly hidden = true;
+
   static readonly description = 'strip accents from tags and filenames';
 
   async run() {
+    return;
+
     if (!this.checkLicense()) {
       return;
     }

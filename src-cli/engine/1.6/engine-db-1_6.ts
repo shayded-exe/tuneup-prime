@@ -1,5 +1,6 @@
 import { Knex } from 'knex';
 import {
+  chunk,
   Dictionary,
   fromPairs,
   groupBy,
@@ -111,15 +112,22 @@ export class EngineDB_1_6 extends EngineDB {
         typeof t === 'number' ? t : t.id,
       );
       if (trackIds.length) {
-        await this.table('ListTrackList', trx).insert(
-          trackIds.map<schema.NewListTrackList>((trackId, i) => ({
+        const newListTracks = trackIds.map<schema.NewListTrackList>(
+          (trackId, i) => ({
             listId: playlistId!,
             listType: schema.ListType.Playlist,
             trackId: trackId,
             trackIdInOriginDatabase: trackId,
             trackNumber: i + 1,
             databaseUuid: this.uuid,
-          })),
+          }),
+        );
+
+        await asyncSeries(
+          chunk(newListTracks, EngineDB.insertChunkSize).map(
+            chunkTracks => async () =>
+              this.table('ListTrackList', trx).insert(chunkTracks),
+          ),
         );
       }
 

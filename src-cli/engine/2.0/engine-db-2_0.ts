@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { pick } from 'lodash';
+import { chunk, pick } from 'lodash';
 
 import { asyncSeries } from '../../utils';
 import { EngineDB } from '../engine-db';
@@ -98,9 +98,8 @@ export class EngineDB_2_0 extends EngineDB {
             'PlaylistEntity',
             trx,
           );
-
-          await this.table('PlaylistEntity', trx).insert(
-            trackIds.map<schema.NewPlaylistEntity>((trackId, i) => ({
+          const newEntities = trackIds.map<schema.NewPlaylistEntity>(
+            (trackId, i) => ({
               listId: playlistId!,
               trackId,
               nextEntityId:
@@ -109,7 +108,14 @@ export class EngineDB_2_0 extends EngineDB {
                   : lastEntityId + 2 + i,
               membershipReference: 0,
               databaseUuid: this.uuid,
-            })),
+            }),
+          );
+
+          await asyncSeries(
+            chunk(newEntities, EngineDB.insertChunkSize).map(
+              chunkEntities => async () =>
+                this.table('PlaylistEntity', trx).insert(chunkEntities),
+            ),
           );
         }
 
