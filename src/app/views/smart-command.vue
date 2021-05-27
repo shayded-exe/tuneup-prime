@@ -27,9 +27,9 @@
       </div>
     </command-header>
 
-    <div v-if="smartPlaylists" class="smart-playlists-section">
-      <p class="title is-6 px-4">
-        <span v-if="!wasGenerated">
+    <template v-if="smartPlaylists">
+      <p class="title is-5 px-4">
+        <span v-if="!numGenerated">
           The following smart playlists will be generated
         </span>
         <span v-else>
@@ -39,57 +39,56 @@
 
       <div class="list px-4">
         <div
-          v-for="playlist of smartPlaylists"
-          :key="playlist.name"
+          v-for="item of smartPlaylists"
+          :key="item.playlist.name"
           class="list-item mb-4"
         >
           <div class="is-flex is-justify-content-space-between pl-4">
             <span class="has-text-weight-bold is-size-5 py-1">
-              {{ playlist.name }}
+              {{ item.playlist.name }}
             </span>
 
-            <b-taglist
-              v-if="playlist.wasGenerated"
-              attached
-              class="block-taglist"
-            >
+            <b-taglist v-if="item.wasGenerated" attached class="block-taglist">
               <b-tag type="is-dark" size="is-medium" class="block-tag">
                 tracks
               </b-tag>
-              <b-tag type="is-success" size="is-medium" class="block-tag">
-                {{ playlist.tracks.length }}
+              <b-tag
+                size="is-medium"
+                :class="[
+                  item.tracks.length ? 'is-success' : 'is-warning',
+                  'block-tag',
+                ]"
+              >
+                {{ item.tracks.length }}
               </b-tag>
             </b-taglist>
           </div>
 
           <p class="rules px-4 py-2 is-family-code">
-            {{ formatRuleGroup(playlist.rules) }}
+            {{ formatRuleGroup(item.playlist.rules) }}
           </p>
         </div>
       </div>
-    </div>
-    <div v-else-if="libraryConfigReadError" class="message is-danger">
-      <div class="message-body">
-        {{ libraryConfigReadError }}
+    </template>
+
+    <template v-if="libraryConfigReadError">
+      <div class="message is-danger">
+        <div class="message-body">
+          {{ libraryConfigReadError }}
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.smart-playlists-section {
+.list {
   min-height: 0;
-  display: flex;
-  flex-direction: column;
+  overflow: auto;
 
-  .list {
-    min-height: 0;
-    overflow: auto;
-
-    .list-item {
-      .rules {
-        background-color: $grey-dark;
-      }
+  .list-item {
+    .rules {
+      background-color: $grey-dark;
     }
   }
 }
@@ -100,20 +99,22 @@ import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
 import * as engine from '@/app/engine';
 import { asyncSeries } from '@/app/utils';
-import { cloneDeep, every, some } from 'lodash';
+import { every, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
 import def = engine.config;
 
-interface ActiveSmartPlaylist extends def.SmartPlaylist {
-  wasGenerated?: boolean;
-  tracks?: engine.Track[];
+interface SmartPlaylistItem {
+  playlist: def.SmartPlaylist;
+  wasGenerated: boolean;
+  tracks: engine.Track[] | null;
 }
 
 @Component({
   components: { CommandHeader },
 })
 export default class SmartCommand extends BaseCommand {
-  smartPlaylists: ActiveSmartPlaylist[] | null = null;
+  smartPlaylists: SmartPlaylistItem[] | null = null;
+
   isGenerating = false;
   generateError = '';
 
@@ -121,12 +122,8 @@ export default class SmartCommand extends BaseCommand {
     return !!this.smartPlaylists && !this.isGenerating;
   }
 
-  get wasGenerated() {
-    return !!this.smartPlaylists?.some(p => p.wasGenerated);
-  }
-
-  get smartPlaylistNames() {
-    return this.smartPlaylists?.map(p => p.name);
+  get numGenerated() {
+    return this.smartPlaylists?.filter(p => p.wasGenerated).length;
   }
 
   async mounted() {
@@ -137,12 +134,18 @@ export default class SmartCommand extends BaseCommand {
     await this.readLibraryConfig();
 
     if (this.libraryConfig) {
-      this.resetPlaylists();
+      this.reloadPlaylists();
+    } else {
+      this.smartPlaylists = null;
     }
   }
 
-  private resetPlaylists() {
-    this.smartPlaylists = cloneDeep(this.libraryConfig!.smartPlaylists);
+  private reloadPlaylists() {
+    this.smartPlaylists = this.libraryConfig!.smartPlaylists.map(playlist => ({
+      playlist,
+      wasGenerated: false,
+      tracks: null,
+    }));
   }
 
   formatRuleGroup(group: def.PlaylistRuleGroup): string {
@@ -165,7 +168,7 @@ export default class SmartCommand extends BaseCommand {
 
     try {
       this.isGenerating = true;
-      this.resetPlaylists();
+      this.reloadPlaylists();
       await this.connectToEngine();
 
       await this.generateSmartPlaylistsInternal();
@@ -181,20 +184,20 @@ export default class SmartCommand extends BaseCommand {
 
   private async generateSmartPlaylistsInternal() {
     const tracks = await this.engineDb!.getTracks();
-    this.smartPlaylists!.forEach(playlist => {
-      playlist.tracks = filterTracks({
+    this.smartPlaylists!.forEach(item => {
+      item.tracks = filterTracks({
         tracks,
-        playlistConfig: playlist,
+        playlistConfig: item.playlist,
       });
     });
 
     await asyncSeries(
-      this.smartPlaylists!.map(playlist => async () => {
+      this.smartPlaylists!.map(item => async () => {
         await this.engineDb!.createOrUpdatePlaylist({
-          title: playlist.name,
-          tracks: playlist.tracks!,
+          title: item.playlist.name,
+          tracks: item.tracks!,
         });
-        playlist.wasGenerated = true;
+        item.wasGenerated = true;
       }),
     );
   }

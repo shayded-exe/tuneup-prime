@@ -93,9 +93,9 @@ import { Component } from 'vue-property-decorator';
 
 interface RelocatableTrack {
   track: engine.Track;
-  wasRelocated?: boolean;
+  wasRelocated: boolean;
   oldPathDir: string;
-  newPathDir?: string;
+  newPathDir: string | null;
 }
 
 @Component<RelocateCommand>({
@@ -159,8 +159,9 @@ export default class RelocateCommand extends BaseCommand {
       if (!(await checkPathExists(resolvedPath))) {
         missing.push({
           track,
-          oldPathDir: path.parse(track.path).dir,
           wasRelocated: false,
+          oldPathDir: path.parse(track.path).dir,
+          newPathDir: null,
         });
       }
     }

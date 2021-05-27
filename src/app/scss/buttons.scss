@@ -5,6 +5,19 @@
     // color: $black !important;
   }
 
+  &.emoji-button {
+    > .icon {
+      &:first-child:not(:last-child) {
+        margin-left: 0;
+        margin-right: 1rem;
+      }
+      &:last-child:not(:first-child) {
+        margin-left: 1rem;
+        margin-right: 0;
+      }
+    }
+  }
+
   @each $name, $pair in $button-colors {
     $color: nth($pair, 1);
     $color-invert: nth($pair, 2);
@@ -20,7 +33,7 @@
         box-shadow: 0px 0px bulmaDarken($color, 20%) !important;
         transition: 0.2s;
 
-        &:hover {
+        &:hover:not(:disabled) {
           box-shadow: 0px 4px 2px bulmaDarken($color, 25%) !important;
           transform: translate(0px, -2px);
 

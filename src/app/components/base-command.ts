@@ -32,7 +32,7 @@ export default class BaseCommand extends Vue {
       this.libraryConfigReadError = '';
     } catch (e) {
       this.libraryConfig = null;
-      console.log(e);
+      console.error(e);
       this.libraryConfigReadError = e.message;
     }
   }
