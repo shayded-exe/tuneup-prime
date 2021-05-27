@@ -35,7 +35,7 @@ module.exports = {
     ...commandEntry('import-ext'),
     ...commandEntry('relocate'),
     ...commandEntry('smart'),
-    ...commandEntry('strip-accents'),
+    // ...commandEntry('strip-accents'),
     ...hookEntry('init', 'conf'),
     ...hookEntry('prerun', 'engine-library'),
   },
