@@ -13,6 +13,8 @@ export namespace EngineDB {
 }
 
 export abstract class EngineDB {
+  static readonly insertChunkSize = 250;
+
   private readonly dbPath!: string;
   private readonly skipBackup?: boolean;
 
