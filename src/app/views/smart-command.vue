@@ -1,6 +1,10 @@
 <template>
   <div class="is-flex is-flex-direction-column">
-    <command-header title="Smart playlists" class="mb-6">
+    <command-header
+      title="Smart playlists"
+      :homeDisabled="isProcessing"
+      class="mb-6"
+    >
       <div class="level-item">
         <b-tooltip
           :label="libraryConfigPath"
@@ -8,7 +12,11 @@
           position="is-left"
           class="big-text"
         >
-          <b-button @click="reloadConfig()" type="is-info is-outlined">
+          <b-button
+            :disabled="isProcessing"
+            @click="reloadConfig()"
+            type="is-info is-outlined"
+          >
             reload config
           </b-button>
         </b-tooltip>
@@ -117,6 +125,10 @@ export default class SmartCommand extends BaseCommand {
 
   isGenerating = false;
   generateError = '';
+
+  get isProcessing() {
+    return this.isGenerating;
+  }
 
   get canGenerate() {
     return !!this.smartPlaylists && !this.isGenerating;

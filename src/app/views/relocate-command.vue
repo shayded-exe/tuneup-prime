@@ -1,6 +1,10 @@
 <template>
   <div class="is-flex is-flex-direction-column">
-    <command-header title="Relocate tracks" class="mb-6">
+    <command-header
+      title="Relocate tracks"
+      :homeDisabled="isProcessing"
+      class="mb-6"
+    >
       <div class="level-item">
         <b-button
           :disabled="!canFind"

@@ -3,6 +3,7 @@
     <div class="level-left">
       <div class="level-item">
         <b-button
+          :disabled="homeDisabled"
           @click="$router.push('/')"
           type="is-light is-outlined"
           icon-right="home"
@@ -23,8 +24,9 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-@Component({})
+@Component
 export default class CommandHeader extends Vue {
   @Prop(String) readonly title!: string;
+  @Prop({ default: false }) homeDisabled!: boolean;
 }
 </script>

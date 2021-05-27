@@ -2,11 +2,23 @@ import * as engine from '@/app/engine';
 import { appStore, AppStoreKey } from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 
-@Component
+@Component<BaseCommand>({
+  beforeRouteLeave(to, from, next) {
+    if (this.isProcessing) {
+      next(false);
+    } else {
+      next();
+    }
+  },
+})
 export default class BaseCommand extends Vue {
   protected libraryFolder!: string;
   protected engineDb?: engine.EngineDB;
   protected libraryConfig: engine.config.LibraryConfigFile | null = null;
+
+  get isProcessing(): boolean {
+    return false;
+  }
 
   libraryConfigPath = '';
 
