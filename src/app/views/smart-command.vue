@@ -6,12 +6,7 @@
       class="mb-6"
     >
       <div class="level-item">
-        <b-tooltip
-          :label="libraryConfigPath"
-          type="is-info"
-          position="is-left"
-          class="big-text"
-        >
+        <b-tooltip :label="libraryConfigPath" type="is-info" position="is-left">
           <b-button
             :disabled="isProcessing"
             @click="reloadConfig()"

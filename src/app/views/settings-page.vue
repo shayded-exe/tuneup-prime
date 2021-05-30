@@ -102,7 +102,7 @@ export default class SettingsPage extends Vue {
   }
 
   @Watch('libraryFolder')
-  async updateLibrary(value: string) {
+  async updateLibrary(value?: string) {
     const info = await validateLibraryFolder(value);
     if (typeof info === 'string') {
       this.libraryError = info;
@@ -115,8 +115,11 @@ export default class SettingsPage extends Vue {
 }
 
 async function validateLibraryFolder(
-  folder: string,
+  folder?: string,
 ): Promise<engine.LibraryInfo | string> {
+  if (!folder) {
+    return 'Please specify your Engine library folder';
+  }
   if (!(await checkPathExists(folder))) {
     return `Path doesn't exist`;
   }
