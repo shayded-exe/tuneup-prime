@@ -36,6 +36,7 @@ export default class BaseCommand extends Vue {
 
   protected async readLibraryConfig() {
     try {
+      await engine.config.createDefaultIfNotFound(this.libraryFolder);
       this.libraryConfig = await engine.config.read(this.libraryFolder);
       this.libraryConfigReadError = '';
     } catch (e) {

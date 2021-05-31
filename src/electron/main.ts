@@ -1,3 +1,5 @@
+import './ipc';
+
 import { initStore } from '@/store';
 import { app, BrowserWindow, nativeTheme, protocol } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
@@ -69,6 +71,7 @@ function init() {
         nodeIntegration: (process.env
           .ELECTRON_NODE_INTEGRATION as unknown) as boolean,
         contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+        sandbox: false,
       },
     });
     window.removeMenu();

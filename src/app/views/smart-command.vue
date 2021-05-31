@@ -1,22 +1,6 @@
 <template>
   <div class="is-flex is-flex-direction-column">
-    <command-header
-      title="Smart playlists"
-      :homeDisabled="isProcessing"
-      class="mb-6"
-    >
-      <div class="level-item">
-        <b-tooltip :label="libraryConfigPath" type="is-info" position="is-left">
-          <b-button
-            :disabled="isProcessing"
-            @click="reloadConfig()"
-            type="is-info is-outlined"
-          >
-            reload config
-          </b-button>
-        </b-tooltip>
-      </div>
-
+    <command-header title="Smart playlists" :homeDisabled="isProcessing">
       <div class="level-item">
         <b-button
           :disabled="!canGenerate"
@@ -30,10 +14,49 @@
       </div>
     </command-header>
 
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <span>
+            <strong>Config file:</strong>
+            <br />
+            {{ libraryConfigPath }}
+          </span>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <b-button
+            :disabled="isProcessing"
+            @click="editConfig()"
+            type="is-light is-outlined"
+            icon-left="edit"
+          >
+            edit
+          </b-button>
+        </div>
+        <div class="level-item">
+          <b-button
+            :disabled="isProcessing"
+            @click="reloadConfig()"
+            type="is-light is-outlined"
+            icon-left="sync"
+          >
+            reload
+          </b-button>
+        </div>
+      </div>
+    </div>
+
     <template v-if="smartPlaylists">
       <p class="title is-5 px-4">
         <span v-if="!numGenerated">
-          The following smart playlists will be generated
+          <span v-if="smartPlaylists.length">
+            The following smart playlists will be generated
+          </span>
+          <span v-else>
+            No smart playlists defined
+          </span>
         </span>
         <span v-else>
           Generated {{ smartPlaylists.length }} smart playlists
@@ -104,6 +127,7 @@ import * as engine from '@/app/engine';
 import { asyncSeries } from '@/app/utils';
 import { every, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
+import * as ipc from '@/app/ipc';
 import def = engine.config;
 
 interface SmartPlaylistItem {
@@ -121,20 +145,24 @@ export default class SmartCommand extends BaseCommand {
   isGenerating = false;
   generateError = '';
 
-  get isProcessing() {
+  get isProcessing(): boolean {
     return this.isGenerating;
   }
 
-  get canGenerate() {
-    return !!this.smartPlaylists && !this.isGenerating;
+  get canGenerate(): boolean {
+    return !!this.smartPlaylists?.length && !this.isGenerating;
   }
 
-  get numGenerated() {
-    return this.smartPlaylists?.filter(p => p.wasGenerated).length;
+  get numGenerated(): boolean {
+    return !!this.smartPlaylists?.filter(p => p.wasGenerated).length;
   }
 
   async mounted() {
     await this.reloadConfig();
+  }
+
+  editConfig() {
+    ipc.shell.editFile(this.libraryConfigPath);
   }
 
   async reloadConfig() {

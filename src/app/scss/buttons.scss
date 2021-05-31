@@ -1,18 +1,21 @@
 .button {
-  &.enjinn-button {
-    // border: 0;
-    // background: $gradient-morning;
-    // color: $black !important;
+  > .icon {
+    &:first-child:not(:last-child) {
+      margin-left: -0.25em;
+    }
+    &:last-child:not(:first-child) {
+      margin-right: -0.25em;
+    }
   }
 
   &.emoji-button {
     > .icon {
       &:first-child:not(:last-child) {
         margin-left: 0;
-        margin-right: 1rem;
+        margin-right: 0.75em;
       }
       &:last-child:not(:first-child) {
-        margin-left: 1rem;
+        margin-left: 0.75em;
         margin-right: 0;
       }
     }
@@ -28,7 +31,6 @@
         color: $color;
       }
 
-      // &.juicy-button {
       &.button {
         box-shadow: 0px 0px bulmaDarken($color, 20%) !important;
         transition: 0.2s;

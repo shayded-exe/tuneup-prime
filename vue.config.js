@@ -15,6 +15,17 @@ const vuePluginOptions = {
     config.resolve.alias.delete('@');
     config.resolve.plugin('tsconfig-paths').use(TsconfigPathsPlugin);
   },
+  chainWebpackRendererProcess(config) {
+    config.module
+      .rule('vue')
+      .use('vue-loader')
+      .loader('vue-loader')
+      .tap(options => {
+        options.whitespace = 'condense';
+        return options;
+      });
+  },
+  mainProcessWatch: ['src/electron/**/*'],
   removeElectronJunk: true,
 };
 
