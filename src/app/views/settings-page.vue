@@ -107,10 +107,12 @@ export default class SettingsPage extends Vue {
     if (typeof info === 'string') {
       this.libraryError = info;
       this.libraryInfo = null;
-    } else {
-      this.libraryError = '';
-      this.libraryInfo = info;
+      return;
     }
+
+    this.libraryError = '';
+    this.libraryInfo = info;
+    await engine.config.createDefaultIfNotFound(info.folder);
   }
 }
 

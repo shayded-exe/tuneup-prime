@@ -27,9 +27,7 @@ export default class BaseCommand extends Vue {
 
   mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
-    this.libraryConfigPath = engine.config.getLibraryConfigPath(
-      this.libraryFolder,
-    );
+    this.libraryConfigPath = engine.config.getPath(this.libraryFolder);
   }
 
   async beforeDestroy() {
@@ -38,9 +36,7 @@ export default class BaseCommand extends Vue {
 
   protected async readLibraryConfig() {
     try {
-      this.libraryConfig = await engine.config.readLibraryConfig(
-        this.libraryFolder,
-      );
+      this.libraryConfig = await engine.config.read(this.libraryFolder);
       this.libraryConfigReadError = '';
     } catch (e) {
       this.libraryConfig = null;

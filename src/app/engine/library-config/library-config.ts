@@ -1,3 +1,4 @@
+import { checkPathExists } from '@/app/utils';
 import Ajv from 'ajv';
 import fs from 'fs';
 import yaml from 'js-yaml';
@@ -7,25 +8,41 @@ import path from 'path';
 import smartPlaylistConfigSchema from './enjinn.schema.json';
 import { SmartPlaylist } from './smart-playlist';
 
-export interface LibraryConfigFile {
-  path: string;
+export interface LibraryConfig {
   smartPlaylists: SmartPlaylist[];
 }
 
-export const LIBRARY_CONFIG_FILENAME = 'enjinn.yaml';
+export interface LibraryConfigFile extends LibraryConfig {
+  path: string;
+}
 
-const validateConfig = new Ajv().compile<LibraryConfigFile>(
+export const FILENAME = 'enjinn.yaml';
+
+const validate = new Ajv().compile<LibraryConfigFile>(
   smartPlaylistConfigSchema,
 );
 
-export function getLibraryConfigPath(libraryFolder: string): string {
-  return path.resolve(libraryFolder, LIBRARY_CONFIG_FILENAME);
+export function getPath(libraryFolder: string): string {
+  return path.resolve(libraryFolder, FILENAME);
 }
 
-export async function readLibraryConfig(
+export async function createDefaultIfNotFound(
   libraryFolder: string,
-): Promise<LibraryConfigFile> {
-  const configPath = getLibraryConfigPath(libraryFolder);
+): Promise<LibraryConfigFile | false> {
+  const configPath = getPath(libraryFolder);
+
+  if (await checkPathExists(configPath)) {
+    return false;
+  }
+
+  return save({
+    path: configPath,
+    smartPlaylists: [],
+  });
+}
+
+export async function read(libraryFolder: string): Promise<LibraryConfigFile> {
+  const configPath = getPath(libraryFolder);
   let config;
 
   try {
@@ -37,11 +54,11 @@ export async function readLibraryConfig(
     );
   }
 
-  if (!validateConfig(config)) {
+  if (!validate(config)) {
     throw new Error(
       [
-        `${LIBRARY_CONFIG_FILENAME} is invalid`,
-        ...(validateConfig.errors ?? []).map(
+        `${FILENAME} is invalid`,
+        ...(validate.errors ?? []).map(
           e => `  ${e.instancePath} - ${e.message ?? ''}`,
         ),
       ].join(EOL),
@@ -52,4 +69,16 @@ export async function readLibraryConfig(
     ...config,
     path: configPath,
   };
+}
+
+export async function save(
+  configFile: LibraryConfigFile,
+): Promise<LibraryConfigFile> {
+  const { path: configPath, ...config } = configFile;
+  const configYaml = yaml.dump(config, {
+    indent: 2,
+  });
+  await fs.promises.writeFile(configPath, configYaml, 'utf-8');
+
+  return configFile;
 }
