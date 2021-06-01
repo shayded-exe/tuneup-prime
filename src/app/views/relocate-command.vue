@@ -10,9 +10,10 @@
           :disabled="!canFind"
           :loading="isFinding"
           @click="findMissingTracks()"
-          type="is-info is-outlined"
+          type="is-light is-outlined"
+          icon-left="search"
         >
-          find missing tracks
+          find missing
         </b-button>
       </div>
 
@@ -22,7 +23,6 @@
           :loading="isRelocating"
           @click="relocateMissingTracks()"
           type="is-primary"
-          class="enjinn-button"
         >
           relocate
         </b-button>

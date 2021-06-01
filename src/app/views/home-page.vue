@@ -21,7 +21,9 @@
     </div>
 
     <div class="level is-align-self-stretch">
-      <div class="level-left"></div>
+      <div class="level-left is-align-self-flex-end">
+        <span class="version">v{{ version }}</span>
+      </div>
       <div class="level-right">
         <div class="level-item">
           <b-tooltip
@@ -51,16 +53,27 @@
 .command {
   display: inline-block;
 }
+
+.version {
+  // position: fixed;
+  // bottom: 0.5rem;
+  // left: 0.5rem;
+  opacity: 0.25;
+  line-height: normal;
+}
 </style>
 
 <script lang="ts">
 import { appStore, AppStoreKey } from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
+import { remote } from 'electron';
 
 @Component({
   components: {},
 })
 export default class HomePage extends Vue {
+  readonly version = remote.app.getVersion();
+
   readonly commands: {
     label: string;
     route: string;

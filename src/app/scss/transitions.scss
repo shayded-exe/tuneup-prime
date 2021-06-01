@@ -3,7 +3,8 @@
 .app-slide-prev-enter-active,
 .app-slide-prev-leave-active {
   transition-property: transform, opacity;
-  transition-duration: 200ms;
+  transition-duration: 210ms;
+  // https://easings.net/#easeOutQuad
   transition-timing-function: cubic-bezier(0.5, 1, 0.89, 1);
   position: absolute;
 }
@@ -21,11 +22,9 @@
 }
 .app-slide-next-enter,
 .app-slide-prev-leave-to {
-  transform: translate3d(-100%, 0, 0);
-  // width: 100%;
+  transform: translateY(-7.5%);
 }
 .app-slide-next-leave-to,
 .app-slide-prev-enter {
-  transform: translate3d(100%, 0, 0);
-  // width: 100%;
+  transform: translateY(7.5%);
 }

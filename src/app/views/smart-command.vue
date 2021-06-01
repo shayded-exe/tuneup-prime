@@ -7,7 +7,6 @@
           :loading="isGenerating"
           @click="generateSmartPlaylists()"
           type="is-primary"
-          class="enjinn-button"
         >
           generate
         </b-button>

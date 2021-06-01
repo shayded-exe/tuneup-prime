@@ -46,7 +46,6 @@
             @click="save()"
             type="is-primary"
             icon-left="save"
-            class="enjinn-button"
           >
             save
           </b-button>
