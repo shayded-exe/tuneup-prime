@@ -4,7 +4,7 @@
       <img src="../../../img/enjinn.png" alt="ENJINN" />
     </div>
 
-    <div class="commands block is-flex-grow-1">
+    <div class="commands block">
       <div v-for="command of commands" :key="command.route" class="command m-2">
         <b-button
           :disabled="areCommandsDisabled"
@@ -19,6 +19,17 @@
         </b-button>
       </div>
     </div>
+
+    <b-button
+      @click="openDocs()"
+      type="is-text"
+      size="is-medium"
+      icon-left="book"
+    >
+      documentation
+    </b-button>
+
+    <div class="is-flex-grow-1"></div>
 
     <div class="level is-align-self-stretch">
       <div class="level-left is-align-self-flex-end">
@@ -55,9 +66,6 @@
 }
 
 .version {
-  // position: fixed;
-  // bottom: 0.5rem;
-  // left: 0.5rem;
   opacity: 0.25;
   line-height: normal;
 }
@@ -67,6 +75,7 @@
 import { appStore, AppStoreKey } from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 import { remote } from 'electron';
+import * as ipc from '@/app/ipc';
 
 @Component({
   components: {},
@@ -105,6 +114,10 @@ export default class HomePage extends Vue {
   mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
     this.isStoreValid = !!this.libraryFolder;
+  }
+
+  openDocs() {
+    ipc.shell.openUrl('https://github.com/rshea0/enjinn#readme');
   }
 }
 </script>

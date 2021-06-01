@@ -8,3 +8,7 @@ ipcMain.on(IpcChannel.EditFile, async (_, filePath: string) => {
     shell.showItemInFolder(filePath);
   }
 });
+
+ipcMain.on(IpcChannel.OpenUrl, (_, url: string) => {
+  shell.openExternal(url);
+});

@@ -21,6 +21,20 @@
     }
   }
 
+  &.is-text {
+    color: $light;
+    text-decoration: none;
+
+    > span:not(.icon) {
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
   @each $name, $pair in $button-colors {
     $color: nth($pair, 1);
     $color-invert: nth($pair, 2);
