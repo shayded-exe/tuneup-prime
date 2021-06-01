@@ -6,7 +6,25 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
+let window: BrowserWindow | undefined;
+
 function init() {
+  function lockSingleInstance() {
+    if (!app.requestSingleInstanceLock()) {
+      app.quit();
+    } else {
+      app.on('second-instance', () => {
+        if (!window) {
+          return;
+        }
+        if (window.isMinimized()) {
+          window.restore();
+        }
+        window.focus();
+      });
+    }
+  }
+
   function initApp() {
     // Quit when all windows are closed.
     app.on('window-all-closed', () => {
@@ -58,7 +76,7 @@ function init() {
   }
 
   async function createWindow() {
-    const window = new BrowserWindow({
+    window = new BrowserWindow({
       width: 800,
       height: 600,
       frame: isDevelopment,
@@ -103,6 +121,7 @@ function init() {
     },
   ]);
 
+  lockSingleInstance();
   initApp();
   initStore();
 }
