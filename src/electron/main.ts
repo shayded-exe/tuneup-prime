@@ -61,8 +61,8 @@ function init() {
     const window = new BrowserWindow({
       width: 800,
       height: 600,
+      frame: isDevelopment,
       resizable: false,
-      titleBarStyle: 'hidden',
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
         enableRemoteModule: true,
