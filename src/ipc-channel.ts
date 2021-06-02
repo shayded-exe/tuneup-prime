@@ -1,4 +1,5 @@
 export enum IpcChannel {
-  EditFile = 'edit-file',
-  OpenUrl = 'open-url',
+  Licensing_GetLicenseState = 'licensing:get-license-state',
+  Shell_EditFile = 'shell:edit-file',
+  Shell_OpenUrl = 'shell:open-url',
 }

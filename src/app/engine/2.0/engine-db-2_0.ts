@@ -1,4 +1,4 @@
-import { asyncSeries } from '@/app/utils';
+import { asyncSeries } from '@/utils';
 import { Knex } from 'knex';
 import { chunk, pick } from 'lodash';
 

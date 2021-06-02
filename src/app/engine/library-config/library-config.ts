@@ -1,4 +1,4 @@
-import { checkPathExists } from '@/app/utils';
+import { checkPathExists } from '@/utils';
 import Ajv from 'ajv';
 import fs from 'fs';
 import yaml from 'js-yaml';

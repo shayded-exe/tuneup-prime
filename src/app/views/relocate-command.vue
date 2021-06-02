@@ -90,7 +90,7 @@
 import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
 import * as engine from '@/app/engine';
-import { checkPathExists, getFilesInDir } from '@/app/utils';
+import { checkPathExists, getFilesInDir } from '@/utils';
 import { remote } from 'electron';
 import { keyBy } from 'lodash';
 import path from 'path';

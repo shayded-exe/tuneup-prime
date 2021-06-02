@@ -1,10 +1,11 @@
-import './ipc';
-
 import { initStore } from '@/store';
 import { app, BrowserWindow, nativeTheme, protocol } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
+
+import * as ipc from './ipc';
+import * as licensing from './licensing';
 
 let window: BrowserWindow | undefined;
 
@@ -122,8 +123,10 @@ function init() {
   ]);
 
   lockSingleInstance();
-  initApp();
   initStore();
+  licensing.init();
+  ipc.init();
+  initApp();
 }
 
 init();

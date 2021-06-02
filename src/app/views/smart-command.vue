@@ -123,7 +123,7 @@
 import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
 import * as engine from '@/app/engine';
-import { asyncSeries } from '@/app/utils';
+import { asyncSeries } from '@/utils';
 import { every, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
 import * as ipc from '@/app/ipc';

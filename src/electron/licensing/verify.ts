@@ -15,7 +15,7 @@ ByF9ovBiqIsYQvClAQ1vk1GwbXKcJ1CCfc8mDrwKrVxzDV5N7UP66RO0EMzA3145
 const SIG_ENCODING = 'base64';
 const DELIMITER = '|';
 
-export function verifyLicense(license: string): boolean {
+export function verify(license: string): boolean {
   const parts = license.split(DELIMITER);
   if (parts.length !== 2) {
     return false;

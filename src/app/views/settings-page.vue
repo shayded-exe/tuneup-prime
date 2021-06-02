@@ -58,7 +58,7 @@
 <script lang="ts">
 import { appStore, AppStoreKey } from '@/store';
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { checkPathExists, checkPathIsDir } from '@/app/utils';
+import { checkPathExists, checkPathIsDir } from '@/utils';
 import path from 'path';
 import * as engine from '@/app/engine';
 import { remote } from 'electron';

@@ -1,7 +1,6 @@
+import { checkPathIsFile } from '@/utils';
 import chalk from 'chalk';
 import path from 'path';
-
-import { checkPathIsFile } from '../utils';
 
 export enum Version {
   V1_6 = '1.6',

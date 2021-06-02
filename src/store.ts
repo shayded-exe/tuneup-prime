@@ -23,7 +23,7 @@ export function appStore(value?: Store<AppStore>): Store<AppStore> {
     _store = value;
   }
   if (!_store) {
-    throw new Error('Store not initialized');
+    throw new Error('appStore not initialized');
   }
   return _store;
 }
