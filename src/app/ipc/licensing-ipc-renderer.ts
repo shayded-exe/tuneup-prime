@@ -1,7 +1,13 @@
 import { IpcChannel } from '@/ipc-channel';
-import { LicenseState } from '@/licensing';
+import { ActivateLicenseResult, LicenseState } from '@/licensing';
 import { ipcRenderer } from 'electron';
 
-export function getLicenseState(): LicenseState {
-  return ipcRenderer.sendSync(IpcChannel.Licensing_GetLicenseState);
+export function getState(): LicenseState {
+  return ipcRenderer.sendSync(IpcChannel.Licensing_GetState);
+}
+
+export async function activate(
+  licenseKey: string,
+): Promise<ActivateLicenseResult> {
+  return ipcRenderer.invoke(IpcChannel.Licensing_Activate, licenseKey);
 }

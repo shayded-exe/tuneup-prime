@@ -6,7 +6,7 @@
 
     <div
       v-if="licenseType !== LicenseType.Licensed"
-      class="license-notice block"
+      class="license-notice mb-6"
     >
       <template v-if="licenseType === LicenseType.Trial">
         <span class="has-text-warning has-text-weight-bold">
@@ -25,6 +25,24 @@
           please re-enter your license key
         </span>
       </template>
+
+      <div class="mt-4">
+        <b-button
+          @click="openBuyPage()"
+          type="is-primary"
+          icon-left="credit-card"
+        >
+          buy
+        </b-button>
+        <b-button
+          @click="$router.push('activate')"
+          type="is-primary is-outlined"
+          icon-left="check"
+          class="ml-4"
+        >
+          activate
+        </b-button>
+      </div>
     </div>
 
     <div class="commands block">
@@ -116,7 +134,7 @@ import { Component, Vue } from 'vue-property-decorator';
 export default class HomePage extends Vue {
   readonly LicenseType = LicenseType;
 
-  readonly licenseState = ipc.licensing.getLicenseState();
+  readonly licenseState = ipc.licensing.getState();
   readonly version = remote.app.getVersion();
 
   readonly commands: {
@@ -175,6 +193,10 @@ export default class HomePage extends Vue {
   mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
     this.isStoreValid = !!this.libraryFolder;
+  }
+
+  openBuyPage() {
+    ipc.shell.openUrl('https://gum.co/enjinn');
   }
 
   openDocs() {

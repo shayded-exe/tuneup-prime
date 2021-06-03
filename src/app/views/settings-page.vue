@@ -17,11 +17,11 @@
       </b-button>
     </div>
 
-    <article v-if="isValid" class="message is-success">
+    <div v-if="isValid" class="message is-success">
       <div class="message-body">
         Detected Engine version {{ libraryInfo.version }}
       </div>
-    </article>
+    </div>
     <div v-if="!isValid" class="message is-danger">
       <div class="message-body">
         {{ libraryError }}

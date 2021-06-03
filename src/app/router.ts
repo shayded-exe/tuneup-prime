@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
+import ActivatePage from './views/activate-page.vue';
 import HomePage from './views/home-page.vue';
 import RelocateCommand from './views/relocate-command.vue';
 import SettingsPage from './views/settings-page.vue';
@@ -15,6 +16,11 @@ export const router = new VueRouter({
       path: '/',
       name: 'home',
       component: HomePage,
+    },
+    {
+      path: '/activate',
+      name: 'activate',
+      component: ActivatePage,
     },
     {
       path: '/settings',

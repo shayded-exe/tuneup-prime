@@ -149,7 +149,7 @@ export default class SmartCommand extends BaseCommand {
   }
 
   get canGenerate(): boolean {
-    return !!this.smartPlaylists?.length && !this.isGenerating;
+    return !!this.smartPlaylists?.length && !this.isProcessing;
   }
 
   get numGenerated(): boolean {

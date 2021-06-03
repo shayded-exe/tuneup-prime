@@ -9,3 +9,5 @@ export enum LicenseType {
   Invalid = 'invalid',
   Licensed = 'licensed',
 }
+
+export type ActivateLicenseResult = LicenseState | false;
