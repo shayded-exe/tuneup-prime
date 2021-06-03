@@ -128,6 +128,7 @@ import { every, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
 import * as ipc from '@/app/ipc';
 import def = engine.config;
+import { PlaylistRule } from '../engine/library-config';
 
 interface SmartPlaylistItem {
   playlist: def.SmartPlaylist;
@@ -187,7 +188,8 @@ export default class SmartCommand extends BaseCommand {
       if (isNodeGroup(node)) {
         return `(${this.formatRuleGroup(node)})`;
       }
-      return [node.field, node.operator, node.value].join(' ');
+      const rule = normalizeRule(node);
+      return [rule.field, rule.operator, rule.value].join(' ');
     };
 
     const { type, nodes } = normalizeRuleGroup(group);
@@ -291,14 +293,35 @@ function applyRuleNode(
     : applyRule(track, node);
 }
 
+type NormalizedPlaylistRule =
+  | def.StringPlaylistRuleObject
+  | def.NumericPlaylistRuleObject;
+
+function normalizeRule(rule: def.PlaylistRule): NormalizedPlaylistRule {
+  if (!Array.isArray(rule)) {
+    return rule;
+  }
+
+  const [field, operator, value, opts] = rule;
+
+  return {
+    field,
+    operator,
+    value,
+    ...opts,
+  } as NormalizedPlaylistRule;
+}
+
 function applyRule(track: engine.Track, rule: def.PlaylistRule): boolean {
+  const normalizedRule = normalizeRule(rule);
+
   function isStringRule(
-    rule: def.PlaylistRule,
-  ): rule is def.StringPlaylistRule {
+    rule: NormalizedPlaylistRule,
+  ): rule is def.StringPlaylistRuleObject {
     return Object.values(def.StringFilterField).includes(rule.field as any);
   }
 
-  function applyStringRule(rule: def.StringPlaylistRule): boolean {
+  function applyStringRule(rule: def.StringPlaylistRuleObject): boolean {
     let trackValue = getTrackValue(track, rule.field) ?? '';
     let ruleValue = rule.value;
 
@@ -326,7 +349,7 @@ function applyRule(track: engine.Track, rule: def.PlaylistRule): boolean {
     }
   }
 
-  function applyNumericRule(rule: def.NumericPlaylistRule): boolean {
+  function applyNumericRule(rule: def.NumericPlaylistRuleObject): boolean {
     const trackValue = getTrackValue(track, rule.field) ?? 0;
     const ruleValue = rule.value;
 
@@ -346,7 +369,9 @@ function applyRule(track: engine.Track, rule: def.PlaylistRule): boolean {
     }
   }
 
-  return isStringRule(rule) ? applyStringRule(rule) : applyNumericRule(rule);
+  return isStringRule(normalizedRule)
+    ? applyStringRule(normalizedRule)
+    : applyNumericRule(normalizedRule);
 }
 
 function getTrackValue(

@@ -19,18 +19,42 @@ export interface PlaylistRuleOrGroup {
 
 export type PlaylistRule = StringPlaylistRule | NumericPlaylistRule;
 
-export interface StringPlaylistRule {
+export type StringPlaylistRule =
+  | StringPlaylistRuleObject
+  | StringPlaylistRuleArray;
+
+export interface StringPlaylistRuleObject extends StringPlaylistRuleOptions {
   field: StringFilterField;
   operator: StringFilterOperator;
   value: string;
+}
+
+export type StringPlaylistRuleArray = [
+  StringFilterField,
+  StringFilterOperator,
+  string,
+  StringPlaylistRuleOptions?,
+];
+
+export interface StringPlaylistRuleOptions {
   caseSensitive?: boolean;
 }
 
-export interface NumericPlaylistRule {
+export type NumericPlaylistRule =
+  | NumericPlaylistRuleObject
+  | NumericPlaylistRuleArray;
+
+export interface NumericPlaylistRuleObject {
   field: NumericFilterField;
   operator: NumericFilterOperator;
   value: number;
 }
+
+export type NumericPlaylistRuleArray = [
+  NumericFilterField,
+  NumericFilterOperator,
+  number,
+];
 
 export type FilterField = StringFilterField | NumericFilterField;
 

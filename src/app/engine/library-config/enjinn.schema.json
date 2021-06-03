@@ -52,11 +52,13 @@
     },
     "PlaylistRule": {
       "oneOf": [
-        { "$ref": "#/definitions/StringPlaylistRule" },
-        { "$ref": "#/definitions/NumericPlaylistRule" }
+        { "$ref": "#/definitions/StringPlaylistRuleObject" },
+        { "$ref": "#/definitions/StringPlaylistRuleArray" },
+        { "$ref": "#/definitions/NumericPlaylistRuleObject" },
+        { "$ref": "#/definitions/NumericPlaylistRuleArray" }
       ]
     },
-    "StringPlaylistRule": {
+    "StringPlaylistRuleObject": {
       "type": "object",
       "properties": {
         "field": { "$ref": "#/definitions/StringFilterField" },
@@ -69,7 +71,28 @@
       },
       "required": ["field", "operator", "value"]
     },
-    "NumericPlaylistRule": {
+    "StringPlaylistRuleArray": {
+      "type": "array",
+      "items": [
+        { "$ref": "#/definitions/StringFilterField" },
+        { "$ref": "#/definitions/StringFilterOperator" },
+        { "type": "string" },
+        { "$ref": "#/definitions/StringPlaylistRuleOptions" }
+      ],
+      "minItems": 3,
+      "additionalItems": false
+    },
+    "StringPlaylistRuleOptions": {
+      "type": "object",
+      "properties": {
+        "caseSensitive": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "NumericPlaylistRuleObject": {
       "type": "object",
       "properties": {
         "field": { "$ref": "#/definitions/NumericFilterField" },
@@ -77,6 +100,16 @@
         "value": { "type": "number" }
       },
       "required": ["field", "operator", "value"]
+    },
+    "NumericPlaylistRuleArray": {
+      "type": "array",
+      "items": [
+        { "$ref": "#/definitions/NumericFilterField" },
+        { "$ref": "#/definitions/NumericFilterOperator" },
+        { "type": "number" }
+      ],
+      "minItems": 3,
+      "additionalItems": false
     },
     "StringFilterField": {
       "type": "string",

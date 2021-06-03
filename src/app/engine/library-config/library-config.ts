@@ -18,9 +18,9 @@ export interface LibraryConfigFile extends LibraryConfig {
 
 export const FILENAME = 'enjinn.yaml';
 
-const validate = new Ajv().compile<LibraryConfigFile>(
-  smartPlaylistConfigSchema,
-);
+const validate = new Ajv({
+  strictTuples: false,
+}).compile<LibraryConfigFile>(smartPlaylistConfigSchema);
 
 export function getPath(libraryFolder: string): string {
   return path.resolve(libraryFolder, FILENAME);
