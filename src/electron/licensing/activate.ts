@@ -2,10 +2,8 @@ import { ActivateLicenseResult, LicenseType } from '@/licensing';
 import { appStore, AppStoreKey } from '@/store';
 import { postJson } from '@/utils';
 
+import { Endpoints } from './endpoints';
 import { licenseState } from './state';
-
-const LICENSE_API =
-  'https://enjinn-license-server.netlify.app/.netlify/functions';
 
 interface Request {
   licenseKey: string;
@@ -18,7 +16,7 @@ interface Response {
 export async function activate(
   licenseKey: string,
 ): Promise<ActivateLicenseResult> {
-  const res = await postJson<Request>(`${LICENSE_API}/activate-license`, {
+  const res = await postJson<Request>(Endpoints.ActivateLicense, {
     licenseKey,
   });
 

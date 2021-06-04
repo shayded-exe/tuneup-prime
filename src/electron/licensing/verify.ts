@@ -1,3 +1,9 @@
+import {
+  DELIMITER,
+  INVALID_LICENSE,
+  LicenseState,
+  LicenseType,
+} from '@/licensing';
 import NodeRSA from 'node-rsa';
 
 const PUBLIC_KEY = `-----BEGIN RSA PUBLIC KEY-----
@@ -13,19 +19,23 @@ ByF9ovBiqIsYQvClAQ1vk1GwbXKcJ1CCfc8mDrwKrVxzDV5N7UP66RO0EMzA3145
 -----END RSA PUBLIC KEY-----`;
 
 const SIG_ENCODING = 'base64';
-const DELIMITER = '|';
 
-export function verify(license: string): boolean {
+export function verify(license: string): LicenseState {
   const parts = license.split(DELIMITER);
   if (parts.length !== 2) {
-    return false;
+    return INVALID_LICENSE;
   }
   const [licenseKey, sig] = parts;
 
-  return new NodeRSA(PUBLIC_KEY).verify(
+  const isValid = new NodeRSA(PUBLIC_KEY).verify(
     licenseKey,
     sig,
     undefined,
     SIG_ENCODING,
   );
+
+  return {
+    type: isValid ? LicenseType.Licensed : LicenseType.Invalid,
+    isValid,
+  };
 }

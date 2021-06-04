@@ -1,50 +1,40 @@
-const PREFIX = 'TRIAL';
-const DELIMITER = '|';
-const TRIAL_DAYS = 7;
+import {
+  DELIMITER,
+  INVALID_LICENSE,
+  LicenseState,
+  LicenseType,
+} from '@/licensing';
+
+import { verify } from './verify';
+
+const PREFIX = 'TRIAL:';
 
 export function isTrial(license: string) {
-  return license.startsWith(PREFIX + DELIMITER);
+  return license.startsWith(PREFIX);
 }
 
-export function createTrial(): TrialLicense {
-  const expDate = new Date();
-  expDate.setDate(expDate.getDate() + TRIAL_DAYS);
-  const licenseKey = [PREFIX, expDate.toISOString()].join(DELIMITER);
+export function activateTrial(licenseKey: string): LicenseState {}
 
-  return {
-    licenseKey,
-    isExpired: false,
-    expDate,
-  };
-}
-
-export interface TrialLicense {
-  licenseKey: string;
-  isExpired: boolean;
-  expDate: Date;
-}
-
-export function verifyTrial(licenseKey: string): false | TrialLicense {
-  const parts = licenseKey.split(DELIMITER);
-  if (parts.length !== 2) {
-    return false;
-  }
-  const [prefix, data] = parts;
-
-  if (prefix !== PREFIX) {
-    return false;
+export function verifyTrial(license: string): LicenseState {
+  if (!isTrial(license) || !verify(license).isValid) {
+    return INVALID_LICENSE;
   }
 
-  const expDate = new Date(data);
+  const [trialData] = license.split(DELIMITER);
+  const expDateStr = trialData.replace(PREFIX, '');
+  const expDate = new Date(expDateStr);
   const now = new Date();
 
   if (isNaN(expDate.getTime())) {
-    return false;
+    return INVALID_LICENSE;
   }
 
+  const isExpired = now >= expDate;
+
   return {
-    licenseKey,
-    isExpired: now >= expDate,
-    expDate: expDate,
+    type: LicenseType.Trial,
+    isValid: true,
+    isExpired,
+    trialExp: expDate,
   };
 }

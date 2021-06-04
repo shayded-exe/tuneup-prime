@@ -26,7 +26,7 @@
         </span>
       </template>
 
-      <div class="mt-4">
+      <div class="buy-buttons mt-4">
         <b-button
           @click="openBuyPage()"
           type="is-primary"
@@ -35,10 +35,16 @@
           buy
         </b-button>
         <b-button
+          @click="startTrial()"
+          type="is-primary"
+          icon-left="credit-card"
+        >
+          start {{ trialDays }} day trial
+        </b-button>
+        <b-button
           @click="$router.push('activate')"
           type="is-primary is-outlined"
           icon-left="check"
-          class="ml-4"
         >
           activate
         </b-button>
@@ -126,6 +132,12 @@
   align-items: center;
 }
 
+.buy-buttons {
+  :not(:first-child) {
+    margin-left: 1rem;
+  }
+}
+
 .command {
   display: inline-block;
 }
@@ -151,12 +163,14 @@ import dateFormat from 'dateformat';
 import { remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
 import Links from '@/links';
+import { TRIAL_DAYS } from '@/licensing';
 
 @Component({
   components: {},
 })
 export default class HomePage extends Vue {
   readonly LicenseType = LicenseType;
+  readonly trialDays = TRIAL_DAYS;
 
   readonly licenseState = ipc.licensing.getState();
   readonly version = remote.app.getVersion();
