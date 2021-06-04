@@ -61,20 +61,37 @@
       </div>
     </div>
 
-    <b-button
-      @click="openDocs()"
-      type="is-text"
-      size="is-medium"
-      icon-left="book"
-    >
-      documentation
-    </b-button>
+    <div class="help-links">
+      <b-button
+        @click="openHelpForum()"
+        type="is-text"
+        size="is-medium"
+        icon-left="question"
+      >
+        help forum
+      </b-button>
+
+      <b-button
+        @click="openDocs()"
+        type="is-text"
+        size="is-medium"
+        icon-left="book"
+      >
+        documentation
+      </b-button>
+    </div>
 
     <div class="is-flex-grow-1"></div>
 
     <div class="level is-align-self-stretch">
       <div class="level-left is-align-self-flex-end">
-        <span class="version">v{{ version }}</span>
+        <div>
+          <p>
+            by
+            <a @click="openShaydedLink()" class="shayded-link">SHAYDED</a>
+          </p>
+          <p class="version">v{{ version }}</p>
+        </div>
       </div>
       <div class="level-right">
         <div class="level-item">
@@ -113,6 +130,12 @@
   display: inline-block;
 }
 
+.shayded-link {
+  opacity: 0.75;
+  font-size: 1.15em;
+  font-style: italic;
+}
+
 .version {
   opacity: 0.25;
   line-height: normal;
@@ -127,6 +150,7 @@ import { appStore, AppStoreKey } from '@/store';
 import dateFormat from 'dateformat';
 import { remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
+import Links from '@/links';
 
 @Component({
   components: {},
@@ -196,11 +220,19 @@ export default class HomePage extends Vue {
   }
 
   openBuyPage() {
-    ipc.shell.openUrl('https://gum.co/enjinn');
+    ipc.shell.openUrl(Links.Purchase);
+  }
+
+  openHelpForum() {
+    ipc.shell.openUrl(Links.Discussions);
   }
 
   openDocs() {
-    ipc.shell.openUrl('https://github.com/rshea0/enjinn#readme');
+    ipc.shell.openUrl(Links.Docs);
+  }
+
+  openShaydedLink() {
+    ipc.shell.openUrl(Links.Shayded);
   }
 }
 </script>

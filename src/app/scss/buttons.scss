@@ -26,9 +26,14 @@
     text-decoration: none;
 
     > span:not(.icon) {
-      text-decoration: underline;
       text-underline-offset: 0.15em;
       margin-top: -0.1em;
+    }
+
+    &:hover {
+      > span:not(.icon) {
+        text-decoration: underline;
+      }
     }
 
     &:focus {
