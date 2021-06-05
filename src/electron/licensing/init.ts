@@ -1,22 +1,30 @@
+import { LicenseState } from '@/licensing';
 import { appStore, AppStoreKey } from '@/store';
 
-import { licenseState } from './state';
-import { isTrial, verifyTrial } from './trial';
+import { readFile } from './file';
+import { isLicenseInitialized, licenseState } from './state';
 import { verify } from './verify';
 
-export function init() {
+export async function init() {
   try {
-    if (licenseState()) {
-      throw new Error('Licensing is already initialized');
+    const store = appStore();
+
+    // LEGACY: v1.x
+    if (store.get(AppStoreKey.License)) {
+      store.delete(AppStoreKey.License);
+      return;
     }
-  } catch {}
 
-  const store = appStore();
-  const license = store.get(AppStoreKey.License);
-
-  if (isTrial(license)) {
-    licenseState(verifyTrial(license));
-  } else {
-    licenseState(verify(license));
+    const license = await readFile();
+    if (license) {
+      licenseState(verify(license));
+    }
+  } catch (e) {
+    console.error(e);
+    licenseState(LicenseState.invalid());
+  } finally {
+    if (!isLicenseInitialized()) {
+      licenseState(LicenseState.none());
+    }
   }
 }

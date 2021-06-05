@@ -4,20 +4,17 @@
       <img src="../../../img/enjinn.png" alt="ENJINN" />
     </div>
 
-    <div
-      v-if="licenseType !== LicenseType.Licensed"
-      class="license-notice mb-6"
-    >
-      <template v-if="licenseType === LicenseType.Trial">
+    <div v-if="!license.isPurchased" class="license-notice mb-6">
+      <template v-if="license.isTrial">
         <span class="has-text-warning has-text-weight-bold">
           TRIAL VERSION
         </span>
-        <span v-if="isTrialExpired" key="isExpired" class="has-text-danger">
+        <span v-if="license.isExpired" key="isExpired" class="has-text-danger">
           expired at {{ trialExpDate }}
         </span>
         <span v-else key="notExpired">expires at {{ trialExpDate }}</span>
       </template>
-      <template v-else-if="licenseType === LicenseType.Invalid">
+      <template v-else-if="license.isInvalid">
         <span class="has-text-danger has-text-weight-bold">
           INVALID LICENSE
         </span>
@@ -28,18 +25,20 @@
 
       <div class="buy-buttons mt-4">
         <b-button
+          v-if="!license.exists"
+          @click="startTrial()"
+          type="is-primary"
+          icon-left="flask"
+        >
+          start {{ trialDays }}d trial
+        </b-button>
+        <b-button
+          v-if="license.isTrial"
           @click="openBuyPage()"
           type="is-primary"
           icon-left="credit-card"
         >
           buy
-        </b-button>
-        <b-button
-          @click="startTrial()"
-          type="is-primary"
-          icon-left="credit-card"
-        >
-          start {{ trialDays }} day trial
         </b-button>
         <b-button
           @click="$router.push('activate')"
@@ -133,7 +132,7 @@
 }
 
 .buy-buttons {
-  :not(:first-child) {
+  > :not(:first-child) {
     margin-left: 1rem;
   }
 }
@@ -157,22 +156,20 @@
 <script lang="ts">
 import { SHORT_DATE_TIME_FORMAT } from '@/app/formats';
 import * as ipc from '@/app/ipc';
-import { LicenseType } from '@/licensing';
+import { TRIAL_DAYS } from '@/licensing';
+import Links from '@/links';
 import { appStore, AppStoreKey } from '@/store';
 import dateFormat from 'dateformat';
 import { remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
-import Links from '@/links';
-import { TRIAL_DAYS } from '@/licensing';
 
 @Component({
   components: {},
 })
 export default class HomePage extends Vue {
-  readonly LicenseType = LicenseType;
   readonly trialDays = TRIAL_DAYS;
 
-  readonly licenseState = ipc.licensing.getState();
+  readonly license = ipc.licensing.getState();
   readonly version = remote.app.getVersion();
 
   readonly commands: {
@@ -193,45 +190,31 @@ export default class HomePage extends Vue {
   ];
 
   libraryFolder: string | null = null;
-  isStoreValid = true;
-
-  get licenseType(): LicenseType {
-    return this.licenseState.type;
-  }
-
-  get isLicensed(): boolean {
-    return (
-      this.licenseType === LicenseType.Licensed ||
-      (this.licenseType === LicenseType.Trial && !this.isTrialExpired)
-    );
-  }
-
-  get isTrialExpired(): boolean {
-    return !!this.licenseState.isExpired;
-  }
+  areSettingsValid = true;
 
   get trialExpDate(): string | undefined {
-    const expDate = this.licenseState.trialExp;
-
+    const expDate = this.license.expDate;
     return expDate && dateFormat(expDate, SHORT_DATE_TIME_FORMAT);
   }
 
   get areCommandsDisabled(): boolean {
-    return !this.isStoreValid || !this.isLicensed;
+    return !this.areSettingsValid || !this.license.isLicensed;
   }
 
   get isSettingsDisabled(): boolean {
-    return !this.isLicensed;
+    return !this.license.isLicensed;
   }
 
   get isSettingsTooltipVisible(): boolean {
-    return !this.isSettingsDisabled && !this.isStoreValid;
+    return !this.areSettingsValid && !this.isSettingsDisabled;
   }
 
   mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
-    this.isStoreValid = !!this.libraryFolder;
+    this.areSettingsValid = !!this.libraryFolder;
   }
+
+  async startTrial() {}
 
   openBuyPage() {
     ipc.shell.openUrl(Links.Purchase);

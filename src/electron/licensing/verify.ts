@@ -1,8 +1,8 @@
 import {
-  DELIMITER,
-  INVALID_LICENSE,
+  License,
+  LicenseData,
   LicenseState,
-  LicenseType,
+  TrialLicenseData,
 } from '@/licensing';
 import NodeRSA from 'node-rsa';
 
@@ -20,22 +20,36 @@ ByF9ovBiqIsYQvClAQ1vk1GwbXKcJ1CCfc8mDrwKrVxzDV5N7UP66RO0EMzA3145
 
 const SIG_ENCODING = 'base64';
 
-export function verify(license: string): LicenseState {
-  const parts = license.split(DELIMITER);
-  if (parts.length !== 2) {
-    return INVALID_LICENSE;
-  }
-  const [licenseKey, sig] = parts;
-
+export function verify(license: License): LicenseState {
   const isValid = new NodeRSA(PUBLIC_KEY).verify(
-    licenseKey,
-    sig,
+    license.data,
+    license.sig,
     undefined,
     SIG_ENCODING,
   );
+  if (!isValid) {
+    return LicenseState.invalid();
+  }
 
-  return {
-    type: isValid ? LicenseType.Licensed : LicenseType.Invalid,
-    isValid,
-  };
+  let parsedData: LicenseData;
+  try {
+    parsedData = JSON.parse(license.data);
+  } catch (e) {
+    console.error(e);
+    return LicenseState.invalid();
+  }
+
+  const isActuallyTrial = isTrialData(parsedData);
+  if (!!license.isTrial !== isActuallyTrial) {
+    console.error(`isTrial signature mismatch`);
+    return LicenseState.invalid();
+  }
+
+  return isActuallyTrial
+    ? LicenseState.trial(license, parsedData as TrialLicenseData)
+    : LicenseState.purchased(license);
+}
+
+function isTrialData(data: LicenseData): data is TrialLicenseData {
+  return 'isTrial' in data && data.isTrial;
 }

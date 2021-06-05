@@ -127,16 +127,17 @@ export async function getExtDrives(): Promise<ExtDrive[]> {
 
 export async function postJson<T = object>(
   url: RequestInfo,
-  body: T,
+  body?: T,
   opts?: RequestInit,
 ): Promise<Response> {
   return fetch(url, {
     ...opts,
     method: 'POST',
+    timeout: 10 * 1000,
     headers: {
       ...opts?.headers,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: body && JSON.stringify(body),
   });
 }

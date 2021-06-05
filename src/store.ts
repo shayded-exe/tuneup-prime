@@ -13,7 +13,7 @@ export interface AppStore {
 
 export const APP_STORE_SCHEMA: Schema<AppStore> = {
   [AppStoreKey.EngineLibraryFolder]: { type: 'string' },
-  [AppStoreKey.License]: { type: 'string', minLength: 10 },
+  [AppStoreKey.License]: { type: 'string' },
 };
 
 let _store: Store<AppStore> | undefined;

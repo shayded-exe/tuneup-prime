@@ -5,7 +5,7 @@ import yaml from 'js-yaml';
 import { EOL } from 'os';
 import path from 'path';
 
-import smartPlaylistConfigSchema from './enjinn.schema.json';
+import schema from './enjinn.schema.json';
 import { SmartPlaylist } from './smart-playlist';
 
 export interface LibraryConfig {
@@ -20,7 +20,7 @@ export const FILENAME = 'enjinn.yaml';
 
 const validate = new Ajv({
   strictTuples: false,
-}).compile<LibraryConfigFile>(smartPlaylistConfigSchema);
+}).compile<LibraryConfigFile>(schema);
 
 export function getPath(libraryFolder: string): string {
   return path.resolve(libraryFolder, FILENAME);
@@ -42,15 +42,15 @@ export async function createDefaultIfNotFound(
 }
 
 export async function read(libraryFolder: string): Promise<LibraryConfigFile> {
-  const configPath = getPath(libraryFolder);
+  const filePath = getPath(libraryFolder);
   let config;
 
   try {
-    const configString = await fs.promises.readFile(configPath, 'utf-8');
-    config = yaml.load(configString);
+    const configStr = await fs.promises.readFile(filePath, 'utf-8');
+    config = yaml.load(configStr);
   } catch (e) {
     throw new Error(
-      `Failed to read config, path doesn't exist\n    ${configPath}`,
+      `Failed to read config, path doesn't exist\n    ${filePath}`,
     );
   }
 
@@ -67,18 +67,18 @@ export async function read(libraryFolder: string): Promise<LibraryConfigFile> {
 
   return {
     ...config,
-    path: configPath,
+    path: filePath,
   };
 }
 
 export async function save(
   configFile: LibraryConfigFile,
 ): Promise<LibraryConfigFile> {
-  const { path: configPath, ...config } = configFile;
+  const { path: filePath, ...config } = configFile;
   const configYaml = yaml.dump(config, {
     indent: 2,
   });
-  await fs.promises.writeFile(configPath, configYaml, 'utf-8');
+  await fs.promises.writeFile(filePath, configYaml, 'utf-8');
 
   return configFile;
 }

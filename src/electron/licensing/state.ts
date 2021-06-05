@@ -1,11 +1,12 @@
-import { LicenseState, LicenseType } from '@/licensing';
+import { LicenseState } from '@/licensing';
 
 let _licenseState: LicenseState | undefined;
 
-export function licenseState(value?: LicenseState | LicenseType): LicenseState {
-  if (typeof value === 'string') {
-    value = { type: value };
-  }
+export function isLicenseInitialized(): boolean {
+  return !!_licenseState;
+}
+
+export function licenseState(value?: LicenseState): LicenseState {
   if (value) {
     _licenseState = value;
   }
@@ -13,8 +14,4 @@ export function licenseState(value?: LicenseState | LicenseType): LicenseState {
     throw new Error('licenseState not initialized');
   }
   return _licenseState;
-}
-
-export function isLicensed(): boolean {
-  return _licenseState?.type === LicenseType.Licensed;
 }

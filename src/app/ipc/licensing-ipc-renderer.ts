@@ -3,7 +3,11 @@ import { ActivateLicenseResult, LicenseState } from '@/licensing';
 import { ipcRenderer } from 'electron';
 
 export function getState(): LicenseState {
-  return ipcRenderer.sendSync(IpcChannel.Licensing_GetState);
+  const serializedState: LicenseState = ipcRenderer.sendSync(
+    IpcChannel.Licensing_GetState,
+  );
+
+  return LicenseState.clone(serializedState);
 }
 
 export async function activate(

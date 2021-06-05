@@ -1,34 +1,51 @@
-import { ActivateLicenseResult, LicenseType } from '@/licensing';
-import { appStore, AppStoreKey } from '@/store';
+import { ActivateLicenseResult, License, LicenseState } from '@/licensing';
 import { postJson } from '@/utils';
+import * as fetch from 'node-fetch';
 
-import { Endpoints } from './endpoints';
+import { writeFile } from './file';
 import { licenseState } from './state';
+
+const API_BASE = 'https://enjinn-license-server.netlify.app/.netlify/functions';
 
 interface Request {
   licenseKey: string;
 }
 
 interface Response {
-  signedLicense: string;
+  license: License;
+}
+
+function check404(res: fetch.Response) {
+  if (res.status === 404) {
+    throw new Error(`License server not found`);
+  }
 }
 
 export async function activate(
   licenseKey: string,
 ): Promise<ActivateLicenseResult> {
-  const res = await postJson<Request>(Endpoints.ActivateLicense, {
+  const res = await postJson<Request>(`${API_BASE}/activate-license`, {
     licenseKey,
   });
 
   if (!res.ok) {
-    if (res.status === 404) {
-      throw new Error(`License server not found`);
-    }
+    check404(res);
     return false;
   }
 
-  const data: Response = await res.json();
-  appStore().set(AppStoreKey.License, data.signedLicense);
+  const { license }: Response = await res.json();
+  await writeFile(license);
 
-  return licenseState(LicenseType.Licensed);
+  return licenseState(LicenseState.purchased(license));
+}
+
+export async function activateTrial(): Promise<LicenseState> {
+  const res = await postJson(`${API_BASE}/activate-trial`);
+
+  check404(res);
+
+  const { license }: Response = await res.json();
+  await writeFile(license);
+
+  return licenseState(LicenseState.trial(license));
 }
