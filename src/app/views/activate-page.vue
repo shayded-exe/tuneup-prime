@@ -77,7 +77,7 @@ export default class ActivatePage extends Vue {
 
   async activate(e: Event) {
     e.preventDefault();
-    if (this.isActivating) {
+    if (!this.canActivate) {
       return;
     }
 
@@ -86,7 +86,7 @@ export default class ActivatePage extends Vue {
       const result = await ipc.licensing.activate(this.licenseKey);
 
       if (!result) {
-        this.activateError = `License isn't valid`;
+        this.activateError = `License key isn't valid`;
         return;
       }
 

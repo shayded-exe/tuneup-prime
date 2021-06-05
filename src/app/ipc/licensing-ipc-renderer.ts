@@ -15,3 +15,9 @@ export async function activate(
 ): Promise<ActivateLicenseResult> {
   return ipcRenderer.invoke(IpcChannel.Licensing_Activate, licenseKey);
 }
+
+export async function activateTrial(): Promise<LicenseState> {
+  return ipcRenderer
+    .invoke(IpcChannel.Licensing_ActivateTrial)
+    .then(r => LicenseState.clone(r));
+}

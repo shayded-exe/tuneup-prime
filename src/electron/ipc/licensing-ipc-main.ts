@@ -13,4 +13,8 @@ export function registerHandlers() {
       return licensing.activate(licenseKey);
     },
   );
+
+  ipcMain.handle(IpcChannel.Licensing_ActivateTrial, async () => {
+    return licensing.activateTrial();
+  });
 }

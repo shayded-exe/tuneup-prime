@@ -9,7 +9,7 @@ import * as licensing from './licensing';
 
 let window: BrowserWindow | undefined;
 
-async function init() {
+function init() {
   function lockSingleInstance() {
     if (!app.requestSingleInstanceLock()) {
       app.quit();
@@ -124,9 +124,9 @@ async function init() {
 
   lockSingleInstance();
   initStore();
-  await licensing.init();
+  licensing.init();
   ipc.init();
   initApp();
 }
 
-init().catch(e => console.error(e));
+init();

@@ -5,7 +5,7 @@ import { readFile } from './file';
 import { isLicenseInitialized, licenseState } from './state';
 import { verify } from './verify';
 
-export async function init() {
+export function init() {
   try {
     const store = appStore();
 
@@ -15,7 +15,7 @@ export async function init() {
       return;
     }
 
-    const license = await readFile();
+    const license = readFile();
     if (license) {
       licenseState(verify(license));
     }

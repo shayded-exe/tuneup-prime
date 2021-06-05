@@ -1,5 +1,5 @@
 import { License } from '@/licensing';
-import { checkPathExists } from '@/utils';
+import { checkPathExistsSync } from '@/utils';
 import Ajv from 'ajv';
 import { app } from 'electron';
 import fs from 'fs';
@@ -17,20 +17,15 @@ export function getPath(): string {
   return path.resolve(app.getPath('userData'), FILENAME);
 }
 
-export async function readFile(): Promise<License | false> {
+export function readFile(): License | false {
   const filePath = getPath();
 
-  if (!(await checkPathExists(filePath))) {
+  if (!checkPathExistsSync(filePath)) {
     return false;
   }
 
-  let license;
-  try {
-    const licenseStr = await fs.promises.readFile(filePath, 'utf-8');
-    license = JSON.parse(Buffer.from(licenseStr, 'base64').toString());
-  } catch {
-    return false;
-  }
+  const licenseStr = fs.readFileSync(filePath, 'utf-8');
+  const license = JSON.parse(Buffer.from(licenseStr, 'base64').toString());
 
   return validate(license) && license;
 }

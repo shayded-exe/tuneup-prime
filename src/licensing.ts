@@ -52,7 +52,7 @@ export class LicenseState {
   }
 
   get isExpired(): boolean {
-    return !this.expDate || this.expDate > new Date();
+    return !!this.expDate && this.expDate <= new Date();
   }
 
   private constructor(

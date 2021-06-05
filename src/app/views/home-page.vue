@@ -5,28 +5,30 @@
     </div>
 
     <div v-if="!license.isPurchased" class="license-notice mb-6">
-      <template v-if="license.isTrial">
-        <span class="has-text-warning has-text-weight-bold">
+      <div v-if="license.isTrial" key="isTrial">
+        <p class="has-text-warning has-text-weight-bold">
           TRIAL VERSION
-        </span>
-        <span v-if="license.isExpired" key="isExpired" class="has-text-danger">
+        </p>
+        <p v-if="license.isExpired" key="isExpired" class="has-text-danger">
           expired at {{ trialExpDate }}
-        </span>
-        <span v-else key="notExpired">expires at {{ trialExpDate }}</span>
-      </template>
-      <template v-else-if="license.isInvalid">
-        <span class="has-text-danger has-text-weight-bold">
+        </p>
+        <span v-else key="!isExpired">expires at {{ trialExpDate }}</span>
+      </div>
+      <div v-else-if="license.isInvalid" key="isInvalid">
+        <p class="has-text-danger has-text-weight-bold">
           INVALID LICENSE
-        </span>
-        <span>
+        </p>
+        <p>
           please re-enter your license key
-        </span>
-      </template>
+        </p>
+      </div>
 
-      <div class="buy-buttons mt-4">
+      <div class="buy-buttons ml-6">
         <b-button
           v-if="!license.exists"
-          @click="startTrial()"
+          :disabled="isActivatingTrial"
+          :loading="isActivatingTrial"
+          @click="activateTrial()"
           type="is-primary"
           icon-left="flask"
         >
@@ -41,8 +43,10 @@
           buy
         </b-button>
         <b-button
+          :disabled="isActivatingTrial"
           @click="$router.push('activate')"
-          type="is-primary is-outlined"
+          type="is-primary"
+          :class="{ 'is-outlined': !license.isInvalid }"
           icon-left="check"
         >
           activate
@@ -127,7 +131,7 @@
 .license-notice {
   margin-top: -1rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
 }
 
@@ -168,8 +172,6 @@ import { Component, Vue } from 'vue-property-decorator';
 })
 export default class HomePage extends Vue {
   readonly trialDays = TRIAL_DAYS;
-
-  readonly license = ipc.licensing.getState();
   readonly version = remote.app.getVersion();
 
   readonly commands: {
@@ -188,6 +190,9 @@ export default class HomePage extends Vue {
       icon: 'em-mag',
     },
   ];
+
+  license = ipc.licensing.getState();
+  isActivatingTrial = false;
 
   libraryFolder: string | null = null;
   areSettingsValid = true;
@@ -214,7 +219,33 @@ export default class HomePage extends Vue {
     this.areSettingsValid = !!this.libraryFolder;
   }
 
-  async startTrial() {}
+  async activateTrial() {
+    if (this.isActivatingTrial) {
+      return;
+    }
+
+    try {
+      this.isActivatingTrial = true;
+      this.license = await ipc.licensing.activateTrial();
+
+      this.$buefy.notification.open({
+        message: 'Trial started, enjoy!',
+        type: 'is-success',
+        position: 'is-bottom-left',
+        duration: 5000,
+      });
+    } catch (e) {
+      this.$buefy.notification.open({
+        message:
+          'Failed to start trial, please check your internet connection.',
+        type: 'is-danger',
+        position: 'is-bottom-left',
+        duration: 5000,
+      });
+    } finally {
+      this.isActivatingTrial = false;
+    }
+  }
 
   openBuyPage() {
     ipc.shell.openUrl(Links.Purchase);

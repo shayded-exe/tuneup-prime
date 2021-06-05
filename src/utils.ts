@@ -25,6 +25,15 @@ export async function checkPathExists(path: string): Promise<boolean> {
   }
 }
 
+export function checkPathExistsSync(path: string): boolean {
+  try {
+    fs.accessSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function checkPathIsDir(path: string): Promise<boolean> {
   try {
     const stat = await fs.promises.stat(path);
