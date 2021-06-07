@@ -1,5 +1,5 @@
 import { initStore } from '@/store';
-import { app, BrowserWindow, nativeTheme, protocol } from 'electron';
+import { app, BrowserWindow, nativeTheme, protocol, shell } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
@@ -107,6 +107,12 @@ function init() {
       createProtocol('app');
       window.loadURL('app://./index.html');
     }
+
+    // Open URLs in browser
+    window.webContents.setWindowOpenHandler(details => {
+      shell.openExternal(details.url);
+      return { action: 'deny' };
+    });
   }
 
   const isDevelopment = process.env.NODE_ENV !== 'production';

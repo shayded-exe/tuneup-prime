@@ -36,7 +36,9 @@
         </b-button>
         <b-button
           v-if="license.isTrial"
-          @click="openBuyPage()"
+          tag="a"
+          :href="Links.Purchase"
+          target="_blank"
           type="is-primary"
           icon-left="credit-card"
         >
@@ -72,7 +74,9 @@
 
     <div class="help-links">
       <b-button
-        @click="openHelpForum()"
+        tag="a"
+        :href="Links.Help"
+        target="_blank"
         type="is-text"
         size="is-medium"
         icon-left="question"
@@ -81,7 +85,9 @@
       </b-button>
 
       <b-button
-        @click="openDocs()"
+        tag="a"
+        :href="Links.Docs"
+        target="_blank"
         type="is-text"
         size="is-medium"
         icon-left="book"
@@ -97,7 +103,9 @@
         <div>
           <p>
             by
-            <a @click="openShaydedLink()" class="shayded-link">SHAYDED</a>
+            <a :href="Links.Shayded" target="_blank" class="shayded-link">
+              SHAYDED
+            </a>
           </p>
           <p class="version">v{{ version }}</p>
         </div>
@@ -171,6 +179,7 @@ import { Component, Vue } from 'vue-property-decorator';
   components: {},
 })
 export default class HomePage extends Vue {
+  readonly Links = Links;
   readonly trialDays = TRIAL_DAYS;
   readonly version = remote.app.getVersion();
 
@@ -245,22 +254,6 @@ export default class HomePage extends Vue {
     } finally {
       this.isActivatingTrial = false;
     }
-  }
-
-  openBuyPage() {
-    ipc.shell.openUrl(Links.Purchase);
-  }
-
-  openHelpForum() {
-    ipc.shell.openUrl(Links.Discussions);
-  }
-
-  openDocs() {
-    ipc.shell.openUrl(Links.Docs);
-  }
-
-  openShaydedLink() {
-    ipc.shell.openUrl(Links.Shayded);
   }
 }
 </script>
