@@ -29,6 +29,7 @@
   "engines": {
     "node": ">=14"
   },
+  "main": "background.js",
   "scripts": {
     "install:wsl": "bash scripts/install.sh",
     "serve": "vue-cli-service serve",

@@ -1,7 +1,6 @@
 import { initStore } from '@/store';
 import { app, BrowserWindow, nativeTheme, protocol, shell } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
-import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
 import * as ipc from './ipc';
@@ -83,7 +82,6 @@ function init() {
       frame: isDevelopment,
       resizable: false,
       webPreferences: {
-        preload: path.join(__dirname, 'preload.js'),
         enableRemoteModule: true,
         // Use pluginOptions.nodeIntegration, leave this alone
         // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info

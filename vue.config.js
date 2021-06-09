@@ -10,7 +10,6 @@ const vuePluginOptions = {
   // @ts-ignore
   nodeIntegration: true,
   mainProcessFile: 'src/electron/main.ts',
-  preload: 'src/app/preload.ts',
   chainWebpackMainProcess(config) {
     config.resolve.alias.delete('@');
     config.resolve.plugin('tsconfig-paths').use(TsconfigPathsPlugin);
@@ -19,7 +18,6 @@ const vuePluginOptions = {
     config.module
       .rule('vue')
       .use('vue-loader')
-      .loader('vue-loader')
       .tap(options => {
         options.whitespace = 'condense';
         return options;
@@ -27,6 +25,10 @@ const vuePluginOptions = {
   },
   mainProcessWatch: ['src/electron/**/*'],
   removeElectronJunk: true,
+  builderOptions: {
+    appId: 'com.shayded.enjinn',
+    productName: 'ENJINN',
+  },
 };
 
 /** @type {ProjectOptions} */
@@ -49,4 +51,5 @@ module.exports = {
   pluginOptions: {
     electronBuilder: vuePluginOptions,
   },
+  productionSourceMap: false,
 };
