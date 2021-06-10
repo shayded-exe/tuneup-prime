@@ -1,6 +1,7 @@
 import './scss/app.scss';
 
 import { initStore } from '@/store';
+import { getOS, SupportedOS } from '@/utils';
 import Buefy from 'buefy';
 import { Color, Titlebar } from 'custom-electron-titlebar';
 import Vue from 'vue';
@@ -21,11 +22,13 @@ function init() {
       render: h => h(App),
     }).$mount('#app');
 
-    new Titlebar({
-      backgroundColor: Color.fromHex('#1e1e1e'),
-      menu: null,
-      maximizable: false,
-    });
+    if (getOS() === SupportedOS.Windows) {
+      new Titlebar({
+        backgroundColor: Color.fromHex('#1e1e1e'),
+        menu: null,
+        maximizable: false,
+      });
+    }
   }
 
   initStore();

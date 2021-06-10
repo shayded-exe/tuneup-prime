@@ -1,4 +1,5 @@
 import { initStore } from '@/store';
+import { getOS, SupportedOS } from '@/utils';
 import { app, BrowserWindow, nativeTheme, protocol, shell } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
@@ -79,7 +80,7 @@ function init() {
     window = new BrowserWindow({
       width: 800,
       height: 600,
-      frame: isDevelopment,
+      frame: getOS() !== SupportedOS.Windows || isDevelopment,
       resizable: false,
       webPreferences: {
         enableRemoteModule: true,

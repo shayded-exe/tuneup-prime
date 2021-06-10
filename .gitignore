@@ -8,6 +8,9 @@ tsconfig.tsbuildinfo
 # electron-builder output
 /dist_electron
 
+# mac
+.DS_Store
+
 # Logs
 logs
 *.log

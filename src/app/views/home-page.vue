@@ -23,7 +23,7 @@
         </p>
       </div>
 
-      <div class="buy-buttons ml-6">
+      <div class="buy-buttons">
         <b-button
           v-if="!license.exists"
           :disabled="isActivatingTrial"
@@ -144,6 +144,10 @@
 }
 
 .buy-buttons {
+  &:not(:first-child) {
+    margin-left: 3rem;
+  }
+
   > :not(:first-child) {
     margin-left: 1rem;
   }
