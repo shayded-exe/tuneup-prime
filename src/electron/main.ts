@@ -1,4 +1,4 @@
-import { initStore } from '@/store';
+import { appStore, initStore } from '@/store';
 import { getOS, SupportedOS } from '@/utils';
 import { app, BrowserWindow, nativeTheme, protocol, shell } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
@@ -6,6 +6,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
 import * as ipc from './ipc';
 import * as licensing from './licensing';
+import { WindowStateTracker } from './window-state-tracker';
 
 let window: BrowserWindow | undefined;
 
@@ -77,9 +78,13 @@ function init() {
   }
 
   async function createWindow() {
+    const stateTracker = new WindowStateTracker(appStore());
+
     window = new BrowserWindow({
       width: 800,
       height: 600,
+      x: stateTracker.state?.x,
+      y: stateTracker.state?.y,
       frame: getOS() !== SupportedOS.Windows || isDevelopment,
       resizable: false,
       webPreferences: {
@@ -94,6 +99,7 @@ function init() {
     });
     window.removeMenu();
     nativeTheme.themeSource = 'dark';
+    stateTracker.track(window);
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       // Load the url of the dev server if in development mode

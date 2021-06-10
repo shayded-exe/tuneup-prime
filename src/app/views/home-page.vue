@@ -228,7 +228,8 @@ export default class HomePage extends Vue {
   }
 
   mounted() {
-    this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
+    this.libraryFolder =
+      appStore().get(AppStoreKey.EngineLibraryFolder) ?? null;
     this.areSettingsValid = !!this.libraryFolder;
   }
 

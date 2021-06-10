@@ -75,7 +75,8 @@ export default class SettingsPage extends Vue {
   }
 
   mounted() {
-    this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
+    this.libraryFolder =
+      appStore().get(AppStoreKey.EngineLibraryFolder) ?? null;
   }
 
   async browseLibraryFolder() {

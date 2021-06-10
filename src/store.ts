@@ -4,21 +4,37 @@ import yaml from 'js-yaml';
 export enum AppStoreKey {
   EngineLibraryFolder = 'engineLibraryFolder',
   License = 'license',
+  WindowState = 'windowState',
 }
 
-export interface AppStore {
-  [AppStoreKey.EngineLibraryFolder]: string;
-  [AppStoreKey.License]: string;
+export interface WindowState {
+  x: number;
+  y: number;
 }
 
-export const APP_STORE_SCHEMA: Schema<AppStore> = {
+export interface AppStoreData {
+  [AppStoreKey.EngineLibraryFolder]?: string;
+  [AppStoreKey.License]?: string;
+  [AppStoreKey.WindowState]?: WindowState;
+}
+
+export type AppStore = Store<AppStoreData>;
+
+export const APP_STORE_SCHEMA: Schema<AppStoreData> = {
   [AppStoreKey.EngineLibraryFolder]: { type: 'string' },
   [AppStoreKey.License]: { type: 'string' },
+  [AppStoreKey.WindowState]: {
+    type: 'object',
+    properties: {
+      x: { type: 'number' },
+      y: { type: 'number' },
+    },
+  },
 };
 
-let _store: Store<AppStore> | undefined;
+let _store: Store<AppStoreData> | undefined;
 
-export function appStore(value?: Store<AppStore>): Store<AppStore> {
+export function appStore(value?: Store<AppStoreData>): Store<AppStoreData> {
   if (value) {
     _store = value;
   }
@@ -30,7 +46,7 @@ export function appStore(value?: Store<AppStore>): Store<AppStore> {
 
 export function initStore() {
   appStore(
-    new Store<AppStore>({
+    new Store<AppStoreData>({
       fileExtension: 'yaml',
       serialize: yaml.dump,
       deserialize: yaml.load as any,

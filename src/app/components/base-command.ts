@@ -26,7 +26,12 @@ export default class BaseCommand extends Vue {
   libraryConfigReadError = '';
 
   mounted() {
-    this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
+    const libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
+    if (!libraryFolder) {
+      throw new Error(`Engine library folder not set`);
+    }
+    this.libraryFolder = libraryFolder;
+
     this.libraryConfigPath = engine.config.getPath(this.libraryFolder);
   }
 
