@@ -170,6 +170,7 @@
 </style>
 
 <script lang="ts">
+import * as engine from '@/app/engine';
 import { SHORT_DATE_TIME_FORMAT } from '@/app/formats';
 import * as ipc from '@/app/ipc';
 import { TRIAL_DAYS } from '@/licensing';
@@ -227,10 +228,22 @@ export default class HomePage extends Vue {
     return !this.areSettingsValid && !this.isSettingsDisabled;
   }
 
-  mounted() {
-    this.libraryFolder =
-      appStore().get(AppStoreKey.EngineLibraryFolder) ?? null;
-    this.areSettingsValid = !!this.libraryFolder;
+  async mounted() {
+    this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
+    await this.validateSettings();
+  }
+
+  private async validateSettings() {
+    let isValid = false;
+
+    if (this.libraryFolder) {
+      try {
+        await engine.getLibraryInfo(this.libraryFolder);
+        isValid = true;
+      } catch {}
+    }
+
+    this.areSettingsValid = isValid;
   }
 
   async activateTrial() {

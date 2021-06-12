@@ -134,7 +134,7 @@ function init() {
   ]);
 
   lockSingleInstance();
-  initStore();
+  initStore({ withDefaults: true });
   licensing.init();
   ipc.init();
   initApp();

@@ -7,7 +7,6 @@ export enum Version {
   V2_0 = '2.0',
 }
 
-export const DEFAULT_LIBRARY_FOLDER = 'Engine Library';
 const V2_SUB_FOLDER = 'Database2';
 const DB_FILE = 'm.db';
 

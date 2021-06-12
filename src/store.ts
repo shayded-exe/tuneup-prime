@@ -1,5 +1,7 @@
+import { app } from 'electron';
 import Store, { Schema } from 'electron-store';
 import yaml from 'js-yaml';
+import path from 'path';
 
 export enum AppStoreKey {
   EngineLibraryFolder = 'engineLibraryFolder',
@@ -13,7 +15,7 @@ export interface WindowState {
 }
 
 export interface AppStoreData {
-  [AppStoreKey.EngineLibraryFolder]?: string;
+  [AppStoreKey.EngineLibraryFolder]: string;
   [AppStoreKey.License]?: string;
   [AppStoreKey.WindowState]?: WindowState;
 }
@@ -44,13 +46,25 @@ export function appStore(value?: Store<AppStoreData>): Store<AppStoreData> {
   return _store;
 }
 
-export function initStore() {
+const DEFAULT_LIBRARY_FOLDER = 'Engine Library';
+
+export function initStore({
+  withDefaults = false,
+}: { withDefaults?: boolean } = {}) {
+  const defaults = () => ({
+    engineLibraryFolder: path.resolve(
+      app.getPath('music'),
+      DEFAULT_LIBRARY_FOLDER,
+    ),
+  });
+
   appStore(
     new Store<AppStoreData>({
       fileExtension: 'yaml',
       serialize: yaml.dump,
       deserialize: yaml.load as any,
       schema: APP_STORE_SCHEMA,
+      defaults: !withDefaults ? undefined : defaults(),
     }),
   );
 }
