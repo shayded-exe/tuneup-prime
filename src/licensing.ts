@@ -91,4 +91,4 @@ export class LicenseState {
 
 export type ActivateLicenseResult = LicenseState | false;
 
-export const TRIAL_DAYS = 7;
+export const TRIAL_DAYS = 14;
