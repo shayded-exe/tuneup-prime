@@ -1,6 +1,5 @@
 import { app } from 'electron';
 import Store, { Schema } from 'electron-store';
-import yaml from 'js-yaml';
 import path from 'path';
 
 export enum AppStoreKey {
@@ -60,9 +59,6 @@ export function initStore({
 
   appStore(
     new Store<AppStoreData>({
-      fileExtension: 'yaml',
-      serialize: yaml.dump,
-      deserialize: yaml.load as any,
       schema: APP_STORE_SCHEMA,
       defaults: !withDefaults ? undefined : defaults(),
     }),
