@@ -35,7 +35,7 @@ If there's a feature you'd like added that would be useful to you, [suggest it h
 
 You can try tuneup PRIME free for 14 days. Simply download the latest version from the [releases page](https://github.com/rshea0/tuneup-prime/releases).
 
-tuneup PRIME can be purchased on [Gumroad](https://gum.co/tuneup-prime).
+tuneup PRIME can be purchased on [Gumroad](https://gum.co/tuneup-prime). Pricing is pay-what-you-want (\$3 minimum).
 
 After purchasing, simply download and run the installer.
 
@@ -47,7 +47,9 @@ After your trial expires, tuneup PRIME must be activated with a license key. Sim
 
 ### Updating
 
-tuneup PRIME will notify you when an update is available. Simply click the update button and it will be installed automatically.
+tuneup PRIME will notify you when an update is available and show a button to download the latest version.
+
+> Adding full auto updates would require me to code-sign the app on macOS. This requires a \$99/yr Apple developer subscription which I currently can't afford. Please consider paying above the minimum to both help me have more time to develop this app as well as afford this subscription.
 
 ## ❓ How To Use
 
