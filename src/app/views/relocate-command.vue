@@ -31,7 +31,7 @@
 
     <template v-if="tracks">
       <p class="title is-5 px-4">
-        <span v-if="!numRelocated">
+        <span v-if="!didRelocate">
           Found {{ tracks.length }} missing tracks
         </span>
         <span v-else>
@@ -43,7 +43,7 @@
         <div
           v-for="item of tracks"
           :key="item.track.id"
-          class="list-item mb-4"
+          class="list-item mb-2"
           :class="{ 'was-relocated': item.wasRelocated }"
         >
           <p class="is-size-5 py-1">
@@ -114,6 +114,7 @@ export default class RelocateCommand extends BaseCommand {
 
   isRelocating = false;
   relocateError = '';
+  didRelocate = false;
 
   get canFind() {
     return !this.isProcessing;
@@ -121,6 +122,10 @@ export default class RelocateCommand extends BaseCommand {
 
   get canRelocate() {
     return !this.isProcessing && this.tracks?.some(x => !x.wasRelocated);
+  }
+
+  get numTracks() {
+    return this.tracks?.length;
   }
 
   get numRelocated() {
@@ -138,6 +143,7 @@ export default class RelocateCommand extends BaseCommand {
 
     try {
       this.isFinding = true;
+      this.didRelocate = false;
       this.tracks = null;
       await this.connectToEngine();
 
@@ -204,6 +210,30 @@ export default class RelocateCommand extends BaseCommand {
     } finally {
       await this.disconnectFromEngine();
       this.isRelocating = false;
+      this.didRelocate = true;
+    }
+
+    if (!this.numRelocated) {
+      this.$buefy.notification.open({
+        message: `Didn't find any of your tracks`,
+        type: 'is-danger',
+        position: 'is-bottom-right',
+        duration: 5000,
+      });
+    } else if (this.numRelocated !== this.numTracks) {
+      this.$buefy.notification.open({
+        message: `Relocated ${this.numRelocated} / ${this.numTracks} tracks`,
+        type: 'is-warning',
+        position: 'is-bottom-right',
+        duration: 5000,
+      });
+    } else {
+      this.$buefy.notification.open({
+        message: `Relocated ${this.numRelocated} tracks`,
+        type: 'is-success',
+        position: 'is-bottom-right',
+        duration: 5000,
+      });
     }
   }
 

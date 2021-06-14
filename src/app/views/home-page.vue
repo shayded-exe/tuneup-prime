@@ -196,11 +196,11 @@ import * as ipc from '@/app/ipc';
 import { TRIAL_DAYS } from '@/licensing';
 import Links from '@/links';
 import { appStore, AppStoreKey } from '@/store';
-import { getOS, getOSName } from '@/utils';
+import { getOSName } from '@/utils';
 import dateFormat from 'dateformat';
 import { remote } from 'electron';
-import { Component, Vue } from 'vue-property-decorator';
 import os from 'os';
+import { Component, Vue } from 'vue-property-decorator';
 
 @Component({
   components: {},
