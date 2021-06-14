@@ -5,13 +5,16 @@ import * as fetch from 'node-fetch';
 import { writeFile } from './file';
 import { licenseState } from './state';
 
-const API_BASE = 'https://enjinn-license-server.netlify.app/.netlify/functions';
+const API_BASE = 'https://license.shayded.com/.netlify/functions';
 
-interface Request {
+const PRODUCT_ID = 'vxJlA';
+
+interface ActivateLicenseRequest {
+  productId: string;
   licenseKey: string;
 }
 
-interface Response {
+interface ActivateLicenseResponse {
   license: License;
 }
 
@@ -24,27 +27,40 @@ function check404(res: fetch.Response) {
 export async function activate(
   licenseKey: string,
 ): Promise<ActivateLicenseResult> {
-  const res = await postJson<Request>(`${API_BASE}/activate-license`, {
-    licenseKey,
-  });
+  const res = await postJson<ActivateLicenseRequest>(
+    `${API_BASE}/activate-license`,
+    {
+      productId: PRODUCT_ID,
+      licenseKey,
+    },
+  );
 
   if (!res.ok) {
     check404(res);
     return false;
   }
 
-  const { license }: Response = await res.json();
+  const { license }: ActivateLicenseResponse = await res.json();
   await writeFile(license);
 
   return licenseState(LicenseState.purchased(license));
 }
 
+interface ActivateTrialRequest {
+  productId: string;
+}
+
 export async function activateTrial(): Promise<LicenseState> {
-  const res = await postJson(`${API_BASE}/activate-trial`);
+  const res = await postJson<ActivateTrialRequest>(
+    `${API_BASE}/activate-trial`,
+    {
+      productId: PRODUCT_ID,
+    },
+  );
 
   check404(res);
 
-  const { license }: Response = await res.json();
+  const { license }: ActivateLicenseResponse = await res.json();
   await writeFile(license);
 
   return licenseState(LicenseState.trial(license));

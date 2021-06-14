@@ -11,12 +11,14 @@ export interface PurchasedLicenseData {
   uses: number;
   purchase: {
     [name: string]: any;
+    product_id: string;
     license_key: string;
   };
 }
 
 export interface TrialLicenseData {
   isTrial: true;
+  productId: string;
   expDate: string;
 }
 
