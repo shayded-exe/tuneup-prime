@@ -1,12 +1,14 @@
 ![Tuneup PRIME](img/tuneup-prime.png)
 
-#### A library management tool for Denon Engine PRIME 🎧
+#### A library management toolkit for Denon Engine PRIME 🎧
 
 &nbsp;&nbsp;_by [SHAYDED](http://shayded.com)_
 
 - 🚀 [Installation](#-installation)
 - ❓ [How To Use](#-how-to-use)
-- 🔨 [Commands](#-commands)
+  - 🧠 [`smart playlists`](#-smart-playlists)
+  - 🔍 [`relocate tracks`](#-relocate)
+    <!-- - 📼 [`import usb playlists`](#-import-usb-playlists) -->
 
 ## 🌟 Features
 
@@ -16,147 +18,77 @@
   - Filter tracks based on album, file type, and more
   - Use different operators to filter attributes including Regex
   - Logically group filters with `and` & `or`
-- Library relocation
+- Track relocation
   - Relocate missing tracks
   - Provide a folder to search for tracks in
-- Imports playlists created on smart consoles like the Prime 4 or SC6000
+- Library consolidation
+  - Move all your tracks into one folder
+    <!-- - Import playlists created on smart consoles like the Prime 4 or SC6000 -->
 - Automatically backs up library before running
 - Supports Engine 1.6.x
 - Cross platform - Windows & macOS
+- More coming soon! Check out the [upcoming features](https://github.com/rshea0/tuneup-prime/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22new+feature%22)
 
-If there's a feature you'd like added that would be useful to you, please open a [feature request](https://github.com/rshea0/enjinn/issues/new/choose)!
+If there's a feature you'd like added that would be useful to you, [suggest it here](https://github.com/rshea0/tuneup-prime/discussions/new)!
 
 ## 🚀 Installation
 
-ENJINN can be purchased on [Gumroad](https://gum.co/enjinn).
+You can try tuneup PRIME free for 14 days. Simply download the latest version from the [releases page](https://github.com/rshea0/tuneup-prime/releases).
+
+tuneup PRIME can be purchased on [Gumroad](https://gum.co/tuneup-prime).
 
 After purchasing, simply download and run the installer.
 
-#### Updating
+### Activating
 
-```
-$ enjinn update
-```
+After your trial expires, tuneup PRIME must be activated with a license key. Simply click the "activate" button on the home page and paste in your license key.
 
-> ENJINN will notify you when an update is available.
+> tuneup PRIME only requires an internet connection during activation and never again.
 
-### npm version
+### Updating
 
-You can also install ENJINN with `npm`.
-
-_You will still need to [purchase a license key](https://gum.co/enjinn) to use all features._
-
-Requires [NodeJS v14+](https://nodejs.org/en/)
-
-```
-$ npm install -g enjinn
-```
-
-#### Updating
-
-```
-$ npm install -g enjinn@latest
-```
+tuneup PRIME will notify you when an update is available. Simply click the update button and it will be installed automatically.
 
 ## ❓ How To Use
 
-ENJINN is a command line app, which means you will need to run it from your terminal.
+Simply select one of the tools in the middle of the page to get started!
 
-> ⚠️ **Engine must be closed when running ENJINN!**
+![Home page](img/screens/home.png)
 
-Depending on your OS, here's how you can open up a terminal:
+### 🧠 Smart Playlists
 
-#### Windows 10
+Allows you to generate smart playlists based off easily definable sets of rules.
 
-- Press `Windows Key` and `R` on your keyboard
-- Type `cmd` and hit `enter`
+![Smart Playlists](img/screens/smart-playlists.png)
 
-#### macOS
+Click "edit" to open the config file in your default text editor.
 
-- Press `Command` and `space` on your keyboard
-- Type `terminal` and hit `enter`
+See the [examples](examples/tuneup.example.yaml) to learn how to define smart playlists.
 
-Once your terminal is open, simply run the `enjinn` command to view the help info.
+After editing, click "reload" to see your changes.
 
-_Only type the text after the `$`_
+Lastly, click "generate" to create your playlists! Each playlist will show a badge indicating how many songs were added to it.
 
-```
-$ enjinn
-```
+> ⚠️ If a playlist already exists with the same name as one of your smart playlists **IT WILL BE OVERWRITTEN**. In most cases this is desired, as you'll want to update your existing smart playlists.
 
-> To stop ENJINN in the middle of running a command, press `ctrl+c`.
+> tuneup PRIME will automatically create the `tuneup.yaml` config file in your Engine library folder.
 
-[Available commands](#-commands)
-
-### Activating
-
-To use all features of ENJINN, you need to activate it with a [license key](https://gum.co/enjinn).
-
-> ENJINN only requires an internet connection during activation and never again.
-
-To activate ENJINN, run the `activate` command. Paste in your license key when prompted and you're all set!
-
-```
-$ enjinn activate
-```
-
-### Free vs Paid
-
-The free version has several restrictions:
-
-- Smart playlists: Up to 5 playlists, no nested filters
-- Relocate: Basic macthing only. Premium will add the ability to fix individual tracks as well as handle renamed files.
-- Playlist import: Premium only.
-
-### Library configuration
-
-The first time you run a command, it will ask you to enter the location of your Engine library.
-
-If you would like to change this later, you can edit the config file.
-
-In the future, you'll be able to specify multiple Engine libraries and even switch between them (possibly, let me know if you think this would be useful).
-
-#### Config file locations:
-
-- Windows: `%LOCALAPPDATA%\enjinn\config.yaml`
-- macOS: `~/.config/enjinn/config.yaml`
-
-## 🔨 Commands
-
-- 🧠 [`smart` - Generate smart playlists](#-smart)
-- 🔍 [`relocate` - Relocate missing tracks](#-relocate)
-- 📼 [`import-ext` - Import playlists from external libraries](#-import-ext)
-
-### 🧠 Smart
-
-Generates smart playlists based off a config file located in your Engine library folder.
-
-```
-$ enjinn smart
-```
-
-To configure the smart playlists, place a file called `enjinn.yaml` in your Engine library folder. See the [examples](examples/enjinn.example.yaml) to learn how to define playlists.
-
-If a playlist already exists with the same name as one of your smart playlists **IT WILL BE OVERWRITTEN**. In most cases this is desired, as you'll want to update your smart playlists.
-
-### 🔍 Relocate
+### 🔍 Relocate Tracks
 
 Finds tracks in your library that are missing, because you've moved the files to a new folder.
 
-```
-$ enjinn relocate
-```
+![Relocate Tracks](img/screens/relocate-tracks.png)
 
-ENJINN will scan your library for tracks that are missing on disk. It will then ask you to specify a folder to search for your tracks in. It will also search up to 5 subfolders deep. After searching, it will print out the relocated tracks and their new paths.
+First, click "find missing". Tuneup PRIME will scan your library for tracks that can't be found by Engine. Once the scan is complete, you'll see a list of all the missing tracks detected.
 
-Currently, the filenames have to be the same, but soon you'll be able to specify rules for matching filenames as well as rename individual files.
+Next, click "relocate". You'll be prompted to select the folder to search for your tracks in. It will also search up to 5 sub-folders deep. After searching, you'll see an updated list of your tracks and their detected location.
 
-### 📼 Import External
+> Currently, the filenames have to be the same, but soon you'll be able to specify rules for matching filenames as well as rename individual files.
+
+<!--
+### 📼 Import USB Playlists
 
 Imports playlists created on smart consoles like the Prime 4 or SC6000.
 
-```
-$ enjinn import-ext
-```
-
-ENJINN will look for USB drives that contain Engine libraries. It will ask you to select which drive to import from. After selecting a drive, it will ask you which playlists you want to import.
+tuneup PRIME will look for USB drives that contain Engine libraries. It will ask you to select which drive to import from. After selecting a drive, it will ask you which playlists you want to import.
+-->
