@@ -114,6 +114,19 @@ export function getOS(): SupportedOS {
   return os as SupportedOS;
 }
 
+export function getOSName(): string {
+  const os = getOS();
+
+  switch (os) {
+    case SupportedOS.Windows:
+      return 'Windows';
+    case SupportedOS.MacOS:
+      return 'macOS';
+    case SupportedOS.Linux:
+      return 'Linux';
+  }
+}
+
 export type ExtDrive = Drive;
 
 export async function getExtDrives(): Promise<ExtDrive[]> {

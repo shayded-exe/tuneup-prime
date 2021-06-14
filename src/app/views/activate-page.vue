@@ -91,7 +91,7 @@ export default class ActivatePage extends Vue {
       }
 
       this.$buefy.notification.open({
-        message: 'Thanks for buying the full version of ENJINN!',
+        message: 'Thanks for buying the full version of tuneup PRIME!',
         type: 'is-success',
         position: 'is-bottom-left',
         duration: 5000,

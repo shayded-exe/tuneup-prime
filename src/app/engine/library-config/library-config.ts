@@ -5,8 +5,8 @@ import yaml from 'js-yaml';
 import { EOL } from 'os';
 import path from 'path';
 
-import schema from './enjinn.schema.json';
 import { SmartPlaylist } from './smart-playlist';
+import schema from './tuneup.schema.json';
 
 export interface LibraryConfig {
   smartPlaylists: SmartPlaylist[];
@@ -16,7 +16,7 @@ export interface LibraryConfigFile extends LibraryConfig {
   path: string;
 }
 
-export const FILENAME = 'enjinn.yaml';
+export const FILENAME = 'tuneup.yaml';
 
 const validate = new Ajv({
   strictTuples: false,

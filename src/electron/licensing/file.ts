@@ -5,9 +5,9 @@ import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
-import schema from './enjinn.lic.schema.json';
+import schema from './tuneup.lic.schema.json';
 
-export const FILENAME = 'enjinn.lic';
+export const FILENAME = 'tuneup.lic';
 
 const validate = new Ajv({
   strictTuples: false,

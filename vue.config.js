@@ -26,8 +26,16 @@ const vuePluginOptions = {
   mainProcessWatch: ['src/electron/**/*'],
   removeElectronJunk: true,
   builderOptions: {
-    appId: 'com.shayded.enjinn',
-    productName: 'ENJINN',
+    appId: 'com.shayded.tuneup-prime',
+    productName: 'tuneup PRIME',
+    directories: {
+      buildResources: 'build-resources',
+    },
+    dmg: {
+      background: 'build-resources/dmg-background.tiff',
+      icon: 'build-resources/icon.icns',
+      title: '${productName}',
+    },
   },
 };
 
@@ -45,7 +53,7 @@ module.exports = {
   pages: {
     index: {
       entry: 'src/app/renderer.ts',
-      title: 'ENJINN',
+      title: 'tuneup PRIME',
     },
   },
   pluginOptions: {

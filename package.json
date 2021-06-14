@@ -1,19 +1,20 @@
 {
-  "name": "enjinn",
+  "name": "tuneup-prime",
   "version": "1.3.2",
   "private": true,
   "description": "A library management tool for Denon Engine PRIME",
   "author": "SHAYDED <shayded@shayded.com> (http://shayded.com)",
-  "homepage": "https://github.com/rshea0/enjinn#readme",
+  "homepage": "https://github.com/rshea0/tuneup-prime#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rshea0/enjinn.git"
+    "url": "https://github.com/rshea0/tuneup-prime.git"
   },
   "bugs": {
-    "url": "https://github.com/rshea0/enjinn/issues",
+    "url": "https://github.com/rshea0/tuneup-prime/issues",
     "email": "shayded@shayded.com"
   },
   "keywords": [
+    "tuneup-prime",
     "enjinn",
     "engine",
     "genie",
@@ -21,7 +22,9 @@
     "denon",
     "dj",
     "denon dj",
-    "relocate library",
+    "library",
+    "relocate",
+    "consolidate",
     "missing tracks",
     "smart playlist"
   ],

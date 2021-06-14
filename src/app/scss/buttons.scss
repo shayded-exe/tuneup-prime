@@ -72,3 +72,18 @@
     }
   }
 }
+
+a {
+  &:hover {
+    color: $link;
+  }
+}
+
+.link-text {
+  text-underline-offset: 0.15em;
+
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

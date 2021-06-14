@@ -79,11 +79,15 @@
         <div>
           <p>
             by
-            <a :href="Links.Shayded" target="_blank" class="shayded-link">
+            <a
+              :href="Links.Shayded"
+              target="_blank"
+              class="shayded-link link-text"
+            >
               SHAYDED
             </a>
           </p>
-          <p class="version">v{{ version }}</p>
+          <p @click="copyVersion()" class="version link-text">v{{ version }}</p>
         </div>
       </div>
 
@@ -192,9 +196,11 @@ import * as ipc from '@/app/ipc';
 import { TRIAL_DAYS } from '@/licensing';
 import Links from '@/links';
 import { appStore, AppStoreKey } from '@/store';
+import { getOS, getOSName } from '@/utils';
 import dateFormat from 'dateformat';
 import { remote } from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
+import os from 'os';
 
 @Component({
   components: {},
@@ -288,6 +294,16 @@ export default class HomePage extends Vue {
     } finally {
       this.isActivatingTrial = false;
     }
+  }
+
+  copyVersion() {
+    const name = remote.app.getName();
+    const osName = getOSName();
+    const osVersion = os.release();
+    const arch = process.arch;
+    const version = `${name}/${this.version} ${osName} ${osVersion} ${arch}`;
+
+    remote.clipboard.writeText(version);
   }
 }
 </script>
