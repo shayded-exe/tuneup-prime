@@ -31,6 +31,14 @@ const vuePluginOptions = {
     directories: {
       buildResources: 'build-resources',
     },
+    win: {
+      target: 'nsis',
+      icon: 'build-resources/icon.png',
+    },
+    mac: {
+      target: 'dmg',
+      icon: 'build-resources/icon.icns',
+    },
     dmg: {
       background: 'build-resources/dmg-background.tiff',
       icon: 'build-resources/icon.icns',
