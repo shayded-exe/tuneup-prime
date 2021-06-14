@@ -6,7 +6,6 @@ export function init() {
   autoUpdater.autoDownload = false;
 
   if (isDev()) {
-    console.log(__dirname);
     autoUpdater.updateConfigPath = path.resolve(
       __dirname,
       '..',

@@ -1,3 +1,6 @@
+export const GUMROAD_PRODUCT_ID = 'vxJlA';
+export const TRIAL_DAYS = 14;
+
 export interface License {
   data: string;
   sig: string;
@@ -92,5 +95,3 @@ export class LicenseState {
 }
 
 export type ActivateLicenseResult = LicenseState | false;
-
-export const TRIAL_DAYS = 14;

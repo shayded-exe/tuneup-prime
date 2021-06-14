@@ -1,4 +1,9 @@
-import { ActivateLicenseResult, License, LicenseState } from '@/licensing';
+import {
+  ActivateLicenseResult,
+  GUMROAD_PRODUCT_ID,
+  License,
+  LicenseState,
+} from '@/licensing';
 import { postJson } from '@/utils';
 import * as fetch from 'node-fetch';
 
@@ -6,8 +11,6 @@ import { writeFile } from './file';
 import { licenseState } from './state';
 
 const API_BASE = 'https://license.shayded.com/.netlify/functions';
-
-const PRODUCT_ID = 'vxJlA';
 
 interface ActivateLicenseRequest {
   productId: string;
@@ -30,7 +33,7 @@ export async function activate(
   const res = await postJson<ActivateLicenseRequest>(
     `${API_BASE}/activate-license`,
     {
-      productId: PRODUCT_ID,
+      productId: GUMROAD_PRODUCT_ID,
       licenseKey,
     },
   );
@@ -54,7 +57,7 @@ export async function activateTrial(): Promise<LicenseState> {
   const res = await postJson<ActivateTrialRequest>(
     `${API_BASE}/activate-trial`,
     {
-      productId: PRODUCT_ID,
+      productId: GUMROAD_PRODUCT_ID,
     },
   );
 
