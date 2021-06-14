@@ -5,7 +5,11 @@
     </h1>
 
     <b-field label="License key" class="is-flex-grow-1">
-      <b-input :placeholder="licenseKeyFormat" v-model="licenseKey"></b-input>
+      <b-input
+        ref="licenseKey"
+        :placeholder="licenseKeyFormat"
+        v-model="licenseKey"
+      ></b-input>
     </b-field>
 
     <div v-if="activateError" class="message is-danger">
@@ -69,6 +73,10 @@ export default class ActivatePage extends Vue {
 
   get canActivate(): boolean {
     return this.isValid && !this.isProcessing;
+  }
+
+  mounted() {
+    (this.$refs.licenseKey as HTMLInputElement).focus();
   }
 
   cancel() {
