@@ -123,12 +123,11 @@
 import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
 import * as engine from '@/app/engine';
+import * as ipc from '@/app/ipc';
 import { asyncSeries } from '@/utils';
 import { every, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
-import * as ipc from '@/app/ipc';
 import def = engine.config;
-import { PlaylistRule } from '../engine/library-config';
 
 interface SmartPlaylistItem {
   playlist: def.SmartPlaylist;
@@ -229,8 +228,15 @@ export default class SmartCommand extends BaseCommand {
 
     await asyncSeries(
       this.smartPlaylists!.map(item => async () => {
+        const type =
+          item.playlist.isCrate &&
+          this.engineDb!.version === engine.Version.V1_6
+            ? engine.V1_6.ListType.Crate
+            : undefined;
+
         await this.engineDb!.createOrUpdatePlaylist({
           title: item.playlist.name,
+          type,
           tracks: item.tracks!,
         });
         item.wasGenerated = true;

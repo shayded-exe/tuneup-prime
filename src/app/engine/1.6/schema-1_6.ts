@@ -40,6 +40,7 @@ export interface List {
 export type NewList = Except<List, 'trackCount' | 'ordering'>;
 
 export interface PlaylistInput extends publicSchema.PlaylistInput {
+  type?: ListType;
   path?: string;
 }
 

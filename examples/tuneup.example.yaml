@@ -46,6 +46,8 @@ smartPlaylists:
         - [artist, contains, snake]
 
   - name: Multiple filters
+    # Creates a crate instead of a playlist
+    isCrate: true
     rules:
       # Must match all rules
       and:

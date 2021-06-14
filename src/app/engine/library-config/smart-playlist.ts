@@ -1,5 +1,6 @@
 export interface SmartPlaylist {
   name: string;
+  isCrate?: boolean;
   // TODO: Support
   sources?: string[];
   rules: PlaylistRuleGroup;

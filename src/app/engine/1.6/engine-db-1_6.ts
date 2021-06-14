@@ -90,7 +90,7 @@ export class EngineDB_1_6 extends EngineDB {
 
           const newPlaylist: schema.NewList = {
             id: playlistId,
-            type: schema.ListType.Playlist,
+            type: input.type ?? schema.ListType.Playlist,
             title: input.title,
             path: input.path ?? input.title + PLAYLIST_PATH_DELIMITER,
             isFolder: 0,
