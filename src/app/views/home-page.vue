@@ -1,10 +1,8 @@
 <template>
   <div class="is-flex is-flex-direction-column is-align-items-center">
-    <div class="block">
-      <img src="../../../img/enjinn.png" alt="ENJINN" />
-    </div>
+    <img src="../../../img/tuneup-prime.png" alt="tuneup PRIME" class="logo" />
 
-    <div v-if="!license.isPurchased" class="license-notice mb-6">
+    <div v-if="!license.isPurchased" class="license-notice">
       <div v-if="license.isTrial" key="isTrial">
         <p class="has-text-warning has-text-weight-bold">
           TRIAL VERSION
@@ -56,7 +54,7 @@
       </div>
     </div>
 
-    <div class="commands block">
+    <div class="commands">
       <div v-for="command of commands" :key="command.route" class="command m-2">
         <b-button
           :disabled="areCommandsDisabled"
@@ -72,29 +70,7 @@
       </div>
     </div>
 
-    <div class="help-links">
-      <b-button
-        tag="a"
-        :href="Links.Help"
-        target="_blank"
-        type="is-text"
-        size="is-medium"
-        icon-left="question"
-      >
-        help forum
-      </b-button>
-
-      <b-button
-        tag="a"
-        :href="Links.Docs"
-        target="_blank"
-        type="is-text"
-        size="is-medium"
-        icon-left="book"
-      >
-        documentation
-      </b-button>
-    </div>
+    <div class="help-links"></div>
 
     <div class="is-flex-grow-1"></div>
 
@@ -110,7 +86,34 @@
           <p class="version">v{{ version }}</p>
         </div>
       </div>
+
       <div class="level-right">
+        <div class="level-item">
+          <b-button
+            tag="a"
+            :href="Links.Help"
+            target="_blank"
+            type="is-text"
+            size="is-medium"
+            icon-left="question"
+          >
+            help forum
+          </b-button>
+        </div>
+
+        <div class="level-item documentation-link">
+          <b-button
+            tag="a"
+            :href="Links.Docs"
+            target="_blank"
+            type="is-text"
+            size="is-medium"
+            icon-left="book"
+          >
+            documentation
+          </b-button>
+        </div>
+
         <div class="level-item">
           <b-tooltip
             :active="isSettingsTooltipVisible"
@@ -136,25 +139,38 @@
 </template>
 
 <style lang="scss" scoped>
+.logo {
+  width: 600px;
+  margin: 2rem 0 3rem;
+}
+
 .license-notice {
-  margin-top: -1rem;
+  margin: -1rem 0 3rem;
   display: flex;
   flex-direction: row;
   align-items: center;
+
+  .buy-buttons {
+    &:not(:first-child) {
+      margin-left: 3rem;
+    }
+
+    > :not(:first-child) {
+      margin-left: 1rem;
+    }
+  }
 }
 
-.buy-buttons {
-  &:not(:first-child) {
-    margin-left: 3rem;
-  }
+.commands {
+  margin-bottom: 3rem;
 
-  > :not(:first-child) {
-    margin-left: 1rem;
+  .command {
+    display: inline-block;
   }
 }
 
-.command {
-  display: inline-block;
+.documentation-link {
+  margin-right: 1.5rem !important;
 }
 
 .shayded-link {

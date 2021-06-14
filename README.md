@@ -1,4 +1,4 @@
-![Enjinn](img/enjinn.png)
+![Tuneup PRIME](img/tuneup-prime.png)
 
 #### A library management tool for Denon Engine PRIME 🎧
 
@@ -10,6 +10,7 @@
 
 ## 🌟 Features
 
+- Easy to use graphic interface
 - Smart playlists
   - Generate playlists based off of easily configurable rules
   - Filter tracks based on album, file type, and more
@@ -21,9 +22,7 @@
 - Imports playlists created on smart consoles like the Prime 4 or SC6000
 - Automatically backs up library before running
 - Supports Engine 1.6.x
-- Cross platform
-  - Windows & macOS
-  - _macOS is untested._ The code is written to be compatible, but I don't have a mac to test on. If you have a mac, please let me know if everything works properly.
+- Cross platform - Windows & macOS
 
 If there's a feature you'd like added that would be useful to you, please open a [feature request](https://github.com/rshea0/enjinn/issues/new/choose)!
 
