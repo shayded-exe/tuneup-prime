@@ -21,7 +21,7 @@ export class WindowStateTracker {
   }
 
   saveState() {
-    if (!this.window) {
+    if (!this.window || this.window.isDestroyed()) {
       return;
     }
 
