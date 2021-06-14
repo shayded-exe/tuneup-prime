@@ -1,11 +1,12 @@
-import { appStore, initStore } from '@/store';
-import { getOS, SupportedOS } from '@/utils';
+import * as store from '@/store';
+import { getOS, isDev, SupportedOS } from '@/utils';
 import { app, BrowserWindow, nativeTheme, protocol, shell } from 'electron';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
 import * as ipc from './ipc';
 import * as licensing from './licensing';
+import * as updates from './updates';
 import { WindowStateTracker } from './window-state-tracker';
 
 let window: BrowserWindow | undefined;
@@ -49,7 +50,7 @@ function init() {
     // initialization and is ready to create browser windows.
     // Some APIs can only be used after this event occurs.
     app.on('ready', async () => {
-      if (isDevelopment && !process.env.IS_TEST) {
+      if (isDev() && !process.env.IS_TEST) {
         // Install Vue Devtools
         try {
           await installExtension(VUEJS_DEVTOOLS);
@@ -62,7 +63,7 @@ function init() {
     });
 
     // Exit cleanly on request from parent process in development mode.
-    if (isDevelopment) {
+    if (isDev()) {
       if (process.platform === 'win32') {
         process.on('message', data => {
           if (data === 'graceful-exit') {
@@ -78,14 +79,14 @@ function init() {
   }
 
   async function createWindow() {
-    const stateTracker = new WindowStateTracker(appStore());
+    const stateTracker = new WindowStateTracker(store.appStore());
 
     window = new BrowserWindow({
       width: 800,
       height: 600,
       x: stateTracker.state?.x,
       y: stateTracker.state?.y,
-      frame: getOS() !== SupportedOS.Windows || isDevelopment,
+      frame: getOS() !== SupportedOS.Windows || isDev(),
       resizable: false,
       webPreferences: {
         enableRemoteModule: true,
@@ -120,8 +121,6 @@ function init() {
     });
   }
 
-  const isDevelopment = process.env.NODE_ENV !== 'production';
-
   // Scheme must be registered before the app is ready
   protocol.registerSchemesAsPrivileged([
     {
@@ -134,7 +133,8 @@ function init() {
   ]);
 
   lockSingleInstance();
-  initStore({ withDefaults: true });
+  store.init({ withDefaults: true });
+  updates.init();
   licensing.init();
   ipc.init();
   initApp();

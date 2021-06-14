@@ -74,6 +74,32 @@
 
     <div class="is-flex-grow-1"></div>
 
+    <div v-if="updateInfo" class="update-bar level is-align-self-stretch">
+      <div class="level-left"></div>
+      <div class="level-right">
+        <div class="level-item">
+          <b-tooltip
+            label="Get the latest version here"
+            type="is-success"
+            position="is-left"
+            :always="showUpdateTooltip"
+          >
+            <b-button
+              class="icon-m2"
+              tag="a"
+              :href="Links.LatestRelease"
+              target="_blank"
+              type="is-success"
+              size="is-medium"
+              icon-left="cloud-download-alt"
+            >
+              get update
+            </b-button>
+          </b-tooltip>
+        </div>
+      </div>
+    </div>
+
     <div class="level is-align-self-stretch">
       <div class="level-left is-align-self-flex-end">
         <div>
@@ -199,6 +225,7 @@ import { appStore, AppStoreKey } from '@/store';
 import { getOSName } from '@/utils';
 import dateFormat from 'dateformat';
 import { remote } from 'electron';
+import { UpdateInfo } from 'electron-updater';
 import os from 'os';
 import { Component, Vue } from 'vue-property-decorator';
 
@@ -233,6 +260,9 @@ export default class HomePage extends Vue {
   libraryFolder: string | null = null;
   areSettingsValid = true;
 
+  updateInfo: UpdateInfo | null = null;
+  showUpdateTooltip = false;
+
   get trialExpDate(): string | undefined {
     const expDate = this.license.expDate;
     return expDate && dateFormat(expDate, SHORT_DATE_TIME_FORMAT);
@@ -253,6 +283,8 @@ export default class HomePage extends Vue {
   async mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
     await this.validateSettings();
+    ipc.updates.checkUpdates();
+    ipc.updates.onUpdateAvailable(u => this.onUpdateAvailable(u));
   }
 
   private async validateSettings() {
@@ -304,6 +336,12 @@ export default class HomePage extends Vue {
     const version = `${name}/${this.version} ${osName} ${osVersion} ${arch}`;
 
     remote.clipboard.writeText(version);
+  }
+
+  private onUpdateAvailable(updateInfo: UpdateInfo) {
+    this.updateInfo = updateInfo;
+    this.showUpdateTooltip = true;
+    setTimeout(() => (this.showUpdateTooltip = false), 5000);
   }
 }
 </script>

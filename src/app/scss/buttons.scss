@@ -1,4 +1,15 @@
 .button {
+  &.icon-m2 {
+    > .icon {
+      &:first-child:not(:last-child) {
+        margin-right: 0.5em;
+      }
+      &:last-child:not(:first-child) {
+        margin-left: 0.5em;
+      }
+    }
+  }
+
   > .icon {
     &:first-child:not(:last-child) {
       margin-left: -0.25em;

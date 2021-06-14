@@ -47,7 +47,7 @@ export function appStore(value?: Store<AppStoreData>): Store<AppStoreData> {
 
 const DEFAULT_LIBRARY_FOLDER = 'Engine Library';
 
-export function initStore({
+export function init({
   withDefaults = false,
 }: { withDefaults?: boolean } = {}) {
   const defaults = () => ({

@@ -4,4 +4,6 @@ export enum IpcChannel {
   Licensing_ActivateTrial = 'licensing:activate-trial',
   Shell_EditFile = 'shell:edit-file',
   Shell_OpenUrl = 'shell:open-url',
+  Updates_CheckUpdates = 'updates:check-updates',
+  Updates_UpdateAvailable = 'updates:update-available',
 }

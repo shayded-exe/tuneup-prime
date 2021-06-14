@@ -5,10 +5,7 @@
   "description": "A library management tool for Denon Engine PRIME",
   "author": "SHAYDED <shayded@shayded.com> (http://shayded.com)",
   "homepage": "https://github.com/rshea0/tuneup-prime#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rshea0/tuneup-prime.git"
-  },
+  "repository": "github:rshea0/tuneup-prime",
   "bugs": {
     "url": "https://github.com/rshea0/tuneup-prime/issues",
     "email": "shayded@shayded.com"
@@ -51,6 +48,7 @@
     "dateformat": "4.5.1",
     "electron-squirrel-startup": "1.0.0",
     "electron-store": "8.0.0",
+    "electron-updater": "4.3.9",
     "js-yaml": "4.1.0",
     "knex": "0.95.6",
     "lodash": "4.17.21",

@@ -36,6 +36,12 @@ const vuePluginOptions = {
       icon: 'build-resources/icon.icns',
       title: '${productName}',
     },
+    publish: {
+      provider: 'github',
+      owner: 'rshea0',
+      repo: 'tuneup-prime',
+      vPrefixedTagName: true,
+    },
   },
 };
 

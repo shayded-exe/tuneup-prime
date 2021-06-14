@@ -1,6 +1,6 @@
 import './scss/app.scss';
 
-import { initStore } from '@/store';
+import * as store from '@/store';
 import { getOS, SupportedOS } from '@/utils';
 import Buefy from 'buefy';
 import { Color, Titlebar } from 'custom-electron-titlebar';
@@ -31,7 +31,7 @@ function init() {
     }
   }
 
-  initStore();
+  store.init();
   initVue();
 
   // if (module.hot) {

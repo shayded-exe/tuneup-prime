@@ -4,6 +4,10 @@ import Drive from 'node-disk-info/dist/classes/drive';
 import fetch, { RequestInfo, RequestInit, Response } from 'node-fetch';
 import nodePath from 'path';
 
+export function isDev(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
+
 export async function asyncSeries<T>(
   asyncFuncs: readonly (() => Promise<T>)[],
 ): Promise<T[]> {
