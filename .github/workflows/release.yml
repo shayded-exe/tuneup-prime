@@ -26,9 +26,21 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      # - name: Cache node modules
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.npm
+      #     key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-
+
+      - name: Install node modules
+        run: npm ci
+
       - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+        uses: cryogenicplanet/action-electron-builder@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_install: true
           release: false
           use_vue_cli: true

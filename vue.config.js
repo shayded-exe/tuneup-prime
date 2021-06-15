@@ -36,7 +36,7 @@ const vuePluginOptions = {
       icon: 'build-resources/icon.png',
     },
     mac: {
-      target: 'dmg',
+      target: ['dmg', 'pkg'],
       icon: 'build-resources/icon.icns',
     },
     dmg: {
