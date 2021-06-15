@@ -4,6 +4,7 @@ on:
   workflow_dispatch: {}
   push:
     branches: [$default-branch]
+    tags: ['v*.*.*']
   release:
     types: [created]
 
