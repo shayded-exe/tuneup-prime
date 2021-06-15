@@ -75,5 +75,3 @@ module.exports = {
   },
   productionSourceMap: false,
 };
-
-// Adding this comment to trigger the build action because github is weird
