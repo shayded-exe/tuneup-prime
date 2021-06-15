@@ -5,8 +5,6 @@ on:
   push:
     branches: [$default-branch]
     tags: ['v*.*.*']
-  release:
-    types: [created]
 
 jobs:
   build:
