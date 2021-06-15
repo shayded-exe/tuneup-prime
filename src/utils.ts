@@ -1,17 +1,12 @@
 import fs from 'fs';
-import { partialRight } from 'lodash';
 import { getDiskInfo } from 'node-disk-info';
 import Drive from 'node-disk-info/dist/classes/drive';
 import fetch, { RequestInfo, RequestInit, Response } from 'node-fetch';
-import ora from 'ora';
 import nodePath from 'path';
-import terminalLink from 'terminal-link';
 
-export const PromptHints = {
-  Select: '(↑/↓) to choose, (enter) to submit',
-  Multiselect:
-    '(↑/↓) to choose, (space) to select, (a) to select all, (enter) to submit',
-};
+export function isDev(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
 
 export async function asyncSeries<T>(
   asyncFuncs: readonly (() => Promise<T>)[],
@@ -25,38 +20,18 @@ export async function asyncSeries<T>(
   return results;
 }
 
-export const urlFallbackLink = partialRight(terminalLink, {
-  fallback: (_, url) => url,
-});
-
-export async function spinner<T = void>({
-  run,
-  ...options
-}: ora.Options & {
-  run: (ctx: ora.Ora) => Promise<T>;
-  successMessage?: string;
-}): Promise<T> {
-  const ctx = ora({
-    spinner: 'dots3',
-    ...options,
-  }).start();
-
-  try {
-    const result = await run(ctx);
-    if (ctx.isSpinning) {
-      ctx.succeed(options.successMessage);
-    }
-
-    return result;
-  } catch (e) {
-    ctx.fail(e.message);
-    throw e;
-  }
-}
-
 export async function checkPathExists(path: string): Promise<boolean> {
   try {
     await fs.promises.access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function checkPathExistsSync(path: string): boolean {
+  try {
+    fs.accessSync(path);
     return true;
   } catch {
     return false;
@@ -81,6 +56,10 @@ export async function checkPathIsFile(path: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export function makePathUnix(path: string): string {
+  return path.replace(/\\/g, '/');
 }
 
 export function resolvePathToCwdIfRelative(path: string): string {
@@ -143,6 +122,19 @@ export function getOS(): SupportedOS {
   return os as SupportedOS;
 }
 
+export function getOSName(): string {
+  const os = getOS();
+
+  switch (os) {
+    case SupportedOS.Windows:
+      return 'Windows';
+    case SupportedOS.MacOS:
+      return 'macOS';
+    case SupportedOS.Linux:
+      return 'Linux';
+  }
+}
+
 export type ExtDrive = Drive;
 
 export async function getExtDrives(): Promise<ExtDrive[]> {
@@ -165,16 +157,17 @@ export async function getExtDrives(): Promise<ExtDrive[]> {
 
 export async function postJson<T = object>(
   url: RequestInfo,
-  body: T,
+  body?: T,
   opts?: RequestInit,
 ): Promise<Response> {
   return fetch(url, {
     ...opts,
     method: 'POST',
+    timeout: 10 * 1000,
     headers: {
       ...opts?.headers,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: body && JSON.stringify(body),
   });
 }

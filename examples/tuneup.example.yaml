@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/rshea0/tuneup-prime/master/src/app/engine/library-config/tuneup.schema.json
+
+# Supported fields
+#
+#   [string]
+#     album
+#     artist
+#     comment
+#     composer
+#     filename
+#     fileType
+#     genre
+#     label
+#     path
+#     remixer
+#     title
+#
+#  [numeric]
+#    bitrate
+#    bpm
+#    length
+#    rating
+#    year
+
+# Supported operators
+#
+#   [string]
+#     equals
+#     notequal
+#     contains
+#     excludes
+#     regex (Don't know what Regex is? Read https://regexone.com/)
+#
+#  [numeric]
+#     =
+#     !=
+#     >
+#     >=
+#     <
+#     <=
+
+smartPlaylists:
+  - name: Single filter
+    rules:
+      and:
+        - [artist, contains, snake]
+
+  - name: Multiple filters
+    # Creates a crate instead of a playlist
+    isCrate: true
+    rules:
+      # Must match all rules
+      and:
+        - [title, contains, remix]
+        # caseSensitive is optional (default: false)
+        - [artist, equals, ILLENIUM, { caseSensitive: true }]
+          # Filter on numeric fields
+        - [bpm, '>=', 128]
+
+  - name: Complex logic
+    rules:
+      # Only needs to match one rule
+      or:
+        - [title, regex, \(\w remix\)]
+        # Can nest groups
+        - and:
+            - [artist, excludes, khaled]
+            - [album, equals, another one]
+            - [album, equals, another one]
+            - [album, equals, another one]
+            # I appreciate you

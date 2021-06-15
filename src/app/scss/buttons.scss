@@ -1,0 +1,100 @@
+.button {
+  &.icon-m2 {
+    > .icon {
+      &:first-child:not(:last-child) {
+        margin-right: 0.5em;
+      }
+      &:last-child:not(:first-child) {
+        margin-left: 0.5em;
+      }
+    }
+  }
+
+  > .icon {
+    &:first-child:not(:last-child) {
+      margin-left: -0.25em;
+    }
+    &:last-child:not(:first-child) {
+      margin-right: -0.25em;
+    }
+  }
+
+  &.emoji-button {
+    > .icon {
+      &:first-child:not(:last-child) {
+        margin-left: 0;
+        margin-right: 0.75em;
+      }
+      &:last-child:not(:first-child) {
+        margin-left: 0.75em;
+        margin-right: 0;
+      }
+    }
+  }
+
+  &.is-text {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    color: $light;
+    text-decoration: none;
+
+    > span:not(.icon) {
+      text-underline-offset: 0.15em;
+      margin-top: -0.1em;
+    }
+
+    &:hover {
+      > span:not(.icon) {
+        text-decoration: underline;
+      }
+    }
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  @each $name, $pair in $button-colors {
+    $color: nth($pair, 1);
+    $color-invert: nth($pair, 2);
+
+    &.is-#{$name} {
+      &.is-outlined:focus:not(:hover) {
+        background-color: transparent !important;
+        color: $color;
+      }
+
+      &.button {
+        box-shadow: 0px 0px bulmaDarken($color, 20%) !important;
+        transition: 0.2s;
+
+        &:hover:not(:disabled) {
+          box-shadow: 0px 4px 2px bulmaDarken($color, 25%) !important;
+          transform: translate(0px, -2px);
+
+          &:active {
+            transition: 0.1s;
+            box-shadow: 0px 0px 0px bulmaDarken($color, 30%) !important;
+            transform: translate(0px, 2px);
+            background-color: bulmaDarken($color, 10%);
+          }
+        }
+      }
+    }
+  }
+}
+
+a {
+  &:hover {
+    color: $link;
+  }
+}
+
+.link-text {
+  text-underline-offset: 0.15em;
+
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}

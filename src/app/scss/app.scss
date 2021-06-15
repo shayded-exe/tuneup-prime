@@ -1,0 +1,42 @@
+@import '~bulma';
+@import '~buefy/src/scss/buefy';
+@import './fonts';
+@import './buttons';
+@import './layout';
+@import './messages';
+@import './scrollbars';
+@import './tables';
+@import './tags';
+@import './tooltips';
+@import './transitions';
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  overflow: hidden;
+  user-select: none;
+
+  &,
+  body {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.titlebar {
+  .window-title {
+    font-size: 15px !important;
+  }
+
+  .window-controls-container {
+    // Maximize button
+    :nth-child(2) {
+      display: none !important;
+    }
+  }
+}
+
+.container-after-titlebar {
+  overflow: hidden !important;
+}

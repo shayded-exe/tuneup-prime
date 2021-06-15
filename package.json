@@ -1,19 +1,17 @@
 {
-  "name": "enjinn",
-  "version": "1.3.2",
-  "preferGlobal": true,
+  "name": "tuneup-prime",
+  "version": "2.0.0",
+  "private": true,
   "description": "A library management tool for Denon Engine PRIME",
   "author": "SHAYDED <shayded@shayded.com> (http://shayded.com)",
-  "homepage": "https://github.com/rshea0/enjinn#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rshea0/enjinn.git"
-  },
+  "homepage": "https://github.com/rshea0/tuneup-prime#readme",
+  "repository": "github:rshea0/tuneup-prime",
   "bugs": {
-    "url": "https://github.com/rshea0/enjinn/issues",
+    "url": "https://github.com/rshea0/tuneup-prime/issues",
     "email": "shayded@shayded.com"
   },
   "keywords": [
+    "tuneup-prime",
     "enjinn",
     "engine",
     "genie",
@@ -21,7 +19,9 @@
     "denon",
     "dj",
     "denon dj",
-    "relocate library",
+    "library",
+    "relocate",
+    "consolidate",
     "missing tracks",
     "smart playlist"
   ],
@@ -29,105 +29,67 @@
   "engines": {
     "node": ">=14"
   },
-  "bin": {
-    "enjinn": "./bin/run"
-  },
-  "main": "lib/index.js",
-  "oclif": {
-    "bin": "enjinn",
-    "commands": "./lib/commands",
-    "helpClass": "./lib/help",
-    "hooks": {
-      "init": [
-        "./lib/hooks/init/init-conf"
-      ],
-      "prerun": [
-        "./lib/hooks/prerun/prerun-engine-library"
-      ]
-    },
-    "plugins": [
-      "@oclif/plugin-help",
-      "@oclif/plugin-warn-if-update-available"
-    ],
-    "update": {
-      "s3": {
-        "bucket": "enjinn-releases"
-      }
-    },
-    "warn-if-update-available": {
-      "timeoutInDays": 1,
-      "message": "Update available from <%=chalk.yellow(config.version)%> to <%=chalk.greenBright(latest)%>"
-    },
-    "macos": {
-      "identifier": "com.shayded.enjinn"
-    }
-  },
-  "files": [
-    "/bin",
-    "/lib",
-    "/npm-shrinkwrap.json",
-    "oclif.manifest.json"
-  ],
+  "main": "background.js",
   "scripts": {
-    "build": "shx rm -rf lib && tsc -b",
-    "release": "np --no-tests --message v%s",
-    "prepack": "npm run build && oclif-dev manifest && shx cp package-lock.json npm-shrinkwrap.json",
-    "postpack": "shx rm oclif.manifest.json npm-shrinkwrap.json",
-    "standalone:webpack": "shx rm -rf pack && npx webpack && node scripts/post-webpack.js",
-    "standalone:pack:win": "bash scripts/pack.sh win32",
-    "standalone:pack:macos": "bash scripts/pack.sh darwin"
+    "install:wsl": "bash scripts/install.sh",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "@oclif/command": "1.8.0",
-    "@oclif/config": "1.17.0",
-    "@oclif/plugin-help": "3.2.2",
-    "@oclif/plugin-warn-if-update-available": "1.7.0",
-    "ajv": "8.1.0",
-    "chalk": "2.4.2",
-    "conf": "10.0.1",
+    "@fortawesome/fontawesome-free": "5.15.3",
+    "ajv": "8.4.0",
+    "buefy": "0.9.7",
+    "core-js": "3.12.1",
+    "custom-electron-titlebar": "3.2.7",
     "dateformat": "4.5.1",
-    "figlet": "1.5.0",
-    "gradient-string": "1.2.0",
+    "electron-squirrel-startup": "1.0.0",
+    "electron-store": "8.0.0",
+    "electron-updater": "4.3.9",
     "js-yaml": "4.1.0",
-    "knex": "0.95.4",
+    "knex": "0.95.6",
     "lodash": "4.17.21",
     "node-disk-info": "1.3.0",
     "node-fetch": "2.6.1",
     "node-rsa": "1.1.1",
-    "ora": "5.4.0",
     "pluralize": "8.0.0",
-    "prompts": "2.4.1",
     "sqlite3": "5.0.2",
-    "terminal-link": "2.1.1",
     "true-case-path": "2.2.1",
-    "type-fest": "0.21.3"
+    "type-fest": "1.1.3",
+    "vue": "2.6.12",
+    "vue-class-component": "7.2.6",
+    "vue-property-decorator": "9.1.2",
+    "vue-router": "3.5.1"
   },
   "devDependencies": {
-    "@oclif/dev-cli": "1.26.0",
-    "@types/chalk": "2.2.0",
     "@types/dateformat": "3.0.1",
-    "@types/figlet": "1.5.1",
+    "@types/electron-devtools-installer": "2.2.0",
     "@types/fs-extra": "9.0.11",
-    "@types/gradient-string": "1.1.1",
     "@types/js-yaml": "4.0.1",
-    "@types/lodash": "4.14.168",
+    "@types/lodash": "4.14.169",
     "@types/node": "14.14.41",
     "@types/node-fetch": "2.5.10",
     "@types/node-rsa": "1.1.0",
     "@types/pluralize": "0.0.29",
-    "@types/prompts": "2.0.11",
-    "aws-sdk": "2.903.0",
-    "execa": "0.10.0",
-    "fs-extra": "8.1.0",
-    "json-loader": "0.5.7",
-    "node-loader": "2.0.0",
-    "np": "7.5.0",
-    "pkg": "5.1.0",
+    "@vue/cli-plugin-babel": "4.5.13",
+    "@vue/cli-plugin-router": "4.5.13",
+    "@vue/cli-plugin-typescript": "4.5.13",
+    "@vue/cli-service": "4.5.13",
+    "aws-sdk": "2.910.0",
+    "electron": "12.0.8",
+    "electron-devtools-installer": "3.2.0",
+    "fs-extra": "10.0.0",
+    "node-sass": "6.0.0",
+    "sass-loader": "10.2.0",
     "shx": "0.3.3",
-    "ts-loader": "9.1.2",
     "ts-node": "9.1.1",
+    "tsconfig-paths-webpack-plugin": "3.5.1",
     "typescript": "4.2.4",
-    "webpack": "5.36.2",
-    "webpack-cli": "4.7.0"
+    "vue-cli-plugin-electron-builder": "2.0.0",
+    "vue-template-compiler": "2.6.12",
+    "webpack": "4.46.0"
   }
 }

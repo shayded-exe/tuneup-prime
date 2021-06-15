@@ -7,9 +7,9 @@ assignees: rshea0
 ---
 
 <!--
-  Are you having trouble figuring out how to use ENJINN? Please make a post on the help forum instead.
+  Are you having trouble figuring out how to use tuneup PRIME? Please make a post on the help forum instead.
 
-  https://github.com/rshea0/enjinn/discussions/categories/help
+  https://github.com/rshea0/tuneup-prime/discussions/categories/help
 -->
 
 ### Issue description
@@ -29,12 +29,11 @@ assignees: rshea0
 ### Environment
 
 <!--
-  You can find your enjinn version by simply running enjinn.
-
-  It should look like this:
-    enjinn/1.2.0 win32-x64 node-v14.16.1
+  To get your tuneup PRIME version, click the version number located at
+  the lower left corner of the home screen.
+  Your full version information will be copied to your clipboard.
 -->
 
-- `enjinn` version: **your version**
+- `tuneup PRIME` version: **your version**
 - Engine PRIME version: **your version**
 - Operating System: **your OS**

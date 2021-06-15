@@ -6,25 +6,32 @@
     "Remixer",
     "SHAYDE",
     "SHAYDED",
+    "VUEJS",
     "Venmo",
+    "buefy",
+    "bulma",
     "dedupe",
     "destructure",
     "enjinn",
-    "execa",
+    "icns",
     "keyby",
     "khaled",
     "listr",
     "martinbeentjes",
+    "maximizable",
     "metas",
+    "nklayman",
     "nsis",
     "rshea",
     "shallwefootball",
     "tempfs"
   ],
+  "files.associations": {
+    "**/snippets/**/*.vue": "text"
+  },
   "files.exclude": {
-    "lib": true,
-    "pack": true,
-    "tmp": true
+    "dist": true,
+    "dist_electron": true
   },
   "typescript.tsdk": "node_modules/typescript/lib"
 }

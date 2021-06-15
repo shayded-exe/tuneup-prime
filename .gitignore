@@ -1,13 +1,15 @@
 /dist
-/lib
-/pack
-/tmp
 
 *.code-workspace
 
 npm-shrinkwrap.json
-oclif.manifest.json
 tsconfig.tsbuildinfo
+
+# electron-builder output
+/dist_electron
+
+# mac
+.DS_Store
 
 # Logs
 logs

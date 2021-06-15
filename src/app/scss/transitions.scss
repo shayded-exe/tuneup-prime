@@ -1,0 +1,30 @@
+.app-slide-next-enter-active,
+.app-slide-next-leave-active,
+.app-slide-prev-enter-active,
+.app-slide-prev-leave-active {
+  transition-property: transform, opacity;
+  transition-duration: 210ms;
+  // https://easings.net/#easeOutQuad
+  transition-timing-function: cubic-bezier(0.5, 1, 0.89, 1);
+  position: absolute;
+}
+.app-slide-next-enter,
+.app-slide-next-leave-to,
+.app-slide-prev-enter,
+.app-slide-prev-leave-to {
+  opacity: 0;
+}
+.app-slide-next-enter-to,
+.app-slide-next-leave,
+.app-slide-prev-enter-to,
+.app-slide-prev-leave {
+  opacity: 1;
+}
+.app-slide-next-enter,
+.app-slide-prev-leave-to {
+  transform: translateY(-7.5%);
+}
+.app-slide-next-leave-to,
+.app-slide-prev-enter {
+  transform: translateY(7.5%);
+}
