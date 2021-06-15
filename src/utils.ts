@@ -58,6 +58,10 @@ export async function checkPathIsFile(path: string): Promise<boolean> {
   }
 }
 
+export function makePathUnix(path: string): string {
+  return path.replace(/\\/g, '/');
+}
+
 export function resolvePathToCwdIfRelative(path: string): string {
   return nodePath.isAbsolute(path)
     ? path

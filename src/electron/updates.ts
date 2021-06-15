@@ -18,7 +18,7 @@ export async function checkForUpdates(): Promise<
   UpdateCheckResult | undefined
 > {
   try {
-    return autoUpdater.checkForUpdates();
+    return await autoUpdater.checkForUpdates();
   } catch (e) {
     console.error(e);
     return undefined;

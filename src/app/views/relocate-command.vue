@@ -17,7 +17,7 @@
         <b-button
           :disabled="!canRelocate"
           :loading="isRelocating"
-          @click="relocateMissingTracks()"
+          @click="relocateTracks()"
           type="is-primary"
         >
           relocate
@@ -86,7 +86,7 @@
 import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
 import * as engine from '@/app/engine';
-import { checkPathExists, getFilesInDir } from '@/utils';
+import { checkPathExists, getFilesInDir, makePathUnix } from '@/utils';
 import { remote } from 'electron';
 import { keyBy } from 'lodash';
 import path from 'path';
@@ -112,23 +112,25 @@ export default class RelocateCommand extends BaseCommand {
   relocateError = '';
   didRelocate = false;
 
-  get canFind() {
+  get canFind(): boolean {
     return !this.isProcessing;
   }
 
-  get canRelocate() {
-    return !this.isProcessing && this.tracks?.some(x => !x.wasRelocated);
+  get canRelocate(): boolean {
+    return (
+      !this.isProcessing && (this.tracks?.some(x => !x.wasRelocated) ?? false)
+    );
   }
 
-  get numTracks() {
+  get numTracks(): number | undefined {
     return this.tracks?.length;
   }
 
-  get numRelocated() {
+  get numRelocated(): number | undefined {
     return this.tracks?.filter(x => x.wasRelocated).length;
   }
 
-  get isProcessing() {
+  get isProcessing(): boolean {
     return this.isFinding || this.isRelocating;
   }
 
@@ -176,31 +178,30 @@ export default class RelocateCommand extends BaseCommand {
     return missing;
   }
 
-  async relocateMissingTracks() {
+  async relocateTracks() {
     if (this.isRelocating) {
-      return;
-    }
-
-    const searchFolder = await remote.dialog
-      .showOpenDialog({
-        properties: ['openDirectory'],
-      })
-      .then(x => x.filePaths[0]);
-
-    if (!searchFolder) {
       return;
     }
 
     try {
       this.isRelocating = true;
+      this.relocateError = '';
+
+      const searchFolder = await remote.dialog
+        .showOpenDialog({
+          properties: ['openDirectory'],
+        })
+        .then(x => x.filePaths[0]);
+      if (!searchFolder) {
+        return;
+      }
+
       await this.connectToEngine();
 
-      await this.relocateTracks({
+      await this.relocateTracksInternal({
         tracks: this.tracks!,
         searchFolder,
       });
-
-      this.relocateError = '';
     } catch (e) {
       this.relocateError = e.message;
     } finally {
@@ -233,7 +234,7 @@ export default class RelocateCommand extends BaseCommand {
     }
   }
 
-  private async relocateTracks({
+  private async relocateTracksInternal({
     tracks,
     searchFolder,
   }: {
@@ -254,9 +255,9 @@ export default class RelocateCommand extends BaseCommand {
       }
 
       // Paths are unix style regardless of OS
-      item.track.path = path
-        .relative(this.libraryFolder, newPath.path)
-        .replace(/\\/g, '/');
+      item.track.path = makePathUnix(
+        path.relative(this.libraryFolder, newPath.path),
+      );
       item.newPathDir = path.parse(item.track.path).dir;
       item.wasRelocated = true;
     });

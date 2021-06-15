@@ -192,6 +192,10 @@
 }
 
 .commands {
+  max-width: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   margin-bottom: 3rem;
 
   .command {
@@ -251,6 +255,11 @@ export default class HomePage extends Vue {
       label: 'relocate tracks',
       route: 'relocate',
       icon: 'em-mag',
+    },
+    {
+      label: 'consolidate library',
+      route: 'consolidate',
+      icon: 'em-card_file_box',
     },
   ];
 

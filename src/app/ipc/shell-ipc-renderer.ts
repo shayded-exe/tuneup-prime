@@ -1,8 +1,12 @@
 import { IpcChannel } from '@/ipc-channel';
 import { ipcRenderer } from 'electron';
 
-export function editFile(file: string) {
-  ipcRenderer.send(IpcChannel.Shell_EditFile, file);
+export function editFile(filePath: string) {
+  ipcRenderer.send(IpcChannel.Shell_EditFile, filePath);
+}
+
+export function openFolder(folderPath: string) {
+  ipcRenderer.send(IpcChannel.Shell_OpenFolder, folderPath);
 }
 
 export function openUrl(url: string) {

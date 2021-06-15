@@ -7,7 +7,8 @@
 - 🚀 [Installation](#-installation)
 - ❓ [How To Use](#-how-to-use)
   - 🧠 [`smart playlists`](#-smart-playlists)
-  - 🔍 [`relocate tracks`](#-relocate)
+  - 🔍 [`relocate tracks`](#-relocate-tracks)
+  - 🗃 [`consolidate library`](#-consolidate-library)
     <!-- - 📼 [`import usb playlists`](#-import-usb-playlists) -->
 
 ## 🌟 Features
@@ -86,6 +87,12 @@ First, click "find missing". Tuneup PRIME will scan your library for tracks that
 Next, click "relocate". You'll be prompted to select the folder to search for your tracks in. It will also search up to 5 sub-folders deep. After searching, you'll see an updated list of your tracks and their detected location.
 
 > Currently, the filenames have to be the same, but soon you'll be able to specify rules for matching filenames as well as rename individual files.
+
+### 🗃 Consolidate Library
+
+Does what it says on the tin.
+
+![Consolidate Library](img/screens/consolidate-library.png)
 
 <!--
 ### 📼 Import USB Playlists

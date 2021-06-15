@@ -10,6 +10,10 @@ export function registerHandlers() {
     }
   });
 
+  ipcMain.on(IpcChannel.Shell_OpenFolder, (_, folderPath: string) => {
+    shell.openPath(folderPath);
+  });
+
   ipcMain.on(IpcChannel.Shell_OpenUrl, (_, url: string) => {
     shell.openExternal(url);
   });
