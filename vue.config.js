@@ -28,6 +28,7 @@ const vuePluginOptions = {
   builderOptions: {
     appId: 'com.shayded.tuneup-prime',
     productName: 'tuneup PRIME',
+    afterSign: 'electron-builder-notarize',
     directories: {
       buildResources: 'build-resources',
     },
@@ -38,6 +39,9 @@ const vuePluginOptions = {
     mac: {
       target: 'dmg',
       icon: 'build-resources/icon.icns',
+      category: 'public.app-category.utilities',
+      entitlements: 'build-resources/entitlements.mac.plist',
+      entitlementsInherit: 'build-resources/entitlements.mac.plist',
     },
     dmg: {
       background: 'build-resources/dmg-background.tiff',

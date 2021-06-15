@@ -28,6 +28,7 @@
 - Automatically backs up library before running
 - Supports Engine 1.6.x
 - Cross platform - Windows & macOS
+  - _Releasing this on mac required me to pay for a \$99/yr Apple Developer subscription. Removing the safety warnings on Windows will require another \$70+/yr for a code signing cert. Please consider paying above the minimum to help me afford this as well as have more time to improve the app._
 - More coming soon! Check out the [upcoming features](https://github.com/rshea0/tuneup-prime/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22new+feature%22)
 
 If there's a feature you'd like added that would be useful to you, [suggest it here](https://github.com/rshea0/tuneup-prime/discussions/new)!
@@ -49,8 +50,6 @@ After your trial expires, tuneup PRIME must be activated with a license key. Sim
 ### Updating
 
 tuneup PRIME will notify you when an update is available and show a button to download the latest version.
-
-> Adding full auto updates would require me to code-sign the app on macOS. This requires a \$99/yr Apple developer subscription which I currently can't afford. Please consider paying above the minimum to both help me have more time to develop this app as well as afford this subscription.
 
 ## ❓ How To Use
 
