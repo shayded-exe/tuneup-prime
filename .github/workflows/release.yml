@@ -15,9 +15,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - uses: actions/checkout@v2
 
@@ -51,14 +48,12 @@ jobs:
           github-access-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build/release Electron app
-        uses: cryogenicplanet/action-electron-builder@v2
-        with:
-          skip_install: true
-          use_vue_cli: true
-          release: false
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          mac_certs: ${{ secrets.MAC_CERTS }}
-          mac_certs_password: ${{ secrets.MAC_CERTS_PASSWORD }}
+        run: npx vue-cli-service electron:build
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # codesign
+          CSC_LINK: ${{ secrets.MAC_CERTS }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTS_PASSWORD }}
+          # notarization
           API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           API_KEY_ISSUER_ID: ${{ secrets.APPLE_API_KEY_ISSUER_ID }}
