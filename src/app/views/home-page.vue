@@ -292,8 +292,9 @@ export default class HomePage extends Vue {
   async mounted() {
     this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
     await this.validateSettings();
-    ipc.updates.checkUpdates();
+
     ipc.updates.onUpdateAvailable(u => this.onUpdateAvailable(u));
+    ipc.updates.checkUpdates();
   }
 
   private async validateSettings() {

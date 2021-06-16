@@ -1,8 +1,16 @@
+import { IpcChannel } from '@/ipc-channel';
 import { isDev } from '@/utils';
-import { autoUpdater, UpdateCheckResult } from 'electron-updater';
+import { BrowserWindow } from 'electron';
+import { autoUpdater, UpdateCheckResult, UpdateInfo } from 'electron-updater';
 import path from 'path';
 
 export function init() {
+  function onUpdateAvailable(updateInfo: UpdateInfo) {
+    const [win] = BrowserWindow.getAllWindows();
+
+    win.webContents.send(IpcChannel.Updates_UpdateAvailable, updateInfo);
+  }
+
   autoUpdater.autoDownload = false;
 
   if (isDev()) {
@@ -12,6 +20,8 @@ export function init() {
       'dev-app-update.yml',
     );
   }
+
+  autoUpdater.on('update-available', onUpdateAvailable);
 }
 
 export async function checkForUpdates(): Promise<
