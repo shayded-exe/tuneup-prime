@@ -28,7 +28,6 @@
 - Automatically backs up library before running
 - Supports Engine 1.6.x
 - Cross platform - Windows & macOS
-  - _Releasing this on mac required me to pay for a \$99/yr Apple Developer subscription. Removing the safety warnings on Windows will require another \$70+/yr for a code signing cert. Please consider paying above the minimum to help me afford this as well as have more time to improve the app._
 - More coming soon! Check out the [upcoming features](https://github.com/rshea0/tuneup-prime/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22new+feature%22)
 
 If there's a feature you'd like added that would be useful to you, [suggest it here](https://github.com/rshea0/tuneup-prime/discussions/new)!
