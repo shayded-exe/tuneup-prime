@@ -37,7 +37,7 @@ If there's a feature you'd like added that would be useful to you, [suggest it h
 
 You can try tuneup PRIME free for 14 days. Simply download the latest version from the [releases page](https://github.com/rshea0/tuneup-prime/releases).
 
-tuneup PRIME can be purchased on [Gumroad](https://gum.co/tuneup-prime). Pricing is pay-what-you-want (\$3 minimum).
+tuneup PRIME can be purchased on [Gumroad](https://gum.co/tuneup-prime). Pricing is pay-what-you-want (\$5 minimum).
 
 After purchasing, simply download and run the installer.
 
