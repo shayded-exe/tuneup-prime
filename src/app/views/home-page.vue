@@ -1,6 +1,10 @@
 <template>
   <div class="is-flex is-flex-direction-column is-align-items-center">
-    <img src="../../../img/tuneup-prime.png" alt="tuneup PRIME" class="logo" />
+    <img
+      src="../../../img/tuneup-prime-text.png"
+      alt="tuneup PRIME"
+      class="logo"
+    />
 
     <div v-if="!license.isPurchased" class="license-notice">
       <div v-if="license.isTrial" key="isTrial">
