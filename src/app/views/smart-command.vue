@@ -401,6 +401,33 @@ function getTrackValue(
     }
   }
 
-  return track[getTrackField()];
+  function convertRating(rating: number): number {
+    if (rating <= 0) {
+      return 0;
+    } else if (rating <= 20) {
+      return 1;
+    } else if (rating <= 40) {
+      return 2;
+    } else if (rating <= 60) {
+      return 3;
+    } else if (rating <= 80) {
+      return 4;
+    } else {
+      return 5;
+    }
+  }
+
+  const value = track[getTrackField()];
+
+  if (value == null) {
+    return value;
+  }
+
+  switch (field) {
+    case def.NumericFilterField.Rating:
+      return convertRating(value as number);
+    default:
+      return value;
+  }
 }
 </script>

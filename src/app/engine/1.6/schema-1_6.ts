@@ -133,6 +133,7 @@ export enum MetaDataIntegerType {
   dateAdded = 2,
   dateCreated = 3,
   key = 4,
+  rating = 5,
 }
 
 export interface MetaDataInteger {

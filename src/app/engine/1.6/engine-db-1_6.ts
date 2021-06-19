@@ -303,7 +303,9 @@ export class EngineDB_1_6 extends EngineDB {
             textMetaMap[track.id] ?? [],
             (result, meta) => {
               const key = schema.MetaDataType[meta.type];
-              result[key] = meta.text;
+              if (key) {
+                result[key] = meta.text;
+              }
             },
             {} as any,
           ),
@@ -311,7 +313,9 @@ export class EngineDB_1_6 extends EngineDB {
             intMetaMap[track.id] ?? [],
             (result, meta) => {
               const key = schema.MetaDataIntegerType[meta.type];
-              result[key] = meta.value;
+              if (key) {
+                result[key] = meta.value;
+              }
             },
             {} as any,
           ),
