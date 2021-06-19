@@ -196,7 +196,9 @@ export default class ConsolidateCommand extends BaseCommand {
 
     for (const item of found) {
       const targetPath = path.resolve(this.targetFolder, item.track.filename);
-      item.track.path = makePathUnix(targetPath);
+      item.track.path = makePathUnix(
+        path.relative(this.libraryFolder, targetPath),
+      );
       // no overwrite
       // if (path.normalize(item.oldPath) === path.normalize(item.track.path)) {
       //   continue;
