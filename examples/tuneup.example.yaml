@@ -57,6 +57,14 @@ smartPlaylists:
           # Filter on numeric fields
         - [bpm, '>=', 128]
 
+  - name: Multiple genres
+    rules:
+      # Only has to match one rule
+      or:
+        - [genre, equals, house]
+        - [genre, equals, deep house]
+        - [genre, equals, tech house]
+
   - name: Rating and year filters
     # Matches rating above 3 stars and years 2009-2013
     rules:

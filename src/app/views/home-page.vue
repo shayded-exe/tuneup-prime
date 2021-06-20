@@ -86,7 +86,7 @@
             label="Get the latest version here"
             type="is-success"
             position="is-left"
-            :always="showUpdateTooltip"
+            :always="isUpdateTooltipVisible"
           >
             <b-button
               class="icon-m2"
@@ -274,7 +274,7 @@ export default class HomePage extends Vue {
   areSettingsValid = true;
 
   updateInfo: UpdateInfo | null = null;
-  showUpdateTooltip = false;
+  isUpdateTooltipVisible = false;
 
   get trialExpDate(): string | undefined {
     const expDate = this.license.expDate;
@@ -354,8 +354,8 @@ export default class HomePage extends Vue {
 
   private onUpdateAvailable(updateInfo: UpdateInfo) {
     this.updateInfo = updateInfo;
-    this.showUpdateTooltip = true;
-    setTimeout(() => (this.showUpdateTooltip = false), 5000);
+    this.isUpdateTooltipVisible = true;
+    setTimeout(() => (this.isUpdateTooltipVisible = false), 5000);
   }
 }
 </script>
