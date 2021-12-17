@@ -21,6 +21,7 @@ export interface Playlist {
   nextListId: number;
   isPersisted: boolean;
   lastEditTime: string;
+  isExplicitlyExported: boolean;
 }
 
 export type NewPlaylist = Except<Playlist, 'id'>;

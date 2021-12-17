@@ -72,6 +72,7 @@ export class EngineDB_2_0 extends EngineDB {
             nextListId: 0,
             isPersisted: true,
             lastEditTime: formatDate(new Date()),
+            isExplicitlyExported: true,
           };
           [playlistId] = await this.table('Playlist', trx).insert(newPlaylist);
           playlist = await this.table('Playlist', trx)
