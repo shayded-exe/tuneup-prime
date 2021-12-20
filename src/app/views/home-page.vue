@@ -237,6 +237,8 @@ import { UpdateInfo } from 'electron-updater';
 import os from 'os';
 import { Component, Vue } from 'vue-property-decorator';
 
+let hasCheckedUpdate = false;
+
 @Component({
   components: {},
 })
@@ -298,7 +300,10 @@ export default class HomePage extends Vue {
     await this.validateSettings();
 
     ipc.updates.onUpdateAvailable(u => this.onUpdateAvailable(u));
-    ipc.updates.checkUpdates();
+    if (!hasCheckedUpdate) {
+      ipc.updates.checkUpdates();
+      hasCheckedUpdate = true;
+    }
   }
 
   private async validateSettings() {
