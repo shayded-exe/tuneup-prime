@@ -52,13 +52,7 @@ export default class BaseCommand extends Vue {
       return;
     }
 
-    try {
-      this.engineDb = await engine.connect(this.libraryFolder);
-    } catch (e) {
-      this.engineDb = undefined;
-      e.message = `Couldn't connect to Engine. Ensure Engine isn't running.\n${e.message}`;
-      throw e;
-    }
+    this.engineDb = await engine.connect(this.libraryFolder);
   }
 
   protected async disconnectFromEngine() {

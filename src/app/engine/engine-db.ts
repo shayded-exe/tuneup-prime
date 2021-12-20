@@ -47,7 +47,12 @@ export abstract class EngineDB {
       useNullAsDefault: true,
     });
 
-    this.schemaInfo = await this.getSchemaInfo();
+    try {
+      this.schemaInfo = await this.getSchemaInfo();
+    } catch (e) {
+      e.message = `Engine is already running. Please close Engine and try again.\n\n${e.message}`;
+      throw e;
+    }
     this.isInitialized = true;
     console.debug(`Connected to Engine DB ${this.uuid}`);
   }
@@ -77,8 +82,11 @@ export abstract class EngineDB {
   abstract updateTracks(tracks: schema.UpdateTrackInput[]): Promise<void>;
 
   protected async getSchemaInfo(): Promise<schema.Information> {
-    const results = await this.knex<schema.Information>('Information') //
-      .select('*');
+    // Perform in a transaction to force an error if Engine is running
+    const results = await this.knex.transaction(async trx => {
+      return trx<schema.Information>('Information') //
+        .select('*');
+    });
 
     if (!results.length) {
       throw new Error('EngineDB: Schema info not found');
