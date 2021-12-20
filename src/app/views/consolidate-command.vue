@@ -61,6 +61,8 @@
         to fix this
       </p>
     </div>
+
+    <error-message :message="error"></error-message>
   </div>
 </template>
 
@@ -74,13 +76,14 @@
 <script lang="ts">
 import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
+import ErrorMessage from '@/app/components/error-message.vue';
 import * as engine from '@/app/engine';
+import * as ipc from '@/app/ipc';
 import { checkPathExists, makePathUnix } from '@/utils';
 import { remote } from 'electron';
-import { Component } from 'vue-property-decorator';
 import fse from 'fs-extra';
 import path from 'path';
-import * as ipc from '@/app/ipc';
+import { Component } from 'vue-property-decorator';
 
 interface ConsolidatableTrack {
   track: engine.Track;
@@ -89,20 +92,21 @@ interface ConsolidatableTrack {
 }
 
 @Component({
-  components: { CommandHeader },
+  components: { CommandHeader, ErrorMessage },
 })
 export default class ConsolidateCommand extends BaseCommand {
   shouldCopy = false;
   didCopy = false;
 
   isConsolidating = false;
-  consolidateError = '';
   didConsolidate = false;
 
   targetFolder = '';
 
   allTracks: engine.Track[] | null = null;
   foundTracks: ConsolidatableTrack[] | null = null;
+
+  error = '';
 
   get canConsolidate(): boolean {
     return !this.isConsolidating;
@@ -138,7 +142,7 @@ export default class ConsolidateCommand extends BaseCommand {
 
     try {
       this.isConsolidating = true;
-      this.consolidateError = '';
+      this.error = '';
       this.didConsolidate = false;
 
       this.targetFolder = await remote.dialog
@@ -156,7 +160,7 @@ export default class ConsolidateCommand extends BaseCommand {
       this.didConsolidate = true;
       this.didCopy = this.shouldCopy;
     } catch (e) {
-      this.consolidateError = e.message;
+      this.error = e.message;
     } finally {
       await this.disconnectFromEngine();
       this.isConsolidating = false;

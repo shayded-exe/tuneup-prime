@@ -55,11 +55,8 @@
         </div>
       </div>
     </template>
-    <div v-else-if="findError" class="message is-danger">
-      <div class="message-body">
-        {{ findError }}
-      </div>
-    </div>
+
+    <error-message :message="error"></error-message>
   </div>
 </template>
 
@@ -85,6 +82,7 @@
 <script lang="ts">
 import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
+import ErrorMessage from '@/app/components/error-message.vue';
 import * as engine from '@/app/engine';
 import { checkPathExists, getFilesInDir, makePathUnix } from '@/utils';
 import { remote } from 'electron';
@@ -100,17 +98,17 @@ interface RelocatableTrack {
 }
 
 @Component<RelocateCommand>({
-  components: { CommandHeader },
+  components: { CommandHeader, ErrorMessage },
 })
 export default class RelocateCommand extends BaseCommand {
   tracks: RelocatableTrack[] | null = null;
 
   isFinding = false;
-  findError = '';
 
   isRelocating = false;
-  relocateError = '';
   didRelocate = false;
+
+  error = '';
 
   get canFind(): boolean {
     return !this.isProcessing;
@@ -147,10 +145,10 @@ export default class RelocateCommand extends BaseCommand {
 
       this.tracks = await this.findMissingTracksInternal();
 
-      this.findError = '';
+      this.error = '';
     } catch (e) {
       this.tracks = null;
-      this.findError = e.message;
+      this.error = e.message;
     } finally {
       await this.disconnectFromEngine();
       this.isFinding = false;
@@ -185,7 +183,7 @@ export default class RelocateCommand extends BaseCommand {
 
     try {
       this.isRelocating = true;
-      this.relocateError = '';
+      this.error = '';
 
       const searchFolder = await remote.dialog
         .showOpenDialog({
@@ -203,7 +201,7 @@ export default class RelocateCommand extends BaseCommand {
         searchFolder,
       });
     } catch (e) {
-      this.relocateError = e.message;
+      this.error = e.message;
     } finally {
       await this.disconnectFromEngine();
       this.isRelocating = false;

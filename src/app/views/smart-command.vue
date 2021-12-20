@@ -96,13 +96,7 @@
       </div>
     </template>
 
-    <template v-if="libraryConfigReadError">
-      <div class="message is-danger">
-        <div class="message-body">
-          {{ libraryConfigReadError }}
-        </div>
-      </div>
-    </template>
+    <error-message :message="error"></error-message>
   </div>
 </template>
 
@@ -122,6 +116,7 @@
 <script lang="ts">
 import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
+import ErrorMessage from '@/app/components/error-message.vue';
 import * as engine from '@/app/engine';
 import * as ipc from '@/app/ipc';
 import { asyncSeries } from '@/utils';
@@ -136,13 +131,14 @@ interface SmartPlaylistItem {
 }
 
 @Component({
-  components: { CommandHeader },
+  components: { CommandHeader, ErrorMessage },
 })
 export default class SmartCommand extends BaseCommand {
   smartPlaylists: SmartPlaylistItem[] | null = null;
 
   isGenerating = false;
-  generateError = '';
+
+  error = '';
 
   get isProcessing(): boolean {
     return this.isGenerating;
@@ -165,13 +161,16 @@ export default class SmartCommand extends BaseCommand {
   }
 
   async reloadConfig() {
-    await this.readLibraryConfig();
-
-    if (this.libraryConfig) {
-      this.reloadPlaylists();
-    } else {
+    try {
+      await this.readLibraryConfig();
+    } catch (e) {
+      this.error = e.message;
       this.smartPlaylists = null;
+
+      return;
     }
+
+    this.reloadPlaylists();
   }
 
   private reloadPlaylists() {
@@ -208,9 +207,9 @@ export default class SmartCommand extends BaseCommand {
 
       await this.generateSmartPlaylistsInternal();
 
-      this.generateError = '';
+      this.error = '';
     } catch (e) {
-      this.generateError = e.message;
+      this.error = e.message;
     } finally {
       await this.disconnectFromEngine();
       this.isGenerating = false;

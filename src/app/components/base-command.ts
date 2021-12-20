@@ -3,7 +3,7 @@ import { appStore, AppStoreKey } from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component<BaseCommand>({
-  beforeRouteLeave(to, from, next) {
+  beforeRouteLeave(_to, _from, next) {
     if (this.isProcessing) {
       next(false);
     } else {
@@ -21,9 +21,6 @@ export default class BaseCommand extends Vue {
   }
 
   libraryConfigPath = '';
-
-  engineDbConnectError = '';
-  libraryConfigReadError = '';
 
   mounted() {
     const libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
@@ -43,11 +40,9 @@ export default class BaseCommand extends Vue {
     try {
       await engine.config.createDefaultIfNotFound(this.libraryFolder);
       this.libraryConfig = await engine.config.read(this.libraryFolder);
-      this.libraryConfigReadError = '';
     } catch (e) {
       this.libraryConfig = null;
-      console.error(e);
-      this.libraryConfigReadError = e.message;
+      throw e;
     }
   }
 
@@ -59,10 +54,10 @@ export default class BaseCommand extends Vue {
 
     try {
       this.engineDb = await engine.connect(this.libraryFolder);
-      this.engineDbConnectError = '';
     } catch (e) {
       this.engineDb = undefined;
-      this.engineDbConnectError = e.message;
+      e.message = `Couldn't connect to Engine. Ensure Engine isn't running.\n${e.message}`;
+      throw e;
     }
   }
 

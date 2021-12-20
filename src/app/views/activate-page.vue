@@ -12,11 +12,7 @@
       ></b-input>
     </b-field>
 
-    <div v-if="activateError" class="message is-danger">
-      <div class="message-body">
-        {{ activateError }}
-      </div>
-    </div>
+    <error-message :message="error"></error-message>
 
     <div class="level">
       <div class="level-left"></div>
@@ -48,10 +44,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import ErrorMessage from '@/app/components/error-message.vue';
 import * as ipc from '@/app/ipc';
+import { Component, Vue } from 'vue-property-decorator';
 
-@Component
+@Component({
+  components: { ErrorMessage },
+})
 export default class ActivatePage extends Vue {
   readonly licenseKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/;
   readonly licenseKeyFormat = Array(4)
@@ -61,7 +60,8 @@ export default class ActivatePage extends Vue {
   licenseKey = '';
 
   isActivating = false;
-  activateError = '';
+
+  error = '';
 
   get isProcessing(): boolean {
     return this.isActivating;
@@ -94,7 +94,7 @@ export default class ActivatePage extends Vue {
       const result = await ipc.licensing.activate(this.licenseKey);
 
       if (!result) {
-        this.activateError = `License key isn't valid`;
+        this.error = `License key isn't valid`;
         return;
       }
 
@@ -106,8 +106,7 @@ export default class ActivatePage extends Vue {
       });
       this.goHome();
     } catch (e) {
-      console.error(e);
-      this.activateError = e.message;
+      this.error = e.message;
     } finally {
       this.isActivating = false;
     }

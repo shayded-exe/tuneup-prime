@@ -22,11 +22,8 @@
         Detected Engine version {{ libraryInfo.version }}
       </div>
     </div>
-    <div v-if="!isValid" class="message is-danger">
-      <div class="message-body">
-        {{ libraryError }}
-      </div>
-    </div>
+
+    <error-message :message="error"></error-message>
 
     <div class="level">
       <div class="level-left"></div>
@@ -56,19 +53,22 @@
 </template>
 
 <script lang="ts">
-import { appStore, AppStoreKey } from '@/store';
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import { checkPathExists, checkPathIsDir } from '@/utils';
-import path from 'path';
+import ErrorMessage from '@/app/components/error-message.vue';
 import * as engine from '@/app/engine';
+import { appStore, AppStoreKey } from '@/store';
+import { checkPathExists, checkPathIsDir } from '@/utils';
 import { remote } from 'electron';
+import path from 'path';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 
-@Component
+@Component({
+  components: { ErrorMessage },
+})
 export default class SettingsPage extends Vue {
   libraryFolder: string | null = null;
-
-  libraryError = '';
   libraryInfo: engine.LibraryInfo | null = null;
+
+  error = '';
 
   get isValid() {
     return this.libraryInfo;
@@ -105,12 +105,12 @@ export default class SettingsPage extends Vue {
   async updateLibrary(value?: string) {
     const info = await validateLibraryFolder(value);
     if (typeof info === 'string') {
-      this.libraryError = info;
+      this.error = info;
       this.libraryInfo = null;
       return;
     }
 
-    this.libraryError = '';
+    this.error = '';
     this.libraryInfo = info;
     await engine.config.createDefaultIfNotFound(info.folder);
   }
