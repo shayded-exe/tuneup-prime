@@ -4,6 +4,12 @@
   </div>
 </template>
 
+<style lang="scss" scoped>
+.message {
+  margin-top: 1.5rem;
+}
+</style>
+
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 

@@ -42,27 +42,46 @@
       >
         consolidate
       </b-button>
-
-      <div v-if="didConsolidate" class="block mt-6">
-        {{ didCopy ? 'Copied' : 'Moved' }} {{ numConsolidated }} /
-        {{ numTracks }} tracks to
-        <a @click="openTargetFolder()" class="has-text-link">
-          {{ targetFolder }}
-        </a>
-      </div>
-
-      <p v-if="numMissing">
-        <span class="has-text-warning">
-          {{ numMissing }} tracks were not found
-        </span>
-        <br />
-        Use
-        <a @click="$router.push('relocate')" class="link-text">relocate</a>
-        to fix this
-      </p>
     </div>
 
     <error-message :message="error"></error-message>
+
+    <b-modal v-model="didConsolidate" has-modal-card>
+      <div class="modal-card card is-align-items-center py-6">
+        <div class="block">
+          {{ didCopy ? 'Copied' : 'Moved' }} {{ numConsolidated }} /
+          {{ numTracks }} tracks to
+          <a @click="openTargetFolder()" class="link-text">
+            {{ targetFolder }}
+          </a>
+        </div>
+
+        <div v-if="numAlreadyConsolidated" class="block">
+          <span class="has-text-info">
+            {{ numAlreadyConsolidated }} tracks were already in the target
+            folder
+          </span>
+        </div>
+
+        <div v-if="numMissing">
+          <span class="has-text-warning">
+            {{ numMissing }} tracks were not found
+          </span>
+          <br />
+          Use
+          <a @click="$router.push('relocate')" class="link-text">relocate</a>
+          to fix this
+        </div>
+
+        <b-button
+          @click="didConsolidate = false"
+          type="is-primary"
+          class="mt-6"
+        >
+          ok
+        </b-button>
+      </div>
+    </b-modal>
   </div>
 </template>
 
@@ -89,6 +108,7 @@ interface ConsolidatableTrack {
   track: engine.Track;
   wasConsolidated: boolean;
   oldPath: string;
+  newPath: string;
 }
 
 @Component({
@@ -103,8 +123,10 @@ export default class ConsolidateCommand extends BaseCommand {
 
   targetFolder = '';
 
-  allTracks: engine.Track[] | null = null;
-  foundTracks: ConsolidatableTrack[] | null = null;
+  allTracks: engine.Track[] = [];
+  foundTracks: ConsolidatableTrack[] = [];
+  alreadyConsolidatedTracks: engine.Track[] = [];
+  missingTracks: engine.Track[] = [];
 
   error = '';
 
@@ -116,23 +138,24 @@ export default class ConsolidateCommand extends BaseCommand {
     return this.isConsolidating;
   }
 
-  get numTracks(): number | undefined {
-    return this.allTracks?.length;
+  get numTracks(): number {
+    return this.allTracks.length;
   }
 
-  get consolidatedTracks(): ConsolidatableTrack[] | undefined {
-    return this.foundTracks?.filter(x => x.wasConsolidated);
+  get consolidatedTracks(): ConsolidatableTrack[] {
+    return this.foundTracks.filter(x => x.wasConsolidated);
   }
 
-  get numConsolidated(): number | undefined {
-    return this.consolidatedTracks?.length;
+  get numConsolidated(): number {
+    return this.consolidatedTracks.length;
   }
 
-  get numMissing(): number | undefined {
-    if (!this.didConsolidate) {
-      return 0;
-    }
-    return this.allTracks!.length - this.foundTracks!.length;
+  get numAlreadyConsolidated(): number {
+    return this.alreadyConsolidatedTracks.length;
+  }
+
+  get numMissing(): number {
+    return this.missingTracks.length;
   }
 
   async consolidateLibrary() {
@@ -169,55 +192,51 @@ export default class ConsolidateCommand extends BaseCommand {
 
   private async consolidateLibraryInternal() {
     const findTracks = async () => {
-      const tracks = await this.engineDb!.getTracks();
-      const found: ConsolidatableTrack[] = [];
+      this.allTracks = await this.engineDb!.getTracks();
+      this.foundTracks = [];
+      this.alreadyConsolidatedTracks = [];
+      this.missingTracks = [];
 
-      for (const track of tracks) {
+      for (const track of this.allTracks) {
         const resolvedPath = path.resolve(this.libraryFolder, track.path);
-        if (await checkPathExists(resolvedPath)) {
-          found.push({
+        const newPath = path.resolve(this.targetFolder, track.filename);
+
+        if (resolvedPath === newPath) {
+          this.alreadyConsolidatedTracks.push(track);
+        } else if (!(await checkPathExists(resolvedPath))) {
+          this.missingTracks.push(track);
+        } else {
+          this.foundTracks.push({
             track,
             wasConsolidated: false,
             oldPath: resolvedPath,
+            newPath,
           });
         }
       }
-
-      return { tracks, found };
     };
 
-    async function processFile(from: string, to: string, copy?: boolean) {
+    const processFile = async (from: string, to: string, copy?: boolean) => {
       if (copy) {
         await fse.copyFile(from, to);
       } else {
         await fse.move(from, to);
       }
-    }
+    };
 
-    const { tracks, found } = await findTracks();
-    this.allTracks = tracks;
-    this.foundTracks = found;
+    await findTracks();
 
-    for (const item of found) {
-      const targetPath = path.resolve(this.targetFolder, item.track.filename);
-      item.track.path = makePathUnix(
-        path.relative(this.libraryFolder, targetPath),
-      );
-      // no overwrite
-      // if (path.normalize(item.oldPath) === path.normalize(item.track.path)) {
-      //   continue;
-      // }
-
-      await processFile(item.oldPath, targetPath, this.shouldCopy);
+    for (const item of this.foundTracks) {
+      await processFile(item.oldPath, item.newPath, this.shouldCopy);
       item.wasConsolidated = true;
     }
 
     await this.engineDb!.updateTracks(
-      found
+      this.foundTracks
         .filter(x => x.wasConsolidated)
-        .map(({ track }) => ({
+        .map(({ track, newPath }) => ({
           id: track.id,
-          path: track.path,
+          path: makePathUnix(path.relative(this.libraryFolder, newPath)),
         })),
     );
   }
