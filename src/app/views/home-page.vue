@@ -254,7 +254,7 @@ export default class HomePage extends Vue {
   }[] = [
     {
       label: 'smart playlists',
-      route: 'smart',
+      route: 'smart-playlists',
       icon: 'em-brain',
     },
     {
