@@ -4,11 +4,30 @@
   "properties": {
     "smartPlaylists": {
       "type": "array",
-      "items": { "$ref": "#/definitions/SmartPlaylist" }
+      "items": { "$ref": "#/definitions/PlaylistNode" }
     }
   },
+  "required": ["smartPlaylists"],
   "definitions": {
-    "SmartPlaylist": {
+    "PlaylistNode": {
+      "oneOf": [
+        { "$ref": "#/definitions/PlaylistFolder" },
+        { "$ref": "#/definitions/Playlist" }
+      ]
+    },
+    "PlaylistFolder": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PlaylistNode" },
+          "minItems": 1
+        }
+      },
+      "required": ["name", "children"]
+    },
+    "Playlist": {
       "type": "object",
       "properties": {
         "name": { "type": "string" },
@@ -29,7 +48,8 @@
           "properties": {
             "and": {
               "type": "array",
-              "items": { "$ref": "#/definitions/PlaylistRuleNode" }
+              "items": { "$ref": "#/definitions/PlaylistRuleNode" },
+              "minItems": 1
             }
           },
           "required": ["and"]
@@ -38,7 +58,8 @@
           "properties": {
             "or": {
               "type": "array",
-              "items": { "$ref": "#/definitions/PlaylistRuleNode" }
+              "items": { "$ref": "#/definitions/PlaylistRuleNode" },
+              "minItems": 1
             }
           },
           "required": ["or"]

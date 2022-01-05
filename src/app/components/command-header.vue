@@ -26,7 +26,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class CommandHeader extends Vue {
-  @Prop(String) readonly title!: string;
+  @Prop({ type: String, required: true }) readonly title!: string;
   @Prop({ default: false }) homeDisabled!: boolean;
 }
 </script>

@@ -139,6 +139,10 @@ export class EngineDB_1_6 extends EngineDB {
     );
   }
 
+  buildPlaylistPath(names: string[]): string {
+    return names.join(PLAYLIST_PATH_DELIMITER) + PLAYLIST_PATH_DELIMITER;
+  }
+
   private async createPlaylistHierarchy(
     playlist: schema.List,
     trx?: Knex.Transaction,
@@ -243,11 +247,9 @@ export class EngineDB_1_6 extends EngineDB {
   }
 
   private async getNextPlaylistId(trx?: Knex.Transaction): Promise<number> {
-    const [{ maxId }] = await this.table('List', trx).max('id', {
-      as: 'maxId',
-    });
+    const lastId = await this.getLastGeneratedId('List', trx);
 
-    return +maxId + 1;
+    return lastId + 1;
   }
 
   async getTracks(opts?: {

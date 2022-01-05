@@ -61,40 +61,44 @@ export class EngineDB_2_0 extends EngineDB {
     input: publicSchema.PlaylistInput,
   ): Promise<schema.PlaylistWithPath> {
     let playlist = await this.getPlaylistByTitle(input.title);
-    let playlistId = playlist?.id;
 
     return this.knex.transaction(
       async (trx): Promise<schema.PlaylistWithPath> => {
-        if (!playlist) {
-          const newPlaylist: schema.NewPlaylist = {
-            title: input.title,
-            parentListId: input.parentListId ?? 0,
-            nextListId: 0,
-            isPersisted: true,
-            lastEditTime: formatDate(new Date()),
-            isExplicitlyExported: true,
-          };
-          [playlistId] = await this.table('Playlist', trx).insert(newPlaylist);
-          playlist = await this.table('Playlist', trx)
-            .join<schema.PlaylistPath>(
-              'PlaylistPath',
-              'Playlist.id',
-              '=',
-              'PlaylistPath.id',
-            )
-            .select('Playlist.*', 'PlaylistPath.path')
-            .where('Playlist.id', playlistId)
-            .first();
-        } else {
+        if (playlist) {
+          await this.table('Playlist', trx) //
+            .where('id', playlist.id)
+            .delete();
           await this.table('PlaylistEntity', trx) //
-            .where('listId', playlistId)
+            .where('listId', playlist.id)
             .delete();
         }
 
-        const trackIds = input.tracks.map(t =>
-          typeof t === 'number' ? t : t.id,
+        const newPlaylist: schema.NewPlaylist = {
+          title: input.title,
+          parentListId: input.parentListId ?? 0,
+          nextListId: 0,
+          isPersisted: true,
+          lastEditTime: formatDate(new Date()),
+          isExplicitlyExported: true,
+        };
+        const [playlistId] = await this.table('Playlist', trx).insert(
+          newPlaylist,
         );
-        if (trackIds.length) {
+        playlist = await this.table('Playlist', trx)
+          .join<schema.PlaylistPath>(
+            'PlaylistPath',
+            'Playlist.id',
+            '=',
+            'PlaylistPath.id',
+          )
+          .select('Playlist.*', 'PlaylistPath.path')
+          .where('Playlist.id', playlistId)
+          .first();
+
+        if (input.tracks.length) {
+          const trackIds = input.tracks.map(t =>
+            typeof t === 'number' ? t : t.id,
+          );
           const lastEntityId = await this.getLastGeneratedId(
             'PlaylistEntity',
             trx,

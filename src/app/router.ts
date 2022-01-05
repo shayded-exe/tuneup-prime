@@ -6,7 +6,7 @@ import ConsolidateCommand from './views/consolidate-command.vue';
 import HomePage from './views/home-page.vue';
 import RelocateCommand from './views/relocate-command.vue';
 import SettingsPage from './views/settings-page.vue';
-import SmartCommand from './views/smart-command.vue';
+import SmartCommand from './views/smart/smart-command.vue';
 
 Vue.use(VueRouter);
 

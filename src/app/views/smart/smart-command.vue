@@ -3,9 +3,31 @@
     <command-header title="Smart playlists" :homeDisabled="isProcessing">
       <div class="level-item">
         <b-button
+          :disabled="isProcessing"
+          @click="editConfig()"
+          type="is-light is-outlined"
+          icon-left="edit"
+        >
+          edit
+        </b-button>
+      </div>
+
+      <div class="level-item">
+        <b-button
+          :disabled="isProcessing"
+          @click="reloadConfig()"
+          type="is-light is-outlined"
+          icon-left="sync"
+        >
+          reload
+        </b-button>
+      </div>
+
+      <div class="level-item">
+        <b-button
           :disabled="!canGenerate"
           :loading="isGenerating"
-          @click="generateSmartPlaylists()"
+          @click="generatePlaylists()"
           type="is-primary"
         >
           generate
@@ -13,86 +35,27 @@
       </div>
     </command-header>
 
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span>
-            <strong>Config file:</strong>
-            <br />
-            {{ libraryConfigPath }}
-          </span>
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <b-button
-            :disabled="isProcessing"
-            @click="editConfig()"
-            type="is-light is-outlined"
-            icon-left="edit"
-          >
-            edit
-          </b-button>
-        </div>
-        <div class="level-item">
-          <b-button
-            :disabled="isProcessing"
-            @click="reloadConfig()"
-            type="is-light is-outlined"
-            icon-left="sync"
-          >
-            reload
-          </b-button>
-        </div>
-      </div>
-    </div>
-
-    <template v-if="smartPlaylists">
-      <p class="title is-5 px-4">
+    <template v-if="playlistNodes">
+      <p class="title is-5 mb-4">
         <span v-if="!numGenerated">
-          <span v-if="smartPlaylists.length">
-            The following smart playlists will be generated
+          <span v-if="playlistNodes.length">
+            The following {{ playlists.length }} smart playlists will be
+            generated
           </span>
           <span v-else>
             No smart playlists defined
           </span>
         </span>
-        <span v-else>
-          Generated {{ smartPlaylists.length }} smart playlists
-        </span>
+        <span v-else>Generated {{ numGenerated }} smart playlists</span>
       </p>
 
-      <div class="list px-4">
-        <div
-          v-for="item of smartPlaylists"
-          :key="item.playlist.name"
-          class="list-item mb-4"
-        >
-          <div class="is-flex is-justify-content-space-between pl-4">
-            <span class="has-text-weight-bold is-size-5 py-1">
-              {{ item.playlist.name }}
-            </span>
-
-            <b-taglist v-if="item.wasGenerated" attached class="block-taglist">
-              <b-tag type="is-dark" size="is-medium" class="block-tag">
-                tracks
-              </b-tag>
-              <b-tag
-                size="is-medium"
-                :class="[
-                  item.tracks.length ? 'is-success' : 'is-warning',
-                  'block-tag',
-                ]"
-              >
-                {{ item.tracks.length }}
-              </b-tag>
-            </b-taglist>
-          </div>
-
-          <p class="rules px-4 py-2 is-family-code">
-            {{ formatRuleGroup(item.playlist.rules) }}
-          </p>
-        </div>
+      <div class="list pr-4">
+        <playlist-node
+          v-for="(node, index) of playlistNodes"
+          :key="index"
+          :node="node"
+          class=""
+        ></playlist-node>
       </div>
     </template>
 
@@ -104,12 +67,6 @@
 .list {
   min-height: 0;
   overflow: auto;
-
-  .list-item {
-    .rules {
-      background-color: $grey-dark;
-    }
-  }
 }
 </style>
 
@@ -119,22 +76,31 @@ import CommandHeader from '@/app/components/command-header.vue';
 import ErrorMessage from '@/app/components/error-message.vue';
 import * as engine from '@/app/engine';
 import * as ipc from '@/app/ipc';
-import { asyncSeries } from '@/utils';
-import { every, some } from 'lodash';
+import { asyncSeries, flatTree, walkTree } from '@/utils';
+import { cloneDeep, every, last, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
+import PlaylistFolder from './playlist-folder.vue';
+import PlaylistNode from './playlist-node.vue';
+import Playlist from './playlist.vue';
+import {
+  isUIPlaylistNodeFolder,
+  UIPlaylist,
+  UIPlaylistFolder,
+  UIPlaylistNode,
+} from './ui-playlist';
 import def = engine.config;
 
-interface SmartPlaylistItem {
-  playlist: def.SmartPlaylist;
-  wasGenerated: boolean;
-  tracks: engine.Track[] | null;
-}
-
 @Component({
-  components: { CommandHeader, ErrorMessage },
+  components: {
+    CommandHeader,
+    ErrorMessage,
+    Playlist,
+    PlaylistFolder,
+    PlaylistNode,
+  },
 })
 export default class SmartCommand extends BaseCommand {
-  smartPlaylists: SmartPlaylistItem[] | null = null;
+  playlistNodes: UIPlaylistNode[] | null = null;
 
   isGenerating = false;
 
@@ -145,11 +111,23 @@ export default class SmartCommand extends BaseCommand {
   }
 
   get canGenerate(): boolean {
-    return !!this.smartPlaylists?.length && !this.isProcessing;
+    return !!this.playlistNodes?.length && !this.isProcessing;
   }
 
-  get numGenerated(): boolean {
-    return !!this.smartPlaylists?.filter(p => p.wasGenerated).length;
+  get numGenerated(): number | undefined {
+    return this.playlists?.filter(x => x.wasGenerated).length;
+  }
+
+  private get playlists(): UIPlaylist[] | null {
+    if (!this.playlistNodes) {
+      return null;
+    }
+
+    return flatTree({
+      tree: this.playlistNodes,
+      isBranch: isUIPlaylistNodeFolder,
+      getChildren: x => x.children,
+    }) as UIPlaylist[];
   }
 
   async mounted() {
@@ -163,9 +141,10 @@ export default class SmartCommand extends BaseCommand {
   async reloadConfig() {
     try {
       await this.readLibraryConfig();
+      this.error = '';
     } catch (e) {
       this.error = e.message;
-      this.smartPlaylists = null;
+      this.playlistNodes = null;
 
       return;
     }
@@ -174,28 +153,18 @@ export default class SmartCommand extends BaseCommand {
   }
 
   private reloadPlaylists() {
-    this.smartPlaylists = this.libraryConfig!.smartPlaylists.map(playlist => ({
-      playlist,
-      wasGenerated: false,
-      tracks: null,
-    }));
+    this.playlistNodes = walkTree({
+      tree: cloneDeep(this.libraryConfig!.smartPlaylists),
+      isBranch: isUIPlaylistNodeFolder,
+      getChildren: folder => folder.children,
+      walkLeaf: (playlist: UIPlaylist) => {
+        playlist.wasGenerated = false;
+        playlist.formattedRules = formatRuleGroup(playlist.rules);
+      },
+    });
   }
 
-  formatRuleGroup(group: def.PlaylistRuleGroup): string {
-    const formatRuleNode = (node: def.PlaylistRuleNode): string => {
-      if (isNodeGroup(node)) {
-        return `(${this.formatRuleGroup(node)})`;
-      }
-      const rule = normalizeRule(node);
-      return [rule.field, rule.operator, rule.value].join(' ');
-    };
-
-    const { type, nodes } = normalizeRuleGroup(group);
-
-    return nodes.map(formatRuleNode).join(` ${type} `);
-  }
-
-  async generateSmartPlaylists() {
+  async generatePlaylists() {
     if (this.isGenerating) {
       return;
     }
@@ -205,7 +174,7 @@ export default class SmartCommand extends BaseCommand {
       this.reloadPlaylists();
       await this.connectToEngine();
 
-      await this.generateSmartPlaylistsInternal();
+      await this.generatePlaylistsInternal();
 
       this.error = '';
     } catch (e) {
@@ -216,42 +185,85 @@ export default class SmartCommand extends BaseCommand {
     }
   }
 
-  private async generateSmartPlaylistsInternal() {
+  private async generatePlaylistsInternal() {
     const tracks = await this.engineDb!.getTracks();
-    this.smartPlaylists!.forEach(item => {
-      item.tracks = filterTracks({
-        tracks,
-        playlistConfig: item.playlist,
-      });
-    });
+    const isEngine_1_6 = this.engineDb!.version === engine.Version.V1_6;
 
-    await asyncSeries(
-      this.smartPlaylists!.map(item => async () => {
-        const type =
-          item.playlist.isCrate &&
-          this.engineDb!.version === engine.Version.V1_6
-            ? engine.V1_6.ListType.Crate
-            : undefined;
-
-        await this.engineDb!.createOrUpdatePlaylist({
-          title: item.playlist.name,
-          type,
-          tracks: item.tracks!,
+    const createPlaylistFolder = async (
+      folder: UIPlaylistFolder,
+      parents?: UIPlaylistFolder[],
+    ) => {
+      if (!isEngine_1_6) {
+        const { id } = await this.engineDb!.createOrUpdatePlaylist({
+          title: folder.name,
+          parentListId: last(parents)?.id,
+          tracks: [],
         });
-        item.wasGenerated = true;
-      }),
-    );
+
+        folder.id = id;
+      }
+
+      await createNodes(folder.children, [...(parents ?? []), folder]);
+    };
+
+    const createPlaylist = async (
+      playlist: UIPlaylist,
+      parents?: UIPlaylistFolder[],
+    ) => {
+      playlist.tracks = filterTracks({ tracks, playlist });
+
+      if (isEngine_1_6) {
+        const db_1_6 = this.engineDb as engine.V1_6.EngineDB_1_6;
+
+        await db_1_6.createOrUpdatePlaylist({
+          title: playlist.name,
+          type: playlist.isCrate ? engine.V1_6.ListType.Crate : undefined,
+          path: !parents
+            ? undefined
+            : db_1_6.buildPlaylistPath([...parents, playlist].map(x => x.name)),
+          tracks: playlist.tracks,
+        });
+      } else {
+        await this.engineDb!.createOrUpdatePlaylist({
+          title: playlist.name,
+          parentListId: last(parents)?.id,
+          tracks: playlist.tracks,
+        });
+      }
+
+      playlist.wasGenerated = true;
+    };
+
+    const createNode = async (
+      node: UIPlaylistNode,
+      parents?: UIPlaylistFolder[],
+    ) => {
+      await (def.isPlaylistNodeFolder(node)
+        ? createPlaylistFolder(node, parents)
+        : createPlaylist(node, parents));
+    };
+
+    const createNodes = async (
+      nodes: UIPlaylistNode[],
+      parents?: UIPlaylistFolder[],
+    ) => {
+      await asyncSeries(
+        nodes.map(node => async () => createNode(node, parents)),
+      );
+    };
+
+    await createNodes(this.playlistNodes!);
   }
 }
 
 function filterTracks({
   tracks,
-  playlistConfig,
+  playlist,
 }: {
   tracks: engine.Track[];
-  playlistConfig: def.SmartPlaylist;
+  playlist: def.Playlist;
 }) {
-  return tracks.filter(track => applyRuleGroup(track, playlistConfig.rules));
+  return tracks.filter(track => applyRuleGroup(track, playlist.rules));
 }
 
 interface NormalizedRuleGroup {
@@ -281,6 +293,20 @@ function applyRuleGroup(
   const operator = type === 'AND' ? every : some;
 
   return operator(results);
+}
+
+function formatRuleGroup(group: def.PlaylistRuleGroup): string {
+  const formatRuleNode = (node: def.PlaylistRuleNode): string => {
+    if (isNodeGroup(node)) {
+      return `(${formatRuleGroup(node)})`;
+    }
+    const rule = normalizeRule(node);
+    return [rule.field, rule.operator, rule.value].join(' ');
+  };
+
+  const { type, nodes } = normalizeRuleGroup(group);
+
+  return nodes.map(formatRuleNode).join(` ${type} `);
 }
 
 function isNodeGroup(

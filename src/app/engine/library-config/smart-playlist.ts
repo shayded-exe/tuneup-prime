@@ -1,9 +1,22 @@
-export interface SmartPlaylist {
+export type PlaylistNode = PlaylistFolder | Playlist;
+
+export interface PlaylistFolder {
+  name: string;
+  children: PlaylistNode[];
+}
+
+export interface Playlist {
   name: string;
   isCrate?: boolean;
   // TODO: Support
   sources?: string[];
   rules: PlaylistRuleGroup;
+}
+
+export function isPlaylistNodeFolder(
+  node: PlaylistNode,
+): node is PlaylistFolder {
+  return 'children' in node;
 }
 
 export type PlaylistRuleGroup = PlaylistRuleAndGroup | PlaylistRuleOrGroup;

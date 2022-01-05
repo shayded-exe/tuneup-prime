@@ -5,11 +5,11 @@ import yaml from 'js-yaml';
 import { EOL } from 'os';
 import path from 'path';
 
-import { SmartPlaylist } from './smart-playlist';
+import { PlaylistNode } from './smart-playlist';
 import schema from './tuneup.schema.json';
 
 export interface LibraryConfig {
-  smartPlaylists: SmartPlaylist[];
+  smartPlaylists: PlaylistNode[];
 }
 
 export interface LibraryConfigFile extends LibraryConfig {
