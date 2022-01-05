@@ -2,11 +2,11 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import ActivatePage from './views/activate-page.vue';
-import ConsolidateCommand from './views/consolidate-command.vue';
+import ConsolidatePage from './views/consolidate-page.vue';
 import HomePage from './views/home-page.vue';
-import RelocateCommand from './views/relocate-command.vue';
+import RelocatePage from './views/relocate-page.vue';
 import SettingsPage from './views/settings-page.vue';
-import SmartCommand from './views/smart/smart-command.vue';
+import SmartPlaylistsPage from './views/smart-playlists/smart-playlists-page.vue';
 
 Vue.use(VueRouter);
 
@@ -29,19 +29,19 @@ export const router = new VueRouter({
       component: SettingsPage,
     },
     {
-      path: '/smart',
-      name: 'smart',
-      component: SmartCommand,
+      path: '/smart-playlists',
+      name: 'smart-playlists',
+      component: SmartPlaylistsPage,
     },
     {
       path: '/relocate',
       name: 'relocate',
-      component: RelocateCommand,
+      component: RelocatePage,
     },
     {
       path: '/consolidate',
       name: 'consolidate',
-      component: ConsolidateCommand,
+      component: ConsolidatePage,
     },
   ],
 });

@@ -99,7 +99,7 @@ import def = engine.config;
     PlaylistNode,
   },
 })
-export default class SmartCommand extends BaseCommand {
+export default class SmartPlaylistsPage extends BaseCommand {
   playlistNodes: UIPlaylistNode[] | null = null;
 
   isGenerating = false;

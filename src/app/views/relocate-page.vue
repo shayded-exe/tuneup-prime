@@ -97,10 +97,10 @@ interface RelocatableTrack {
   newPathDir: string | null;
 }
 
-@Component<RelocateCommand>({
+@Component({
   components: { CommandHeader, ErrorMessage },
 })
-export default class RelocateCommand extends BaseCommand {
+export default class RelocatePage extends BaseCommand {
   tracks: RelocatableTrack[] | null = null;
 
   isFinding = false;

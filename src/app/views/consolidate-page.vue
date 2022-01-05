@@ -114,7 +114,7 @@ interface ConsolidatableTrack {
 @Component({
   components: { CommandHeader, ErrorMessage },
 })
-export default class ConsolidateCommand extends BaseCommand {
+export default class ConsolidatePage extends BaseCommand {
   shouldCopy = false;
   didCopy = false;
 
