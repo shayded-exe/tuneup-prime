@@ -61,39 +61,72 @@ export class EngineDB_2_0 extends EngineDB {
     input: publicSchema.PlaylistInput,
   ): Promise<schema.PlaylistWithPath> {
     let playlist = await this.getPlaylistByTitle(input.title);
+    let playlistId = playlist?.id;
 
     return this.knex.transaction(
       async (trx): Promise<schema.PlaylistWithPath> => {
-        if (playlist) {
-          await this.table('Playlist', trx) //
-            .where('id', playlist.id)
-            .delete();
-          await this.table('PlaylistEntity', trx) //
-            .where('listId', playlist.id)
-            .delete();
+        if (!input.parentListId) {
+          input.parentListId = 0;
         }
 
-        const newPlaylist: schema.NewPlaylist = {
-          title: input.title,
-          parentListId: input.parentListId ?? 0,
-          nextListId: 0,
-          isPersisted: true,
-          lastEditTime: formatDate(new Date()),
-          isExplicitlyExported: true,
-        };
-        const [playlistId] = await this.table('Playlist', trx).insert(
-          newPlaylist,
-        );
-        playlist = await this.table('Playlist', trx)
-          .join<schema.PlaylistPath>(
-            'PlaylistPath',
-            'Playlist.id',
-            '=',
-            'PlaylistPath.id',
-          )
-          .select('Playlist.*', 'PlaylistPath.path')
-          .where('Playlist.id', playlistId)
-          .first();
+        if (!playlist) {
+          const newPlaylist: schema.NewPlaylist = {
+            title: input.title,
+            parentListId: input.parentListId,
+            nextListId: 0,
+            isPersisted: true,
+            lastEditTime: formatDate(new Date()),
+            isExplicitlyExported: true,
+          };
+          [playlistId] = await this.table('Playlist', trx).insert(newPlaylist);
+          playlist = await this.table('Playlist', trx)
+            .join<schema.PlaylistPath>(
+              'PlaylistPath',
+              'Playlist.id',
+              '=',
+              'PlaylistPath.id',
+            )
+            .select('Playlist.*', 'PlaylistPath.path')
+            .where('Playlist.id', playlistId)
+            .first();
+        } else {
+          // Empty playlist
+          await this.table('PlaylistEntity', trx)
+            .where({ listId: playlistId })
+            .delete();
+
+          // Re-parent playlist
+          if (input.parentListId !== playlist.parentListId) {
+            // Unlink current playlist from next
+            await this.table('Playlist', trx)
+              .where({ id: playlistId })
+              .update({ nextListId: -1 });
+
+            // Link previous playlist to next
+            await this.table('Playlist', trx)
+              .where({
+                nextListId: playlist.id,
+                parentListId: playlist.parentListId,
+              })
+              .update({ nextListId: playlist.nextListId });
+
+            // Link new previous playlist to current
+            await this.table('Playlist', trx)
+              .where({
+                nextListId: 0,
+                parentListId: input.parentListId,
+              })
+              .update({ nextListId: playlist.id });
+
+            // Set current playlist as last
+            await this.table('Playlist', trx)
+              .where({ id: playlistId })
+              .update({
+                parentListId: input.parentListId,
+                nextListId: 0,
+              });
+          }
+        }
 
         if (input.tracks.length) {
           const trackIds = input.tracks.map(t =>
