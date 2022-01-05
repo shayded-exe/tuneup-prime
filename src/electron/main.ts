@@ -76,14 +76,19 @@ function init() {
 
   async function createWindow() {
     const stateTracker = new WindowStateTracker(store.appStore());
+    const width = 800;
+    const minHeight = 600;
 
     window = new BrowserWindow({
-      width: 800,
-      height: 600,
+      width,
+      minWidth: width,
+      maxWidth: width,
+      height: Math.max(stateTracker.state?.height ?? 0, minHeight),
+      minHeight: minHeight,
       x: stateTracker.state?.x,
       y: stateTracker.state?.y,
-      frame: getOS() !== SupportedOS.Windows || isDev(),
-      resizable: false,
+      frame: getOS() !== SupportedOS.Windows,
+      resizable: true,
       webPreferences: {
         enableRemoteModule: true,
         // Use pluginOptions.nodeIntegration, leave this alone

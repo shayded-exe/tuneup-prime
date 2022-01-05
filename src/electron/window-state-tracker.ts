@@ -25,8 +25,8 @@ export class WindowStateTracker {
       return;
     }
 
-    const { x, y } = this.window.getBounds();
-    this.state = { x, y };
+    const { x, y, height } = this.window.getBounds();
+    this.state = { x, y, height };
     this.store.set(AppStoreKey.WindowState, this.state);
   }
 }

@@ -9,8 +9,9 @@ export enum AppStoreKey {
 }
 
 export interface WindowState {
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
+  height?: number;
 }
 
 export interface AppStoreData {
@@ -29,6 +30,7 @@ export const APP_STORE_SCHEMA: Schema<AppStoreData> = {
     properties: {
       x: { type: 'number' },
       y: { type: 'number' },
+      height: { type: 'number' },
     },
   },
 };
