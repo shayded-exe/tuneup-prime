@@ -40,6 +40,14 @@
 #     <=
 
 smartPlaylists:
+  # Create folders with the children property (can be nested multiple levels)
+  - name: Folder
+    children:
+      - name: Folder child
+        rules:
+          and:
+            - [bpm, '=', 128]
+
   - name: Single filter
     rules:
       and:
