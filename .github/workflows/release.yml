@@ -10,12 +10,21 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
+        os:
+          - windows-latest
+          - macos-latest
+          - ubuntu-latest
         node-version: [14.x]
 
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Delete current release assets
+        uses: Kellojo/delete-release-assets-action@v1.8
+        with:
+          delete-only-drafts: true
+          github-access-token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/checkout@v2
 
       - name: Use Node.js ${{ matrix.node-version }}
@@ -40,12 +49,6 @@ jobs:
         run: |
           mkdir -p ~/private_keys/
           echo '${{ secrets.APPLE_API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8
-
-      - name: Delete current release assets
-        uses: Kellojo/delete-release-assets-action@v1.8
-        with:
-          delete-only-drafts: true
-          github-access-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build/release Electron app
         run: npx vue-cli-service electron:build
