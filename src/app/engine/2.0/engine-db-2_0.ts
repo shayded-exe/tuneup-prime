@@ -95,8 +95,11 @@ export class EngineDB_2_0 extends EngineDB {
             .where({ listId: playlistId })
             .delete();
 
-          // Re-parent playlist
-          if (input.parentListId !== playlist.parentListId) {
+          // Re-parent playlist if not at root
+          if (
+            !!input.parentListId &&
+            input.parentListId !== playlist.parentListId
+          ) {
             // Unlink current playlist from next
             await this.table('Playlist', trx)
               .where({ id: playlistId })
