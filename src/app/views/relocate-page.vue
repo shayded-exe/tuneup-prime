@@ -35,17 +35,27 @@
         </span>
       </p>
 
-      <div class="list pr-4">
+      <div class="tracks pr-4">
         <div
           v-for="track of tracks"
           :key="track.data.id"
-          class="list-item mb-2"
+          class="track mb-2"
           :class="{ 'was-relocated': track.wasRelocated }"
         >
           <p class="py-1">{{ track.data.artist }} - {{ track.data.title }}</p>
 
           <div class="paths px-4 py-2 is-family-code">
-            <p class="old-path has-text-danger">{{ track.oldPath }}</p>
+            <div class="is-flex is-justify-content-space-between">
+              <p class="old-path has-text-danger">{{ track.oldPath }}</p>
+
+              <p
+                v-if="!track.wasRelocated"
+                @click="relocateSingleTrack(track)"
+                class="link-text has-text-link"
+              >
+                select file
+              </p>
+            </div>
             <p v-if="track.wasRelocated" class="has-text-link">
               {{ track.newPath }}
             </p>
@@ -59,11 +69,11 @@
 </template>
 
 <style lang="scss" scoped>
-.list {
+.tracks {
   min-height: 0;
   overflow: auto;
 
-  .list-item {
+  .track {
     .paths {
       background-color: $grey-dark;
     }
@@ -184,6 +194,44 @@ export default class RelocatePage extends BaseCommand {
     }
 
     return missing;
+  }
+
+  async relocateSingleTrack(track: RelocatableTrack) {
+    if (this.isRelocating) {
+      return;
+    }
+
+    try {
+      this.isRelocating = true;
+      this.error = '';
+
+      const filterExt = track.ext.slice(1);
+      const filePath = await remote.dialog
+        .showOpenDialog({
+          properties: ['openFile'],
+          filters: [
+            {
+              name: `${filterExt} files`,
+              extensions: [filterExt],
+            },
+          ],
+        })
+        .then(x => x.filePaths[0]);
+      if (!filePath) {
+        return;
+      }
+
+      await this.connectToEngine();
+
+      this.setNewTrackPath(track, filePath);
+      await this.updateTracks([track]);
+    } catch (e) {
+      this.error = e.message;
+    } finally {
+      await this.disconnectFromEngine();
+      this.isRelocating = false;
+      this.didRelocate = true;
+    }
   }
 
   async relocateTracks() {
@@ -314,14 +362,20 @@ export default class RelocatePage extends BaseCommand {
         return;
       }
 
-      // Paths are unix style regardless of OS
-      track.data.path = makePathUnix(
-        path.relative(this.libraryFolder, foundPath),
-      );
-      track.newPath = track.data.path;
-      track.wasRelocated = true;
+      this.setNewTrackPath(track, foundPath);
     }
 
+    await this.updateTracks(tracks);
+  }
+
+  private setNewTrackPath(track: RelocatableTrack, newPath: string) {
+    // Paths are unix style regardless of OS
+    track.data.path = makePathUnix(path.relative(this.libraryFolder, newPath));
+    track.newPath = track.data.path;
+    track.wasRelocated = true;
+  }
+
+  private async updateTracks(tracks: RelocatableTrack[]) {
     await this.engineDb!.updateTracks(
       tracks.map(({ data }) => ({
         id: data.id,
