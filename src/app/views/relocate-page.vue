@@ -26,7 +26,7 @@
     </command-header>
 
     <template v-if="tracks">
-      <p class="title is-5 px-4">
+      <p class="title is-5 mb-4">
         <span v-if="!didRelocate">
           Found {{ tracks.length }} missing tracks
         </span>
@@ -35,21 +35,19 @@
         </span>
       </p>
 
-      <div class="list px-4">
+      <div class="list pr-4">
         <div
-          v-for="item of tracks"
-          :key="item.track.id"
+          v-for="track of tracks"
+          :key="track.data.id"
           class="list-item mb-2"
-          :class="{ 'was-relocated': item.wasRelocated }"
+          :class="{ 'was-relocated': track.wasRelocated }"
         >
-          <p class="is-size-5 py-1">
-            {{ item.track.filename }}
-          </p>
+          <p class="py-1">{{ track.data.artist }} - {{ track.data.title }}</p>
 
           <div class="paths px-4 py-2 is-family-code">
-            <p class="old-path has-text-danger">{{ item.oldPathDir }}</p>
-            <p v-if="item.wasRelocated" class="has-text-link">
-              {{ item.newPathDir }}
+            <p class="old-path has-text-danger">{{ track.oldPath }}</p>
+            <p v-if="track.wasRelocated" class="has-text-link">
+              {{ track.newPath }}
             </p>
           </div>
         </div>
@@ -84,17 +82,24 @@ import BaseCommand from '@/app/components/base-command';
 import CommandHeader from '@/app/components/command-header.vue';
 import ErrorMessage from '@/app/components/error-message.vue';
 import * as engine from '@/app/engine';
-import { checkPathExists, getFilesInDir, makePathUnix } from '@/utils';
+import {
+  checkPathExists,
+  getFilesInDir,
+  makePathUnix,
+  resolvePathToBaseIfRelative,
+} from '@/utils';
 import { remote } from 'electron';
-import { keyBy } from 'lodash';
+import { uniq } from 'lodash';
+import * as musicmeta from 'music-metadata';
 import path from 'path';
 import { Component } from 'vue-property-decorator';
 
 interface RelocatableTrack {
-  track: engine.Track;
+  data: engine.Track;
   wasRelocated: boolean;
-  oldPathDir: string;
-  newPathDir: string | null;
+  ext: string;
+  oldPath: string;
+  newPath: string | null;
 }
 
 @Component({
@@ -115,13 +120,15 @@ export default class RelocatePage extends BaseCommand {
   }
 
   get canRelocate(): boolean {
-    return (
-      !this.isProcessing && (this.tracks?.some(x => !x.wasRelocated) ?? false)
-    );
+    return !this.isProcessing && !!this.numMissing;
   }
 
   get numTracks(): number | undefined {
     return this.tracks?.length;
+  }
+
+  get numMissing(): number | undefined {
+    return this.tracks?.filter(x => !x.wasRelocated).length;
   }
 
   get numRelocated(): number | undefined {
@@ -160,15 +167,18 @@ export default class RelocatePage extends BaseCommand {
     const missing: RelocatableTrack[] = [];
 
     for (const track of tracks) {
-      const resolvedPath = path.isAbsolute(track.path)
-        ? track.path
-        : path.resolve(this.libraryFolder, track.path);
+      const resolvedPath = resolvePathToBaseIfRelative({
+        path: track.path,
+        basePath: this.libraryFolder,
+      });
       if (!(await checkPathExists(resolvedPath))) {
+        const parsedPath = path.parse(track.path);
         missing.push({
-          track,
+          data: track,
           wasRelocated: false,
-          oldPathDir: path.parse(track.path).dir,
-          newPathDir: null,
+          ext: parsedPath.ext,
+          oldPath: track.path,
+          newPath: null,
         });
       }
     }
@@ -241,29 +251,81 @@ export default class RelocatePage extends BaseCommand {
   }) {
     const searchFiles = await getFilesInDir({
       path: searchFolder,
-      maxDepth: 5,
+      extensions: uniq(tracks.map(x => x.ext)),
+      maxDepth: 10,
     });
-    const searchFileMap = keyBy(searchFiles, x => x.name);
+    // Keyed by filename
+    const searchFileMap = new Map(searchFiles.map(x => [x.name, x]));
 
-    tracks.forEach(item => {
-      const newPath = searchFileMap[item.track.filename];
-      if (!newPath) {
-        item.wasRelocated = false;
+    // Keyed by path
+    const metaCache = new Map<string, musicmeta.IAudioMetadata>();
+
+    async function findTrackViaMeta(
+      track: RelocatableTrack,
+    ): Promise<string | undefined> {
+      async function getTrackMeta(
+        path: string,
+      ): Promise<musicmeta.IAudioMetadata | undefined> {
+        let meta = metaCache.get(path);
+
+        if (meta) {
+          return meta;
+        }
+
+        try {
+          meta = await musicmeta.parseFile(path, { skipCovers: true });
+          metaCache.set(path, meta);
+
+          return meta;
+        } catch {
+          return;
+        }
+      }
+
+      for (const file of searchFileMap.values()) {
+        if (file.ext !== track.ext) {
+          continue;
+        }
+
+        const meta = await getTrackMeta(file.path);
+        if (!meta) {
+          continue;
+        }
+
+        if (
+          meta.common.title === track.data.title &&
+          meta.common.artist === track.data.artist &&
+          meta.common.album === track.data.album
+        ) {
+          return file.path;
+        }
+      }
+
+      return;
+    }
+
+    for (const track of tracks) {
+      let foundPath = searchFileMap.get(track.data.filename)?.path;
+      if (!foundPath) {
+        foundPath = await findTrackViaMeta(track);
+      }
+      if (!foundPath) {
+        track.wasRelocated = false;
         return;
       }
 
       // Paths are unix style regardless of OS
-      item.track.path = makePathUnix(
-        path.relative(this.libraryFolder, newPath.path),
+      track.data.path = makePathUnix(
+        path.relative(this.libraryFolder, foundPath),
       );
-      item.newPathDir = path.parse(item.track.path).dir;
-      item.wasRelocated = true;
-    });
+      track.newPath = track.data.path;
+      track.wasRelocated = true;
+    }
 
     await this.engineDb!.updateTracks(
-      tracks.map(({ track }) => ({
-        id: track.id,
-        path: track.path,
+      tracks.map(({ data }) => ({
+        id: data.id,
+        path: data.path,
       })),
     );
   }

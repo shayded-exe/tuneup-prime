@@ -227,7 +227,7 @@ export class EngineDB_2_0 extends EngineDB {
             'year',
           ];
           await this.table('Track', trx)
-            .where('id', track.id)
+            .where({ id: track.id })
             .update(pick(track, updateKeys));
         }),
       ),

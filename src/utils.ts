@@ -109,19 +109,25 @@ export function makePathUnix(path: string): string {
   return path.replace(/\\/g, '/');
 }
 
-export function resolvePathToCwdIfRelative(path: string): string {
-  return nodePath.isAbsolute(path)
-    ? path
-    : nodePath.resolve(process.cwd(), path);
+export function resolvePathToBaseIfRelative({
+  path,
+  basePath,
+}: {
+  path: string;
+  basePath: string;
+}): string {
+  return nodePath.isAbsolute(path) ? path : nodePath.resolve(basePath, path);
 }
 
 export async function getFilesInDir({
   path,
+  extensions,
   maxDepth = 0,
 }: {
   path: string;
+  extensions?: string[];
   maxDepth?: number;
-}): Promise<{ name: string; path: string }[]> {
+}): Promise<{ name: string; path: string; ext: string }[]> {
   let entries;
 
   try {
@@ -132,25 +138,28 @@ export async function getFilesInDir({
     return [];
   }
 
-  const filesWithPath = entries
+  const files = entries
     .filter(x => x.isFile())
     .map(x => ({
       name: x.name,
       path: nodePath.resolve(path, x.name),
-    }));
+      ext: nodePath.parse(x.name).ext,
+    }))
+    .filter(x => !extensions || extensions.includes(x.ext));
 
   if (maxDepth > 0) {
     for (const dir of entries.filter(x => x.isDirectory())) {
-      filesWithPath.push(
+      files.push(
         ...(await getFilesInDir({
           path: nodePath.resolve(path, dir.name),
+          extensions,
           maxDepth: maxDepth - 1,
         })),
       );
     }
   }
 
-  return filesWithPath;
+  return files;
 }
 
 export enum SupportedOS {
