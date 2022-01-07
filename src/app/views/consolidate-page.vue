@@ -105,7 +105,7 @@ import path from 'path';
 import { Component } from 'vue-property-decorator';
 
 interface ConsolidatableTrack {
-  track: engine.Track;
+  data: engine.Track;
   wasConsolidated: boolean;
   oldPath: string;
   newPath: string;
@@ -207,7 +207,7 @@ export default class ConsolidatePage extends BaseCommand {
           this.missingTracks.push(track);
         } else {
           this.foundTracks.push({
-            track,
+            data: track,
             wasConsolidated: false,
             oldPath: resolvedPath,
             newPath,
@@ -218,27 +218,28 @@ export default class ConsolidatePage extends BaseCommand {
 
     const processFile = async (from: string, to: string, copy?: boolean) => {
       if (copy) {
-        await fse.copyFile(from, to);
+        await fse.copy(from, to, { overwrite: true });
       } else {
-        await fse.move(from, to);
+        await fse.move(from, to, { overwrite: true });
       }
+    };
+
+    const updateTrack = async (track: ConsolidatableTrack) => {
+      await this.engineDb!.updateTracks([
+        {
+          id: track.data.id,
+          path: makePathUnix(path.relative(this.libraryFolder, track.newPath)),
+        },
+      ]);
     };
 
     await findTracks();
 
-    for (const item of this.foundTracks) {
-      await processFile(item.oldPath, item.newPath, this.shouldCopy);
-      item.wasConsolidated = true;
+    for (const track of this.foundTracks) {
+      await processFile(track.oldPath, track.newPath, this.shouldCopy);
+      await updateTrack(track);
+      track.wasConsolidated = true;
     }
-
-    await this.engineDb!.updateTracks(
-      this.foundTracks
-        .filter(x => x.wasConsolidated)
-        .map(({ track, newPath }) => ({
-          id: track.id,
-          path: makePathUnix(path.relative(this.libraryFolder, newPath)),
-        })),
-    );
   }
 
   openTargetFolder() {
