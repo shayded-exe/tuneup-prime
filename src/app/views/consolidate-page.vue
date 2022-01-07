@@ -6,7 +6,7 @@
     ></command-header>
 
     <div class="is-flex is-flex-direction-column is-align-items-center mt-6">
-      <p class="title is-5 has-text-centered mb-4">
+      <p class="is-size-5 has-text-centered mb-4">
         Consolidate will
         <span class="operation-text">{{ shouldCopy ? 'copy' : 'move' }}</span>
         all your tracks into the folder you select
@@ -23,7 +23,7 @@
         ></b-icon>
 
         <span>
-          Existing files will be
+          Existing files with the same name will be
           <strong>overwritten</strong>
         </span>
       </p>
