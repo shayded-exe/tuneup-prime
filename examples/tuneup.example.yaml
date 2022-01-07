@@ -15,12 +15,12 @@
 #     remixer
 #     title
 #
-#  [numeric]
-#    bitrate
-#    bpm
-#    length
-#    rating
-#    year
+#   [numeric]
+#     bitrate
+#     bpm
+#     length
+#     rating
+#     year
 
 # Supported operators
 #
@@ -31,7 +31,8 @@
 #     excludes
 #     regex (Don't know what Regex is? Read https://regexone.com/)
 #
-#  [numeric]
+# These operators must be in quotes like this: '='
+#   [numeric]
 #     =
 #     !=
 #     >
@@ -39,31 +40,24 @@
 #     <
 #     <=
 
-smartPlaylists:
-  # Create folders with the children property (can be nested multiple levels)
-  - name: Folder
-    children:
-      - name: Folder child
-        rules:
-          and:
-            - [bpm, '=', 128]
+# The config file is sensitive to indentation
+# Please note how everything in this example is aligned and indented
 
+# Playlist names must be unique
+# Any playlists that already exist with the same name will be replaced
+smartPlaylists:
   - name: Single filter
     rules:
       and:
-        - [artist, contains, snake]
+        - [artist, contains, shayded]
 
   - name: Multiple filters
-    # Creates a crate instead of a playlist
-    isCrate: true
     rules:
       # Must match all rules
       and:
         - [title, contains, remix]
         # caseSensitive is optional (default: false)
         - [artist, equals, ILLENIUM, { caseSensitive: true }]
-          # Filter on numeric fields
-        - [bpm, '>=', 128]
 
   - name: Multiple genres
     rules:
@@ -73,8 +67,24 @@ smartPlaylists:
         - [genre, equals, deep house]
         - [genre, equals, tech house]
 
+  # Create folders with the children property (can be nested multiple levels)
+  # Any playlists that aren't in a folder will remain in place so you can put them in whatever folder you want within Engine
+  - name: Years
+    children:
+      # Playlists with numeric names must be in quotes
+      - name: '2020'
+        rules:
+          and:
+            # Note that the = is in quotes
+            # This is the case for all numeric operators
+            - [year, '=', 2020]
+      - name: '2021'
+        rules:
+          and:
+            - [year, '=', 2021]
+
+  # Matches rating above 3 stars and years 2009-2013
   - name: Rating and year filters
-    # Matches rating above 3 stars and years 2009-2013
     rules:
       and:
         # More than 3 stars
@@ -83,13 +93,20 @@ smartPlaylists:
         - [year, '>=', 2009]
         - [year, '<=', 2013]
 
+  # Matches rating above 3 stars OR years 2009-2013
   - name: Rating OR year filters
-    # Matches rating above 3 stars OR years 2009-2013
     rules:
+      # The root rule can only be "and" or "or" not both
       or:
         - [rating, '>', 3]
+        # Note that "and" here is indented
         and:
           - [year, '>=', 2009]
           - [year, '<=', 2013]
 
-
+  # Creates a crate instead of a playlist (Engine 1.6.x only)
+  - name: Sample crate
+    isCrate: true
+    rules:
+      and:
+        - [title, excludes, fight club]
