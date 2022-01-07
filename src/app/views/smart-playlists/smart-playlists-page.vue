@@ -3,6 +3,18 @@
     <command-header title="Smart playlists" :homeDisabled="isProcessing">
       <div class="level-item">
         <b-button
+          tag="a"
+          :href="Links.Examples"
+          target="_blank"
+          type="is-text"
+          icon-left="question"
+        >
+          examples
+        </b-button>
+      </div>
+
+      <div class="level-item">
+        <b-button
           :disabled="isProcessing"
           @click="editConfig()"
           type="is-light is-outlined"
@@ -76,6 +88,7 @@ import CommandHeader from '@/app/components/command-header.vue';
 import ErrorMessage from '@/app/components/error-message.vue';
 import * as engine from '@/app/engine';
 import * as ipc from '@/app/ipc';
+import Links from '@/links';
 import { asyncSeries, flatTree, walkTree } from '@/utils';
 import { cloneDeep, every, last, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
@@ -100,6 +113,8 @@ import def = engine.config;
   },
 })
 export default class SmartPlaylistsPage extends BaseCommand {
+  readonly Links = Links;
+
   playlistNodes: UIPlaylistNode[] | null = null;
 
   isGenerating = false;
