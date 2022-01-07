@@ -43,15 +43,26 @@ export async function createDefaultIfNotFound(
 
 export async function read(libraryFolder: string): Promise<LibraryConfigFile> {
   const filePath = getPath(libraryFolder);
+  let configStr;
   let config;
 
+  const baseError = 'Failed to read config.';
   try {
-    const configStr = await fs.promises.readFile(filePath, 'utf-8');
+    configStr = await fs.promises.readFile(filePath, 'utf-8');
+  } catch (e) {
+    throw new Error(`${baseError} Path doesn't exist\n  ${filePath}`);
+  }
+  try {
     config = yaml.load(configStr);
   } catch (e) {
-    throw new Error(
-      `Failed to read config, path doesn't exist\n    ${filePath}`,
-    );
+    if (e instanceof yaml.YAMLException && 'mark' in e) {
+      const { mark } = e as { mark: { line: number; column: number } };
+      throw new Error(
+        `${baseError} Please check your formatting and indentation.\n  Line: ${mark.line}  Column: ${mark.column}`,
+      );
+    } else {
+      throw new Error(`${baseError}\n\n${e.message}`);
+    }
   }
 
   if (!validate(config)) {
