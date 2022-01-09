@@ -33,13 +33,14 @@ export class EngineDB_2_0 extends EngineDB {
         '=',
         'PlaylistPath.id',
       )
-      .select('Playlist.*', 'PlaylistPath.path');
+      .select('Playlist.*', 'PlaylistPath.path')
+      .where('Playlist.isPersisted', true);
   }
 
   private async getPlaylistByTitle(
     title: string,
   ): Promise<schema.PlaylistWithPath | undefined> {
-    return this.table('Playlist') //
+    return this.table('Playlist')
       .join<schema.PlaylistPath>(
         'PlaylistPath',
         'Playlist.id',
@@ -48,6 +49,7 @@ export class EngineDB_2_0 extends EngineDB {
       )
       .select('Playlist.*', 'PlaylistPath.path')
       .where('Playlist.title', title)
+      .andWhere('Playlist.isPersisted', true)
       .first();
   }
 
