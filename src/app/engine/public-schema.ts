@@ -17,7 +17,7 @@ export interface Playlist {
 export interface PlaylistInput {
   title: string;
   parentListId?: number;
-  tracks: (number | Track)[];
+  tracks: Track[];
 }
 
 export interface Track {
@@ -31,13 +31,15 @@ export interface Track {
   dateAdded?: number;
   dateCreated?: number;
   filename: string;
-  fileType?: string;
+  fileBytes: number;
+  fileType: string;
   genre?: string;
   isBeatGridLocked?: boolean;
   key?: CamelotKeyId;
   label?: string;
   length: number;
   path: string;
+  playOrder?: number;
   rating?: number;
   remixer?: string;
   timeLastPlayed?: number;

@@ -84,11 +84,13 @@ export interface Track {
   id: number;
   bitrate: number;
   bpmAnalyzed: number;
+  fileBytes: number;
   filename: string;
   isBeatGridLocked: IntBoolean;
   isExternalTrack: IntBoolean;
   length: number;
   path: string;
+  playOrder?: number;
   trackType: TrackType;
   year: number;
 }

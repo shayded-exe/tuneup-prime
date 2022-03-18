@@ -83,60 +83,56 @@ export class EngineDB_1_6 extends EngineDB {
     let playlist = await this.getPlaylistByTitle(input.title);
     let playlistId = playlist?.id;
 
-    return this.knex.transaction(
-      async (trx): Promise<schema.List> => {
-        if (!playlist) {
-          playlistId = await this.getNextPlaylistId(trx);
+    return this.knex.transaction(async (trx): Promise<schema.List> => {
+      if (!playlist) {
+        playlistId = await this.getNextPlaylistId(trx);
 
-          const newPlaylist: schema.NewList = {
-            id: playlistId,
-            type: input.type ?? schema.ListType.Playlist,
-            title: input.title,
-            path: input.path ?? input.title + PLAYLIST_PATH_DELIMITER,
-            isFolder: 0,
-            isExplicitlyExported: 1,
-          };
-          await this.table('List', trx).insert(newPlaylist);
-          playlist = (await this.getPlaylistById(playlistId, trx))!;
+        const newPlaylist: schema.NewList = {
+          id: playlistId,
+          type: input.type ?? schema.ListType.Playlist,
+          title: input.title,
+          path: input.path ?? input.title + PLAYLIST_PATH_DELIMITER,
+          isFolder: 0,
+          isExplicitlyExported: 1,
+        };
+        await this.table('List', trx).insert(newPlaylist);
+        playlist = (await this.getPlaylistById(playlistId, trx))!;
 
-          await this.createPlaylistHierarchy(playlist, trx);
-        } else {
-          await this.table('ListTrackList', trx)
-            .where({
-              listId: playlistId,
-              listType: schema.ListType.Playlist,
-            })
-            .delete();
-        }
+        await this.createPlaylistHierarchy(playlist, trx);
+      } else {
+        await this.table('ListTrackList', trx)
+          .where({
+            listId: playlistId,
+            listType: schema.ListType.Playlist,
+          })
+          .delete();
+      }
 
-        const trackIds = input.tracks.map(t =>
-          typeof t === 'number' ? t : t.id,
+      const trackIds = input.tracks.map(t =>
+        typeof t === 'number' ? t : t.id,
+      );
+      if (trackIds.length) {
+        const newListTracks = trackIds.map<schema.NewListTrackList>(
+          (trackId, i) => ({
+            listId: playlistId!,
+            listType: schema.ListType.Playlist,
+            trackId: trackId,
+            trackIdInOriginDatabase: trackId,
+            trackNumber: i + 1,
+            databaseUuid: this.uuid,
+          }),
         );
-        if (trackIds.length) {
-          const newListTracks = trackIds.map<schema.NewListTrackList>(
-            (trackId, i) => ({
-              listId: playlistId!,
-              listType: schema.ListType.Playlist,
-              trackId: trackId,
-              trackIdInOriginDatabase: trackId,
-              trackNumber: i + 1,
-              databaseUuid: this.uuid,
-            }),
-          );
 
-          await asyncSeries(
-            chunk(
-              newListTracks,
-              EngineDB.insertChunkSize,
-            ).map(chunkTracks => async () =>
+        await asyncSeries(
+          chunk(newListTracks, EngineDB.insertChunkSize).map(
+            chunkTracks => async () =>
               this.table('ListTrackList', trx).insert(chunkTracks),
-            ),
-          );
-        }
+          ),
+        );
+      }
 
-        return playlist!;
-      },
-    );
+      return playlist!;
+    });
   }
 
   buildPlaylistPath(names: string[]): string {
@@ -260,7 +256,7 @@ export class EngineDB_1_6 extends EngineDB {
 
     return tracks.map(track => ({
       ...track,
-      ...track.meta,
+      ...track.meta!,
       isBeatGridLocked: !!track.isBeatGridLocked,
     }));
   }

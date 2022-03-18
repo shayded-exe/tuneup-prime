@@ -124,19 +124,15 @@ export class EngineDB_2_0 extends EngineDB {
               .update({ nextListId: playlist.id });
 
             // Set current playlist as last
-            await this.table('Playlist', trx)
-              .where({ id: playlistId })
-              .update({
-                parentListId: input.parentListId,
-                nextListId: 0,
-              });
+            await this.table('Playlist', trx).where({ id: playlistId }).update({
+              parentListId: input.parentListId,
+              nextListId: 0,
+            });
           }
         }
 
         if (input.tracks.length) {
-          const trackIds = input.tracks.map(t =>
-            typeof t === 'number' ? t : t.id,
-          );
+          const trackIds = input.tracks.map(t => t.id);
           const lastEntityId = await this.getLastGeneratedId(
             'PlaylistEntity',
             trx,
@@ -155,11 +151,9 @@ export class EngineDB_2_0 extends EngineDB {
           );
 
           await asyncSeries(
-            chunk(
-              newEntities,
-              EngineDB.insertChunkSize,
-            ).map(chunkEntities => async () =>
-              this.table('PlaylistEntity', trx).insert(chunkEntities),
+            chunk(newEntities, EngineDB.insertChunkSize).map(
+              chunkEntities => async () =>
+                this.table('PlaylistEntity', trx).insert(chunkEntities),
             ),
           );
         }
@@ -187,6 +181,7 @@ export class EngineDB_2_0 extends EngineDB {
         'dateCreated',
         'explicitLyrics',
         'filename',
+        'fileBytes',
         'fileType',
         'genre',
         'isAnalyzed',
@@ -198,6 +193,7 @@ export class EngineDB_2_0 extends EngineDB {
         'originDatabaseUuid',
         'originTrackId',
         'path',
+        'playOrder',
         'rating',
         'remixer',
         'thirdPartySourceId',

@@ -60,6 +60,7 @@ export interface Track {
   dateCreated: number;
   explicitLyrics: boolean;
   filename: string;
+  fileBytes: number;
   fileType: string;
   genre: string;
   isAnalyzed: boolean;
@@ -71,6 +72,7 @@ export interface Track {
   originDatabaseUuid: string;
   originTrackId: number;
   path: string;
+  playOrder?: number;
   rating: number;
   remixer: string;
   thirdPartySourceId: number;

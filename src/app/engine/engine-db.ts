@@ -83,6 +83,7 @@ export abstract class EngineDB {
 
   protected async getSchemaInfo(): Promise<schema.Information> {
     // Perform in a transaction to force an error if Engine is running
+    // TODO: Don't check this if we won't need to write
     const results = await this.knex.transaction(async trx => {
       return trx<schema.Information>('Information') //
         .select('*');
