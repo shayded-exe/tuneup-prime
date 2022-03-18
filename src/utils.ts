@@ -1,6 +1,4 @@
 import fs from 'fs';
-import { getDiskInfo } from 'node-disk-info';
-import Drive from 'node-disk-info/dist/classes/drive';
 import fetch, { RequestInfo, RequestInit, Response } from 'node-fetch';
 import nodePath from 'path';
 
@@ -189,26 +187,6 @@ export function getOSName(): string {
     case SupportedOS.Linux:
       return 'Linux';
   }
-}
-
-export type ExtDrive = Drive;
-
-export async function getExtDrives(): Promise<ExtDrive[]> {
-  function filterDrive(drive: Drive): boolean {
-    switch (os) {
-      case SupportedOS.Windows:
-        return /^[ABD-Z]:$/.test(drive.mounted);
-      case SupportedOS.MacOS:
-        return /^\/dev\/disk/.test(drive.filesystem);
-      case SupportedOS.Linux:
-        return drive.filesystem !== 'tempfs' && /^\/mnt\//.test(drive.mounted);
-    }
-  }
-
-  const os = getOS();
-  const drives = await getDiskInfo();
-
-  return drives.filter(filterDrive);
 }
 
 export async function postJson<T = object>(
