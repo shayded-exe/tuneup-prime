@@ -70,7 +70,7 @@
     "electron-builder-notarize": "1.2.0",
     "electron-devtools-installer": "3.2.0",
     "fs-extra": "10.0.0",
-    "node-sass": "6.0.0",
+    "node-sass": "7.0.0",
     "prettier": "2.6.0",
     "sass-loader": "10.2.0",
     "ts-node": "9.1.1",
