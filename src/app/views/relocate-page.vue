@@ -88,9 +88,7 @@
 </style>
 
 <script lang="ts">
-import BaseCommand from '@/app/components/base-command';
-import CommandHeader from '@/app/components/command-header.vue';
-import ErrorMessage from '@/app/components/error-message.vue';
+import { BaseCommand, CommandHeader, ErrorMessage } from '@/app/components';
 import * as engine from '@/app/engine';
 import {
   checkPathExists,

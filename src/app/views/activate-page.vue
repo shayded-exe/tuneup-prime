@@ -1,8 +1,6 @@
 <template>
   <form @submit="activate">
-    <h1 class="title">
-      Activate
-    </h1>
+    <h1 class="title">Activate</h1>
 
     <b-field label="License key" class="is-flex-grow-1">
       <b-input
@@ -44,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import ErrorMessage from '@/app/components/error-message.vue';
+import { ErrorMessage } from '@/app/components';
 import * as ipc from '@/app/ipc';
 import { Component, Vue } from 'vue-property-decorator';
 
@@ -52,10 +50,9 @@ import { Component, Vue } from 'vue-property-decorator';
   components: { ErrorMessage },
 })
 export default class ActivatePage extends Vue {
-  readonly licenseKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/;
-  readonly licenseKeyFormat = Array(4)
-    .fill('X'.repeat(8))
-    .join('-');
+  readonly licenseKeyRegex =
+    /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/;
+  readonly licenseKeyFormat = Array(4).fill('X'.repeat(8)).join('-');
 
   licenseKey = '';
 

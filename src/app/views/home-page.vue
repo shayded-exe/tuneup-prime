@@ -8,21 +8,15 @@
 
     <div v-if="!license.isPurchased" class="license-notice">
       <div v-if="license.isTrial" key="isTrial">
-        <p class="has-text-warning has-text-weight-bold">
-          TRIAL VERSION
-        </p>
+        <p class="has-text-warning has-text-weight-bold">TRIAL VERSION</p>
         <p v-if="license.isExpired" key="isExpired" class="has-text-danger">
           expired at {{ trialExpDate }}
         </p>
         <span v-else key="!isExpired">expires at {{ trialExpDate }}</span>
       </div>
       <div v-else-if="license.isInvalid" key="isInvalid">
-        <p class="has-text-danger has-text-weight-bold">
-          INVALID LICENSE
-        </p>
-        <p>
-          please re-enter your license key
-        </p>
+        <p class="has-text-danger has-text-weight-bold">INVALID LICENSE</p>
+        <p>please re-enter your license key</p>
       </div>
 
       <div class="buy-buttons">
@@ -266,6 +260,11 @@ export default class HomePage extends Vue {
       label: 'consolidate library',
       route: 'consolidate',
       icon: 'em-card_file_box',
+    },
+    {
+      label: 'rekordbox export',
+      route: 'rekordbox-export',
+      icon: 'em-cd',
     },
   ];
 

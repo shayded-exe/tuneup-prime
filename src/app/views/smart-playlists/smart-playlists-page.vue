@@ -54,9 +54,7 @@
             The following {{ playlists.length }} smart playlists will be
             generated
           </span>
-          <span v-else>
-            No smart playlists defined
-          </span>
+          <span v-else>No smart playlists defined</span>
         </span>
         <span v-else>Generated {{ numGenerated }} smart playlists</span>
       </p>
@@ -83,9 +81,7 @@
 </style>
 
 <script lang="ts">
-import BaseCommand from '@/app/components/base-command';
-import CommandHeader from '@/app/components/command-header.vue';
-import ErrorMessage from '@/app/components/error-message.vue';
+import { BaseCommand, CommandHeader, ErrorMessage } from '@/app/components';
 import * as engine from '@/app/engine';
 import * as ipc from '@/app/ipc';
 import Links from '@/links';

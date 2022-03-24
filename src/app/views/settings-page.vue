@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div class="label">
-      Engine library folder
-    </div>
+    <div class="label">Engine library folder</div>
     <div class="is-flex">
       <b-field class="is-flex-grow-1">
         <b-input v-model="libraryFolder"></b-input>
@@ -53,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import ErrorMessage from '@/app/components/error-message.vue';
+import { ErrorMessage } from '@/app/components';
 import * as engine from '@/app/engine';
 import { appStore, AppStoreKey } from '@/store';
 import { checkPathExists, checkPathIsDir } from '@/utils';
@@ -102,7 +100,7 @@ export default class SettingsPage extends Vue {
   }
 
   @Watch('libraryFolder')
-  async updateLibrary(value?: string) {
+  async onLibraryFolderChanged(value?: string) {
     const info = await validateLibraryFolder(value);
     if (typeof info === 'string') {
       this.error = info;
