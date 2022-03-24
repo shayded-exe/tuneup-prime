@@ -248,10 +248,12 @@ export class EngineDB_1_6 extends EngineDB {
     return lastId + 1;
   }
 
-  async getTracks(opts?: {
-    ids?: number[];
-    skipMeta?: boolean;
-  }): Promise<publicSchema.Track[]> {
+  async getTracks(
+    opts: {
+      ids?: number[];
+      skipMeta?: boolean;
+    } = {},
+  ): Promise<publicSchema.Track[]> {
     const tracks = await this.getTracksInternal(opts);
 
     return tracks.map(track => ({
@@ -267,7 +269,7 @@ export class EngineDB_1_6 extends EngineDB {
   }: {
     ids?: number[];
     skipMeta?: boolean;
-  } = {}): Promise<schema.TrackWithMeta[]> {
+  }): Promise<schema.TrackWithMeta[]> {
     const tracks = await (() => {
       let qb = this.table('Track')
         .select('*')

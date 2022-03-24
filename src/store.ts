@@ -4,6 +4,7 @@ import path from 'path';
 
 export enum AppStoreKey {
   EngineLibraryFolder = 'engineLibraryFolder',
+  RekordboxXmlPath = 'rekordboxXmlPath',
   License = 'license',
   WindowState = 'windowState',
 }
@@ -16,24 +17,12 @@ export interface WindowState {
 
 export interface AppStoreData {
   [AppStoreKey.EngineLibraryFolder]: string;
+  [AppStoreKey.RekordboxXmlPath]: string;
   [AppStoreKey.License]?: string;
   [AppStoreKey.WindowState]?: WindowState;
 }
 
 export type AppStore = Store<AppStoreData>;
-
-export const APP_STORE_SCHEMA: Schema<AppStoreData> = {
-  [AppStoreKey.EngineLibraryFolder]: { type: 'string' },
-  [AppStoreKey.License]: { type: 'string' },
-  [AppStoreKey.WindowState]: {
-    type: 'object',
-    properties: {
-      x: { type: 'number' },
-      y: { type: 'number' },
-      height: { type: 'number' },
-    },
-  },
-};
 
 let _store: Store<AppStoreData> | undefined;
 
@@ -47,15 +36,30 @@ export function appStore(value?: Store<AppStoreData>): Store<AppStoreData> {
   return _store;
 }
 
-const DEFAULT_LIBRARY_FOLDER = 'Engine Library';
+const APP_STORE_SCHEMA: Schema<AppStoreData> = {
+  [AppStoreKey.EngineLibraryFolder]: { type: 'string' },
+  [AppStoreKey.RekordboxXmlPath]: { type: 'string' },
+  [AppStoreKey.License]: { type: 'string' },
+  [AppStoreKey.WindowState]: {
+    type: 'object',
+    properties: {
+      x: { type: 'number' },
+      y: { type: 'number' },
+      height: { type: 'number' },
+    },
+  },
+};
 
 export function init({
   withDefaults = false,
 }: { withDefaults?: boolean } = {}) {
-  const defaults = () => ({
-    engineLibraryFolder: path.resolve(
-      app.getPath('music'),
-      DEFAULT_LIBRARY_FOLDER,
+  const defaults = (): AppStoreData => ({
+    engineLibraryFolder: path.resolve(app.getPath('music'), 'Engine Library'),
+    rekordboxXmlPath: path.resolve(
+      app.getPath('appData'),
+      'Pioneer',
+      'rekordbox',
+      'rekordbox.xml',
     ),
   });
 

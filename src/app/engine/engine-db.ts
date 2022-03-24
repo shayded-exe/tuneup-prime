@@ -75,6 +75,7 @@ export abstract class EngineDB {
   abstract getTracks(opts?: {
     ids?: number[];
     skipMeta?: boolean;
+    withPerformanceData?: boolean;
   }): Promise<schema.Track[]>;
 
   abstract getPlaylistTracks(playlistId: number): Promise<schema.Track[]>;

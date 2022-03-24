@@ -22,6 +22,7 @@ export interface PlaylistInput {
 
 export interface Track {
   id: number;
+  absolutePath?: string;
   album?: string;
   artist?: string;
   bitrate: number;

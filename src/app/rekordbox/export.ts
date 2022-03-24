@@ -1,10 +1,12 @@
 import * as engine from '@/app/engine';
+import { appStore, AppStoreKey } from '@/store';
+import { resolvePathToBaseIfRelative } from '@/utils';
 import dateFormat from 'dateformat';
 import fs from 'fs';
 import { uniqBy } from 'lodash';
 import { Builder } from 'xml2js';
 
-import { DateAttr, LibraryXml, TrackElement } from './xml-types';
+import { DateAttr, LibraryXml, LocationAttr, TrackElement } from './xml-types';
 
 export async function exportXml(
   filePath: string,
@@ -23,10 +25,17 @@ export async function exportXml(
 }
 
 function buildXmlObject(playlists: engine.PlaylistInput[]): LibraryXml {
+  const engineLibraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
   const tracks = uniqBy(
     playlists.flatMap(p => p.tracks),
     t => t.id,
-  );
+  ).map(track => ({
+    ...track,
+    absolutePath: resolvePathToBaseIfRelative({
+      path: track.path,
+      basePath: engineLibraryFolder,
+    }),
+  }));
 
   return {
     DJ_PLAYLISTS: {
@@ -45,6 +54,9 @@ function buildXmlObject(playlists: engine.PlaylistInput[]): LibraryXml {
           Entries: tracks.length,
         },
         TRACK: tracks.map(buildTrackElement),
+      },
+      PLAYLISTS: {
+        NODE: [],
       },
     },
   };
@@ -77,10 +89,10 @@ function buildTrackElement(track: engine.Track): TrackElement {
       // TODO: Convert
       Rating: track.rating ?? '',
       // TODO
-      Location: '',
+      Location: getLocation(track),
       Remixer: track.remixer ?? '',
       // TODO
-      Tonality: '',
+      Tonality: 'C',
       Label: track.label ?? '',
       Mix: '',
     },
@@ -92,4 +104,8 @@ function buildTrackElement(track: engine.Track): TrackElement {
 
 function formatDate(epoch: number): DateAttr {
   return dateFormat(epoch, 'isoDate') as DateAttr;
+}
+
+function getLocation(track: engine.Track): LocationAttr {
+  return `file://localhost/${encodeURI(track.absolutePath!)}` as const;
 }

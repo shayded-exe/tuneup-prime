@@ -4,6 +4,7 @@ import VueRouter from 'vue-router';
 import ActivatePage from './views/activate-page.vue';
 import ConsolidatePage from './views/consolidate-page.vue';
 import HomePage from './views/home-page.vue';
+import RekordboxExportPage from './views/rekordbox-export-page.vue';
 import RelocatePage from './views/relocate-page.vue';
 import SettingsPage from './views/settings-page.vue';
 import SmartPlaylistsPage from './views/smart-playlists/smart-playlists-page.vue';
@@ -28,10 +29,16 @@ export const router = new VueRouter({
       name: 'settings',
       component: SettingsPage,
     },
+    // Tools
     {
-      path: '/smart-playlists',
-      name: 'smart-playlists',
-      component: SmartPlaylistsPage,
+      path: '/consolidate',
+      name: 'consolidate',
+      component: ConsolidatePage,
+    },
+    {
+      path: '/rekordbox-export',
+      name: 'rekordbox-export',
+      component: RekordboxExportPage,
     },
     {
       path: '/relocate',
@@ -39,9 +46,9 @@ export const router = new VueRouter({
       component: RelocatePage,
     },
     {
-      path: '/consolidate',
-      name: 'consolidate',
-      component: ConsolidatePage,
+      path: '/smart-playlists',
+      name: 'smart-playlists',
+      component: SmartPlaylistsPage,
     },
   ],
 });

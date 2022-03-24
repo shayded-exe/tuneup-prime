@@ -1,6 +1,6 @@
 export type DateAttr = `${number}-${number}-${number}`;
 
-export type LocationAttr = `file://localhost/${string}.${string}`;
+export type LocationAttr = `file://localhost/${string}`;
 
 export type KindAttr = `${string} File`;
 

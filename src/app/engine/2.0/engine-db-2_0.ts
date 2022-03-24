@@ -1,6 +1,7 @@
 import { asyncSeries } from '@/utils';
 import { Knex } from 'knex';
 import { chunk, pick } from 'lodash';
+import { inflate } from 'pako';
 
 import { EngineDB } from '../engine-db';
 import { formatDate } from '../format';
@@ -163,46 +164,62 @@ export class EngineDB_2_0 extends EngineDB {
     );
   }
 
-  async getTracks(): Promise<publicSchema.Track[]> {
-    return this.getTracksInternal();
+  async getTracks(
+    opts: {
+      withPerformanceData?: boolean;
+    } = {},
+  ): Promise<publicSchema.Track[]> {
+    return this.getTracksInternal(opts);
   }
 
-  private async getTracksInternal(): Promise<schema.Track[]> {
-    return this.table('Track')
-      .select([
-        'id',
-        'album',
-        'artist',
-        'bitrate',
-        'bpmAnalyzed',
-        'comment',
-        'composer',
-        'dateAdded',
-        'dateCreated',
-        'explicitLyrics',
-        'filename',
-        'fileBytes',
-        'fileType',
-        'genre',
-        'isAnalyzed',
-        'isBeatGridLocked',
-        'isMetadataImported',
-        'key',
-        'label',
-        'length',
-        'originDatabaseUuid',
-        'originTrackId',
-        'path',
-        'playOrder',
-        'rating',
-        'remixer',
-        'thirdPartySourceId',
-        'timeLastPlayed',
-        'title',
-        'year',
-      ])
+  private async getTracksInternal({
+    withPerformanceData,
+  }: {
+    withPerformanceData?: boolean;
+  }): Promise<schema.Track[]> {
+    const keys: (keyof schema.Track)[] = [
+      'id',
+      'album',
+      'artist',
+      'bitrate',
+      'bpmAnalyzed',
+      'comment',
+      'composer',
+      'dateAdded',
+      'dateCreated',
+      'explicitLyrics',
+      'filename',
+      'fileBytes',
+      'fileType',
+      'genre',
+      'isAnalyzed',
+      'isBeatGridLocked',
+      'isMetadataImported',
+      'key',
+      'label',
+      'length',
+      'originDatabaseUuid',
+      'originTrackId',
+      'path',
+      'playOrder',
+      'rating',
+      'remixer',
+      'thirdPartySourceId',
+      'timeLastPlayed',
+      'title',
+      'year',
+    ];
+
+    if (withPerformanceData) {
+      keys.push('beatData', 'quickCues', 'loops');
+    }
+
+    const tracks = await this.table('Track')
+      .select(keys)
       .whereNotNull('path')
       .andWhere('originDatabaseUuid', this.uuid);
+
+    return tracks.map(cookTrack);
   }
 
   async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
@@ -234,4 +251,61 @@ export class EngineDB_2_0 extends EngineDB {
       ),
     );
   }
+}
+
+// Don't eat your tracks raw kids
+function cookTrack(track: schema.RawTrack): schema.Track {
+  function decodeBeatData(trackData: Uint8Array): schema.BeatData {
+    const buf = inflatePerformanceData(trackData);
+    let n = 0;
+
+    const sampleRate = buf.readDoubleBE(n);
+    n += 8;
+    const samples = Number(buf.readBigUInt64BE(n));
+    n += 8;
+
+    // Next byte is static
+    n += 1;
+
+    const numDefaultMarkers = buf.readBigUInt64BE(n);
+    n += 8;
+
+    // Skip default beat beat grid
+    n += Number(numDefaultMarkers) * 24;
+
+    const numMarkers = buf.readBigUInt64BE(n);
+    n += 8;
+
+    const markers: schema.BeatGridMarker[] = [];
+
+    for (let i = 0; i < numMarkers; i++) {
+      const sampleOffset = buf.readDoubleLE(n);
+      n += 8;
+      const beatIndex = Number(buf.readBigInt64LE(n));
+      n += 8;
+      const beatsToNextMarker = buf.readUInt32LE(n);
+      n += 8;
+
+      markers.push({
+        sampleOffset,
+        beatIndex,
+        beatsToNextMarker,
+      });
+    }
+
+    return {
+      sampleRate,
+      samples,
+      markers,
+    };
+  }
+
+  return {
+    ...track,
+    beatData: track.beatData && decodeBeatData(track.beatData),
+  };
+}
+
+function inflatePerformanceData(data: Uint8Array): Buffer {
+  return Buffer.from(inflate(data.subarray(4)));
 }

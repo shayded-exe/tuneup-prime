@@ -1,4 +1,4 @@
-import { Except } from 'type-fest';
+import { Except, Merge } from 'type-fest';
 
 import * as publicSchema from '../public-schema';
 import { SQLITE_SEQUENCE } from '../sqlite-types';
@@ -9,7 +9,7 @@ export interface Tables {
   Playlist: Playlist;
   PlaylistPath: PlaylistPath;
   PlaylistEntity: PlaylistEntity;
-  Track: Track;
+  Track: RawTrack;
 }
 
 export type TableNames = keyof Tables;
@@ -48,7 +48,7 @@ export interface PlaylistEntity {
 export type NewPlaylistEntity = Except<PlaylistEntity, 'id'>;
 
 // Non-exhaustive. We don't need everything.
-export interface Track {
+export interface RawTrack {
   id: number;
   album: string;
   artist: string;
@@ -79,4 +79,33 @@ export interface Track {
   timeLastPlayed: number;
   title: string;
   year: number;
+  // Performance data
+  beatData?: Uint8Array;
+  quickCues?: Uint8Array;
+  loops?: Uint8Array;
 }
+
+export type Track = Merge<
+  RawTrack,
+  {
+    beatData?: BeatData;
+    quickCues?: QuickCues;
+    loops?: Loops;
+  }
+>;
+
+export interface BeatData {
+  sampleRate: number;
+  samples: number;
+  markers: BeatGridMarker[];
+}
+
+export interface BeatGridMarker {
+  sampleOffset: number;
+  beatIndex: number;
+  beatsToNextMarker: number;
+}
+
+export interface QuickCues {}
+
+export interface Loops {}
