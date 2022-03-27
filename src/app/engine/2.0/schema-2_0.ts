@@ -89,23 +89,40 @@ export type Track = Merge<
   RawTrack,
   {
     beatData?: BeatData;
-    quickCues?: QuickCues;
-    loops?: Loops;
+    quickCues?: HotCue[];
+    loops?: Loop[];
   }
 >;
 
 export interface BeatData {
   sampleRate: number;
-  samples: number;
+  sampleCount: number;
   markers: BeatGridMarker[];
 }
 
 export interface BeatGridMarker {
-  sampleOffset: number;
+  sample: number;
   beatIndex: number;
   beatsToNextMarker: number;
 }
 
-export interface QuickCues {}
+export interface HotCue {
+  index: number;
+  name: string;
+  sample: number;
+  color: CueColor;
+}
 
-export interface Loops {}
+export interface Loop {
+  index: number;
+  name: string;
+  startSample: number;
+  endSample: number;
+  color: CueColor;
+}
+
+export interface CueColor {
+  red: number;
+  green: number;
+  blue: number;
+}

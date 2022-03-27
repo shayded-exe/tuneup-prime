@@ -1,4 +1,5 @@
 import { asyncSeries } from '@/utils';
+import { Parser as BinaryParser } from 'binary-parser';
 import { Knex } from 'knex';
 import { chunk, pick } from 'lodash';
 import { inflate } from 'pako';
@@ -219,7 +220,7 @@ export class EngineDB_2_0 extends EngineDB {
       .whereNotNull('path')
       .andWhere('originDatabaseUuid', this.uuid);
 
-    return tracks.map(cookTrack);
+    return tracks.map(cookRawTrack);
   }
 
   async getPlaylistTracks(playlistId: number): Promise<publicSchema.Track[]> {
@@ -253,59 +254,81 @@ export class EngineDB_2_0 extends EngineDB {
   }
 }
 
-// Don't eat your tracks raw kids
-function cookTrack(track: schema.RawTrack): schema.Track {
-  function decodeBeatData(trackData: Uint8Array): schema.BeatData {
-    const buf = inflatePerformanceData(trackData);
-    let n = 0;
+// For best results, heat until internal temperature reaches 165F or crust is golden brown
+function cookRawTrack(track: schema.RawTrack): schema.Track {
+  const colorParser = new BinaryParser() //
+    .uint8('red')
+    .uint8('green')
+    .uint8('blue');
 
-    const sampleRate = buf.readDoubleBE(n);
-    n += 8;
-    const samples = Number(buf.readBigUInt64BE(n));
-    n += 8;
+  function qDecompress(data: Uint8Array): Buffer {
+    return Buffer.from(inflate(data.subarray(4)));
+  }
 
-    // Next byte is static
-    n += 1;
+  function decodeBeatData(rawData: Uint8Array): schema.BeatData {
+    const { numDefaultMarkers, numMarkers, ...beatData } = new BinaryParser()
+      .doublebe('sampleRate')
+      .uint64be('sampleCount', { formatter: Number })
+      .seek(1)
+      .uint64be('numDefaultMarkers', { formatter: Number })
+      .seek(x => x.numDefaultMarkers * 24)
+      .uint64be('numMarkers')
+      .array('markers', {
+        length: 'numMarkers',
+        type: new BinaryParser()
+          .doublele('sample')
+          .int64le('beatIndex', { formatter: Number })
+          .uint32le('beatsToNextMarker'),
+      })
+      .parse(qDecompress(rawData));
 
-    const numDefaultMarkers = buf.readBigUInt64BE(n);
-    n += 8;
+    return beatData;
+  }
 
-    // Skip default beat beat grid
-    n += Number(numDefaultMarkers) * 24;
+  function decodeQuickCues(rawData: Uint8Array): schema.HotCue[] {
+    const { hotCues }: { hotCues: any[] } = new BinaryParser()
+      .uint64be('numHotCues')
+      .array('hotCues', {
+        length: 'numHotCues',
+        type: new BinaryParser()
+          .uint8('nameLength')
+          .string('name', { length: 'nameLength' })
+          .doublebe('sample')
+          .seek(1)
+          .nest('color', { type: colorParser }),
+      })
+      .parse(qDecompress(rawData));
 
-    const numMarkers = buf.readBigUInt64BE(n);
-    n += 8;
+    return hotCues
+      .map(({ nameLength, ...cue }, i) => ({ index: i, ...cue }))
+      .filter(cue => !!cue.name);
+  }
 
-    const markers: schema.BeatGridMarker[] = [];
+  function decodeLoops(rawData: Uint8Array): schema.Loop[] {
+    const { loops }: { loops: any[] } = new BinaryParser()
+      .uint8('numLoops')
+      .seek(7)
+      .array('loops', {
+        length: 'numLoops',
+        type: new BinaryParser()
+          .uint8('nameLength')
+          .string('name', { length: 'nameLength' })
+          .doublele('startSample')
+          .doublele('endSample')
+          .seek(3)
+          .nest('color', { type: colorParser }),
+      })
+      .parse(rawData);
 
-    for (let i = 0; i < numMarkers; i++) {
-      const sampleOffset = buf.readDoubleLE(n);
-      n += 8;
-      const beatIndex = Number(buf.readBigInt64LE(n));
-      n += 8;
-      const beatsToNextMarker = buf.readUInt32LE(n);
-      n += 8;
-
-      markers.push({
-        sampleOffset,
-        beatIndex,
-        beatsToNextMarker,
-      });
-    }
-
-    return {
-      sampleRate,
-      samples,
-      markers,
-    };
+    return loops
+      .map(({ nameLength, ...loop }, i) => ({ index: i, ...loop }))
+      .filter(loop => !!loop.name);
   }
 
   return {
     ...track,
     beatData: track.beatData && decodeBeatData(track.beatData),
+    quickCues: track.quickCues && decodeQuickCues(track.quickCues),
+    loops: track.loops && decodeLoops(track.loops),
   };
-}
-
-function inflatePerformanceData(data: Uint8Array): Buffer {
-  return Buffer.from(inflate(data.subarray(4)));
 }
