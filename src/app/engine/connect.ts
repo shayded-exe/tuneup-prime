@@ -1,25 +1,59 @@
-import { EngineDB_1_6 } from './1.6';
-import { EngineDB_2_0 } from './2.0';
+import { checkPathIsFile } from '@/utils';
+import path from 'path';
+
 import { EngineDB } from './engine-db';
-import { getLibraryInfo, LibraryInfo, Version } from './version-detection';
 
-export async function connect<T extends EngineDB>(
-  library: string | LibraryInfo,
+const V2_SUB_FOLDER = 'Database2';
+const DB_FILE = 'm.db';
+
+export enum Version {
+  V1_6 = '1.6',
+  V2_X = '2.0',
+}
+
+export interface LibraryInfo {
+  version: Version;
+  folder: string;
+  dbPath: string;
+}
+
+export async function connect(
+  libraryFolder: string,
   opts: { skipBackup?: boolean } = {},
-): Promise<T> {
-  const { version, dbPath } =
-    typeof library === 'object' ? library : await getLibraryInfo(library);
+): Promise<EngineDB> {
+  const { dbPath } = await getLibraryInfo(libraryFolder);
 
-  const engineDb = (() => {
-    switch (version) {
-      case Version.V1_6:
-        return new EngineDB_1_6({ ...opts, dbPath });
-      case Version.V2_0:
-        return new EngineDB_2_0({ ...opts, dbPath });
-    }
-  })();
+  const engineDb = new EngineDB({ ...opts, dbPath });
 
   await engineDb.init();
 
-  return engineDb as unknown as T;
+  return engineDb;
+}
+
+export async function getLibraryInfo(
+  libraryFolder: string,
+): Promise<LibraryInfo> {
+  let dbPath = getDbPath(libraryFolder, Version.V2_X);
+  if (await checkPathIsFile(dbPath)) {
+    return {
+      version: Version.V2_X,
+      folder: libraryFolder,
+      dbPath,
+    };
+  }
+  dbPath = getDbPath(libraryFolder, Version.V1_6);
+  if (await checkPathIsFile(dbPath)) {
+    throw new Error(`Engine 1.6.x is not supported`);
+  }
+
+  throw new Error(`Path "${libraryFolder}" is not an Engine library`);
+}
+
+function getDbPath(libraryFolder: string, version: Version): string {
+  switch (version) {
+    case Version.V1_6:
+      return path.resolve(libraryFolder, DB_FILE);
+    case Version.V2_X:
+      return path.resolve(libraryFolder, V2_SUB_FOLDER, DB_FILE);
+  }
 }

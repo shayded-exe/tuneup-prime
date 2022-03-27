@@ -1,18 +1,30 @@
-import { Except, Merge } from 'type-fest';
+import { Except, Merge, Opaque, SetRequired } from 'type-fest';
 
-import * as publicSchema from '../public-schema';
-import { SQLITE_SEQUENCE } from '../sqlite-types';
+import { SQLITE_SEQUENCE } from './sqlite-types';
 
 export interface Tables {
   SQLITE_SEQUENCE: SQLITE_SEQUENCE;
-  Information: publicSchema.Information;
+  Information: Information;
   Playlist: Playlist;
-  PlaylistPath: PlaylistPath;
   PlaylistEntity: PlaylistEntity;
   Track: RawTrack;
 }
 
 export type TableNames = keyof Tables;
+
+export interface Information {
+  id: number;
+  uuid: string;
+  schemaVersionMajor: number;
+  schemaVersionMinor: number;
+  schemaVersionPatch: number;
+}
+
+export interface PlaylistInput {
+  title: string;
+  parentListId?: number;
+  tracks: Track[];
+}
 
 export interface Playlist {
   id: number;
@@ -25,16 +37,6 @@ export interface Playlist {
 }
 
 export type NewPlaylist = Except<Playlist, 'id'>;
-
-export interface PlaylistWithPath extends Playlist {
-  path: string;
-}
-
-export interface PlaylistPath {
-  id: number;
-  path: string;
-  position: number;
-}
 
 export interface PlaylistEntity {
   id: number;
@@ -50,35 +52,34 @@ export type NewPlaylistEntity = Except<PlaylistEntity, 'id'>;
 // Non-exhaustive. We don't need everything.
 export interface RawTrack {
   id: number;
-  album: string;
-  artist: string;
+  absolutePath?: string;
+  album?: string;
+  artist?: string;
   bitrate: number;
-  bpmAnalyzed: number;
-  comment: string;
-  composer: string;
+  bpmAnalyzed?: number;
+  comment?: string;
+  composer?: string;
   dateAdded: number;
   dateCreated: number;
   explicitLyrics: boolean;
   filename: string;
   fileBytes: number;
   fileType: string;
-  genre: string;
+  genre?: string;
   isAnalyzed: boolean;
-  isBeatGridLocked: boolean;
-  isMetadataImported: boolean;
-  key: publicSchema.CamelotKeyId;
-  label: string;
+  key?: CamelotKeyId;
+  label?: string;
   length: number;
   originDatabaseUuid: string;
   originTrackId: number;
   path: string;
-  playOrder?: number;
+  playOrder: number;
   rating: number;
-  remixer: string;
-  thirdPartySourceId: number;
-  timeLastPlayed: number;
+  remixer?: string;
+  thirdPartySourceId?: number;
+  timeLastPlayed?: number;
   title: string;
-  year: number;
+  year?: number;
   // Performance data
   beatData?: Uint8Array;
   quickCues?: Uint8Array;
@@ -93,6 +94,8 @@ export type Track = Merge<
     loops?: Loop[];
   }
 >;
+
+export type CamelotKeyId = Opaque<'CamelotKeyId', number>;
 
 export interface BeatData {
   sampleRate: number;
@@ -126,3 +129,18 @@ export interface CueColor {
   green: number;
   blue: number;
 }
+
+export type UpdateTrackInput = Except<
+  SetRequired<Partial<Track>, 'id'>,
+  | 'bitrate'
+  | 'bpmAnalyzed'
+  | 'dateAdded'
+  | 'dateCreated'
+  | 'fileType'
+  | 'key'
+  | 'length'
+  | 'timeLastPlayed'
+  | 'beatData'
+  | 'quickCues'
+  | 'loops'
+>;

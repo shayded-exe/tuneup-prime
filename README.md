@@ -26,7 +26,8 @@
   - Move all your tracks into one folder
     <!-- - Import playlists created on smart consoles like the Prime 4 or SC6000 -->
 - Automatically backs up library before running
-- Supports Engine 1.6.x & 2.1.x
+- Supports Engine 2.1.x
+  - _Engine 1.6.x is supported up to [tuneup v2.3.1](https://github.com/rshea0/tuneup-prime/releases/tag/v2.3.1)_
 - Cross platform - Windows & macOS
 - More coming soon! Check out the [upcoming features](https://github.com/rshea0/tuneup-prime/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22new+feature%22)
 

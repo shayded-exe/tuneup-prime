@@ -31,7 +31,6 @@
       "type": "object",
       "properties": {
         "name": { "type": "string" },
-        "isCrate": { "type": "boolean", "default": false },
         "sources": {
           "type": "array",
           "items": { "type": "string" },

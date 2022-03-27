@@ -1,4 +1,4 @@
-import { CamelotKeyId } from './public-schema';
+import { CamelotKeyId } from './schema';
 
 enum CamelotKeyMap {
   '1B' = 10,
@@ -64,5 +64,5 @@ function camelotKeyIdToCode2(id: CamelotKeyId): CamelotKeyCode {
 }
 
 export function camelotKeyCodeToId(code: CamelotKeyCode): CamelotKeyId {
-  return (CamelotKeyMap[code] as unknown) as CamelotKeyId;
+  return CamelotKeyMap[code] as unknown as CamelotKeyId;
 }

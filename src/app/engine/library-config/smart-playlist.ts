@@ -7,7 +7,6 @@ export interface PlaylistFolder {
 
 export interface Playlist {
   name: string;
-  isCrate?: boolean;
   // TODO: Support
   sources?: string[];
   rules: PlaylistRuleGroup;

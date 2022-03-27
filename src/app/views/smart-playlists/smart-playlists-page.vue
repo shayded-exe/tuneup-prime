@@ -198,21 +198,18 @@ export default class SmartPlaylistsPage extends BaseCommand {
 
   private async generatePlaylistsInternal() {
     const tracks = await this.engineDb!.getTracks();
-    const isEngine_1_6 = this.engineDb!.version === engine.Version.V1_6;
 
     const createPlaylistFolder = async (
       folder: UIPlaylistFolder,
       parents?: UIPlaylistFolder[],
     ) => {
-      if (!isEngine_1_6) {
-        const { id } = await this.engineDb!.createOrUpdatePlaylist({
-          title: folder.name,
-          parentListId: last(parents)?.id,
-          tracks: [],
-        });
+      const { id } = await this.engineDb!.createOrUpdatePlaylist({
+        title: folder.name,
+        parentListId: last(parents)?.id,
+        tracks: [],
+      });
 
-        folder.id = id;
-      }
+      folder.id = id;
 
       await createNodes(folder.children, [...(parents ?? []), folder]);
     };
@@ -223,24 +220,11 @@ export default class SmartPlaylistsPage extends BaseCommand {
     ) => {
       playlist.tracks = filterTracks({ tracks, playlist });
 
-      if (isEngine_1_6) {
-        const db_1_6 = this.engineDb as engine.V1_6.EngineDB_1_6;
-
-        await db_1_6.createOrUpdatePlaylist({
-          title: playlist.name,
-          type: playlist.isCrate ? engine.V1_6.ListType.Crate : undefined,
-          path: !parents
-            ? undefined
-            : db_1_6.buildPlaylistPath([...parents, playlist].map(x => x.name)),
-          tracks: playlist.tracks,
-        });
-      } else {
-        await this.engineDb!.createOrUpdatePlaylist({
-          title: playlist.name,
-          parentListId: last(parents)?.id,
-          tracks: playlist.tracks,
-        });
-      }
+      await this.engineDb!.createOrUpdatePlaylist({
+        title: playlist.name,
+        parentListId: last(parents)?.id,
+        tracks: playlist.tracks,
+      });
 
       playlist.wasGenerated = true;
     };
@@ -258,9 +242,9 @@ export default class SmartPlaylistsPage extends BaseCommand {
       nodes: UIPlaylistNode[],
       parents?: UIPlaylistFolder[],
     ) => {
-      await asyncSeries(
-        nodes.map(node => async () => createNode(node, parents)),
-      );
+      for (const node of nodes) {
+        await createNode(node, parents);
+      }
     };
 
     await createNodes(this.playlistNodes!);
@@ -307,13 +291,13 @@ function applyRuleGroup(
 }
 
 function formatRuleGroup(group: def.PlaylistRuleGroup): string {
-  const formatRuleNode = (node: def.PlaylistRuleNode): string => {
+  function formatRuleNode(node: def.PlaylistRuleNode): string {
     if (isNodeGroup(node)) {
       return `(${formatRuleGroup(node)})`;
     }
     const rule = normalizeRule(node);
     return [rule.field, rule.operator, rule.value].join(' ');
-  };
+  }
 
   const { type, nodes } = normalizeRuleGroup(group);
 
@@ -355,8 +339,6 @@ function normalizeRule(rule: def.PlaylistRule): NormalizedPlaylistRule {
 }
 
 function applyRule(track: engine.Track, rule: def.PlaylistRule): boolean {
-  const normalizedRule = normalizeRule(rule);
-
   function isStringRule(
     rule: NormalizedPlaylistRule,
   ): rule is def.StringPlaylistRuleObject {
@@ -410,6 +392,8 @@ function applyRule(track: engine.Track, rule: def.PlaylistRule): boolean {
         return trackValue <= ruleValue;
     }
   }
+
+  const normalizedRule = normalizeRule(rule);
 
   return isStringRule(normalizedRule)
     ? applyStringRule(normalizedRule)

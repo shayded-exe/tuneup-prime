@@ -99,14 +99,7 @@ smartPlaylists:
       # The root rule can only be "and" or "or" not both
       or:
         - [rating, '>', 3]
-        # Note that "and" here is indented
-        and:
-          - [year, '>=', 2009]
-          - [year, '<=', 2013]
-
-  # Creates a crate instead of a playlist (Engine 1.6.x only)
-  - name: Sample crate
-    isCrate: true
-    rules:
-      and:
-        - [title, excludes, fight club]
+        # Note that "and" here is nested
+        - and:
+            - [year, '>=', 2009]
+            - [year, '<=', 2013]
