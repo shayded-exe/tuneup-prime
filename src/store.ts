@@ -3,23 +3,19 @@ import Store, { Schema } from 'electron-store';
 import path from 'path';
 
 export enum AppStoreKey {
-  EngineLibraryFolder = 'engineLibraryFolder',
   RekordboxXmlPath = 'rekordboxXmlPath',
-  License = 'license',
   WindowState = 'windowState',
+}
+
+export interface AppStoreData {
+  [AppStoreKey.RekordboxXmlPath]: string;
+  [AppStoreKey.WindowState]?: WindowState;
 }
 
 export interface WindowState {
   x?: number;
   y?: number;
   height?: number;
-}
-
-export interface AppStoreData {
-  [AppStoreKey.EngineLibraryFolder]: string;
-  [AppStoreKey.RekordboxXmlPath]: string;
-  [AppStoreKey.License]?: string;
-  [AppStoreKey.WindowState]?: WindowState;
 }
 
 export type AppStore = Store<AppStoreData>;
@@ -37,9 +33,7 @@ export function appStore(value?: Store<AppStoreData>): Store<AppStoreData> {
 }
 
 const APP_STORE_SCHEMA: Schema<AppStoreData> = {
-  [AppStoreKey.EngineLibraryFolder]: { type: 'string' },
   [AppStoreKey.RekordboxXmlPath]: { type: 'string' },
-  [AppStoreKey.License]: { type: 'string' },
   [AppStoreKey.WindowState]: {
     type: 'object',
     properties: {
@@ -54,7 +48,6 @@ export function init({
   withDefaults = false,
 }: { withDefaults?: boolean } = {}) {
   const defaults = (): AppStoreData => ({
-    engineLibraryFolder: path.resolve(app.getPath('music'), 'Engine Library'),
     rekordboxXmlPath: path.resolve(
       app.getPath('appData'),
       'Pioneer',
@@ -63,10 +56,16 @@ export function init({
     ),
   });
 
-  appStore(
-    new Store<AppStoreData>({
-      schema: APP_STORE_SCHEMA,
-      defaults: !withDefaults ? undefined : defaults(),
-    }),
-  );
+  const store = new Store<AppStoreData>({
+    schema: APP_STORE_SCHEMA,
+    clearInvalidConfig: true,
+    defaults: !withDefaults ? undefined : defaults(),
+  });
+
+  const validStoreKeys = Object.values<string>(AppStoreKey);
+  Object.keys(store.store)
+    .filter(k => !validStoreKeys.includes(k))
+    .forEach(k => store.delete(k as any));
+
+  appStore(store);
 }

@@ -1,5 +1,4 @@
 import * as engine from '@/app/engine';
-import { appStore, AppStoreKey } from '@/store';
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component<BaseCommand>({
@@ -13,22 +12,17 @@ import { Component, Vue } from 'vue-property-decorator';
 })
 export default class BaseCommand extends Vue {
   protected libraryFolder!: string;
-  protected engineDb?: engine.EngineDB;
+  protected libraryConfigPath!: string;
   protected libraryConfig: engine.config.LibraryConfigFile | null = null;
+
+  protected engineDb?: engine.EngineDB;
 
   get isProcessing(): boolean {
     return false;
   }
 
-  libraryConfigPath = '';
-
-  mounted() {
-    const libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
-    if (!libraryFolder) {
-      throw new Error(`Engine library folder not set`);
-    }
-    this.libraryFolder = libraryFolder;
-
+  created() {
+    this.libraryFolder = engine.getLibraryFolder();
     this.libraryConfigPath = engine.config.getPath(this.libraryFolder);
   }
 

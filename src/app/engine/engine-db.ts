@@ -23,8 +23,8 @@ export class EngineDB {
 
   private isInitialized = false;
 
-  protected knex!: Knex;
-  protected schemaInfo!: schema.Information;
+  private knex!: Knex;
+  private schemaInfo!: schema.Information;
 
   get uuid(): string {
     return this.schemaInfo.uuid;
@@ -90,7 +90,9 @@ export class EngineDB {
   }
 
   private playlistsQb(trx?: Knex.Transaction) {
-    return this.table('Playlist', trx).select('*').where({ isPersisted: true });
+    return this.table('Playlist', trx) //
+      .select('*')
+      .where({ isPersisted: true });
   }
 
   async getPlaylists(): Promise<schema.Playlist[]> {

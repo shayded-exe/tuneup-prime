@@ -1,5 +1,4 @@
 import * as engine from '@/app/engine';
-import { appStore, AppStoreKey } from '@/store';
 import { resolvePathToBaseIfRelative } from '@/utils';
 import dateFormat from 'dateformat';
 import fs from 'fs';
@@ -25,7 +24,7 @@ export async function exportXml(
 }
 
 function buildXmlObject(playlists: engine.PlaylistInput[]): LibraryXml {
-  const engineLibraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
+  const engineLibraryFolder = engine.getLibraryFolder();
   const tracks = uniqBy(
     playlists.flatMap(p => p.tracks),
     t => t.id,

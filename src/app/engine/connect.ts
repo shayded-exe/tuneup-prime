@@ -1,4 +1,6 @@
 import { checkPathIsFile } from '@/utils';
+import { remote } from 'electron';
+import { memoize } from 'lodash';
 import path from 'path';
 
 import { EngineDB } from './engine-db';
@@ -30,6 +32,10 @@ export async function connect(
   return engineDb;
 }
 
+export const getLibraryFolder = memoize(() => {
+  return path.resolve(remote.app.getPath('music'), 'Engine Library');
+});
+
 export async function getLibraryInfo(
   libraryFolder: string,
 ): Promise<LibraryInfo> {
@@ -43,10 +49,12 @@ export async function getLibraryInfo(
   }
   dbPath = getDbPath(libraryFolder, Version.V1_6);
   if (await checkPathIsFile(dbPath)) {
-    throw new Error(`Engine 1.6.x is not supported`);
+    throw new Error(
+      `Engine 1.6.x is not supported. Please upgrade to Engine 2.1.x.`,
+    );
   }
 
-  throw new Error(`Path "${libraryFolder}" is not an Engine library`);
+  throw new Error(`Engine library was not found at "${libraryFolder}"`);
 }
 
 function getDbPath(libraryFolder: string, version: Version): string {

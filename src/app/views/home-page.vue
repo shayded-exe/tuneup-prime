@@ -52,10 +52,9 @@
       </div>
     </div>
 
-    <div class="commands">
+    <div v-if="!areCommandsHidden" class="commands">
       <div v-for="command of commands" :key="command.route" class="command m-2">
         <b-button
-          :disabled="areCommandsDisabled"
           @click="$router.push(command.route)"
           type="is-light is-outlined"
           size="is-medium"
@@ -68,7 +67,7 @@
       </div>
     </div>
 
-    <div class="help-links"></div>
+    <error-message :message="libraryError"></error-message>
 
     <div class="is-flex-grow-1"></div>
 
@@ -115,7 +114,7 @@
         </div>
       </div>
 
-      <div class="level-right">
+      <div class="level-right help-links">
         <div class="level-item">
           <b-button
             tag="a"
@@ -129,7 +128,7 @@
           </b-button>
         </div>
 
-        <div class="level-item documentation-link">
+        <div class="level-item">
           <b-button
             tag="a"
             :href="Links.Docs"
@@ -141,26 +140,6 @@
             documentation
           </b-button>
         </div>
-
-        <div class="level-item">
-          <b-tooltip
-            :active="isSettingsTooltipVisible"
-            label="Set your library folder here first"
-            type="is-info is-light"
-            position="is-left"
-            always
-          >
-            <b-button
-              :disabled="isSettingsDisabled"
-              @click="$router.push('settings')"
-              type="is-info is-outlined"
-              size="is-medium"
-              icon-left="cog"
-            >
-              settings
-            </b-button>
-          </b-tooltip>
-        </div>
       </div>
     </div>
   </div>
@@ -169,11 +148,11 @@
 <style lang="scss" scoped>
 .logo {
   width: 600px;
-  margin: 2rem 0 3rem;
+  margin-top: 2rem;
 }
 
 .license-notice {
-  margin: -1rem 0 3rem;
+  margin-top: 3rem;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -194,15 +173,15 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 3rem;
+  margin-top: 3rem;
 
   .command {
     display: inline-block;
   }
 }
 
-.documentation-link {
-  margin-right: 1.5rem !important;
+.help-links > :not(:last-child) {
+  margin-right: 1.5rem;
 }
 
 .shayded-link {
@@ -218,12 +197,12 @@
 </style>
 
 <script lang="ts">
+import { ErrorMessage } from '@/app/components';
 import * as engine from '@/app/engine';
 import { SHORT_DATE_TIME_FORMAT } from '@/app/formats';
 import * as ipc from '@/app/ipc';
 import { TRIAL_DAYS } from '@/licensing';
 import Links from '@/links';
-import { appStore, AppStoreKey } from '@/store';
 import { getOSName } from '@/utils';
 import dateFormat from 'dateformat';
 import { remote } from 'electron';
@@ -234,7 +213,9 @@ import { Component, Vue } from 'vue-property-decorator';
 let hasCheckedUpdate = false;
 
 @Component({
-  components: {},
+  components: {
+    ErrorMessage,
+  },
 })
 export default class HomePage extends Vue {
   readonly Links = Links;
@@ -271,51 +252,46 @@ export default class HomePage extends Vue {
   license = ipc.licensing.getState();
   isActivatingTrial = false;
 
-  libraryFolder: string | null = null;
-  areSettingsValid = true;
-
   updateInfo: UpdateInfo | null = null;
   isUpdateTooltipVisible = false;
+
+  private libraryFolder!: string;
+  libraryError: string | null = null;
+
+  private cleanupFuncs: (() => void)[] = [];
+
+  get isLibraryValid(): boolean {
+    return !this.libraryError;
+  }
+
+  get areCommandsHidden(): boolean {
+    return !this.isLibraryValid || !this.license.isLicensed;
+  }
 
   get trialExpDate(): string | undefined {
     const expDate = this.license.expDate;
     return expDate && dateFormat(expDate, SHORT_DATE_TIME_FORMAT);
   }
 
-  get areCommandsDisabled(): boolean {
-    return !this.areSettingsValid || !this.license.isLicensed;
+  async created() {
+    this.initUpdateCheck();
+    this.libraryFolder = engine.getLibraryFolder();
+    await this.validateLibrary();
   }
 
-  get isSettingsDisabled(): boolean {
-    return !this.license.isLicensed;
+  beforeDestroy() {
+    this.cleanupFuncs.forEach(f => f());
+    this.cleanupFuncs = [];
   }
 
-  get isSettingsTooltipVisible(): boolean {
-    return !this.areSettingsValid && !this.isSettingsDisabled;
-  }
+  private async validateLibrary() {
+    this.libraryError = null;
 
-  async mounted() {
-    this.libraryFolder = appStore().get(AppStoreKey.EngineLibraryFolder);
-    await this.validateSettings();
-
-    ipc.updates.onUpdateAvailable(u => this.onUpdateAvailable(u));
-    if (!hasCheckedUpdate) {
-      ipc.updates.checkUpdates();
-      hasCheckedUpdate = true;
+    try {
+      await engine.getLibraryInfo(this.libraryFolder);
+    } catch (e) {
+      this.libraryError = e.message;
     }
-  }
-
-  private async validateSettings() {
-    let isValid = false;
-
-    if (this.libraryFolder) {
-      try {
-        await engine.getLibraryInfo(this.libraryFolder);
-        isValid = true;
-      } catch {}
-    }
-
-    this.areSettingsValid = isValid;
   }
 
   async activateTrial() {
@@ -354,6 +330,19 @@ export default class HomePage extends Vue {
     const version = `${name}/${this.version} ${osName} ${osVersion} ${arch}`;
 
     remote.clipboard.writeText(version);
+  }
+
+  private initUpdateCheck() {
+    if (hasCheckedUpdate) {
+      return;
+    }
+
+    this.cleanupFuncs.push(
+      ipc.updates.onUpdateAvailable(u => this.onUpdateAvailable(u)),
+    );
+
+    ipc.updates.checkUpdates();
+    hasCheckedUpdate = true;
   }
 
   private onUpdateAvailable(updateInfo: UpdateInfo) {

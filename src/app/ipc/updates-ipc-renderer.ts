@@ -3,11 +3,15 @@ import { ipcRenderer } from 'electron';
 import { UpdateInfo } from 'electron-updater';
 
 export function checkUpdates() {
-  return ipcRenderer.send(IpcChannel.Updates_CheckUpdates);
+  ipcRenderer.send(IpcChannel.Updates_CheckUpdates);
 }
 
-export async function onUpdateAvailable(
+export function onUpdateAvailable(
   func: (updateInfo: UpdateInfo) => void,
-) {
-  ipcRenderer.on(IpcChannel.Updates_UpdateAvailable, (_, u) => func(u));
+): () => void {
+  const listener = (_: any, u: UpdateInfo) => func(u);
+
+  ipcRenderer.on(IpcChannel.Updates_UpdateAvailable, listener);
+
+  return () => ipcRenderer.off(IpcChannel.Updates_UpdateAvailable, listener);
 }
