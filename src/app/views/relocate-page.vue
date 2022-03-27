@@ -175,11 +175,7 @@ export default class RelocatePage extends BaseCommand {
     const missing: RelocatableTrack[] = [];
 
     for (const track of tracks) {
-      const resolvedPath = resolvePathToBaseIfRelative({
-        path: track.path,
-        basePath: this.libraryFolder,
-      });
-      if (!(await checkPathExists(resolvedPath))) {
+      if (!(await checkPathExists(track.absolutePath))) {
         const parsedPath = path.parse(track.path);
         missing.push({
           data: track,
@@ -368,8 +364,9 @@ export default class RelocatePage extends BaseCommand {
 
   private setNewTrackPath(track: RelocatableTrack, newPath: string) {
     // Paths are unix style regardless of OS
-    track.data.path = makePathUnix(path.relative(this.libraryFolder, newPath));
-    track.newPath = track.data.path;
+    track.newPath = track.data.path = makePathUnix(
+      path.relative(this.libraryFolder, newPath),
+    );
     track.wasRelocated = true;
   }
 

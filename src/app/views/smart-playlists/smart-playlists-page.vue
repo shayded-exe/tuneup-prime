@@ -85,7 +85,7 @@ import { BaseCommand, CommandHeader, ErrorMessage } from '@/app/components';
 import * as engine from '@/app/engine';
 import * as ipc from '@/app/ipc';
 import Links from '@/links';
-import { asyncSeries, flatTree, walkTree } from '@/utils';
+import { flatTree, walkTree } from '@/utils';
 import { cloneDeep, every, last, some } from 'lodash';
 import { Component } from 'vue-property-decorator';
 import PlaylistFolder from './playlist-folder.vue';
@@ -141,7 +141,7 @@ export default class SmartPlaylistsPage extends BaseCommand {
     }) as UIPlaylist[];
   }
 
-  async mounted() {
+  async created() {
     await this.reloadConfig();
   }
 
@@ -421,33 +421,6 @@ function getTrackValue(
     }
   }
 
-  function convertRating(rating: number): number {
-    if (rating <= 0) {
-      return 0;
-    } else if (rating <= 20) {
-      return 1;
-    } else if (rating <= 40) {
-      return 2;
-    } else if (rating <= 60) {
-      return 3;
-    } else if (rating <= 80) {
-      return 4;
-    } else {
-      return 5;
-    }
-  }
-
-  const value = track[getTrackField()];
-
-  if (value == null) {
-    return value;
-  }
-
-  switch (field) {
-    case def.NumericFilterField.Rating:
-      return convertRating(value as number);
-    default:
-      return value;
-  }
+  return track[getTrackField()];
 }
 </script>

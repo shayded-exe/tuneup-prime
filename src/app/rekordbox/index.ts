@@ -1,2 +1,2 @@
 export * from './export';
-export * from './xml-types';
+export * from './xml-schema';

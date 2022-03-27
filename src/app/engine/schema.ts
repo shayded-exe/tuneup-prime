@@ -52,7 +52,6 @@ export type NewPlaylistEntity = Except<PlaylistEntity, 'id'>;
 // Non-exhaustive. We don't need everything.
 export interface RawTrack {
   id: number;
-  absolutePath?: string;
   album?: string;
   artist?: string;
   bitrate: number;
@@ -67,6 +66,7 @@ export interface RawTrack {
   fileType: string;
   genre?: string;
   isAnalyzed: boolean;
+  isPlayed: boolean;
   key?: CamelotKeyId;
   label?: string;
   length: number;
@@ -89,6 +89,8 @@ export interface RawTrack {
 export type Track = Merge<
   RawTrack,
   {
+    absolutePath: string;
+    normalizedRating: number;
     beatData?: BeatData;
     quickCues?: HotCue[];
     loops?: Loop[];
@@ -106,7 +108,7 @@ export interface BeatData {
 export interface BeatGridMarker {
   sample: number;
   beatIndex: number;
-  beatsToNextMarker: number;
+  beatsToNext: number;
 }
 
 export interface HotCue {

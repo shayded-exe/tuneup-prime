@@ -1,9 +1,11 @@
+import { resolvePathToBaseIfRelative } from '@/utils';
 import { Parser as BinaryParser } from 'binary-parser';
 import fs from 'fs';
 import knex, { Knex } from 'knex';
-import { chunk, pick } from 'lodash';
+import { chunk, clamp, pick } from 'lodash';
 import { inflate } from 'pako';
 
+import { getLibraryFolder } from './connect';
 import { formatDate } from './format';
 import * as schema from './schema';
 import { SQLITE_SEQUENCE } from './sqlite-types';
@@ -223,6 +225,7 @@ export class EngineDB {
       'fileType',
       'genre',
       'isAnalyzed',
+      'isPlayed',
       'key',
       'label',
       'length',
@@ -295,79 +298,89 @@ export class EngineDB {
 
 // For best results, heat until internal temperature reaches 165F or crust is golden brown
 function cookRawTrack(track: schema.RawTrack): schema.Track {
-  const colorParser = new BinaryParser() //
-    .uint8('red')
-    .uint8('green')
-    .uint8('blue');
-
-  function qDecompress(data: Uint8Array): Buffer {
-    return Buffer.from(inflate(data.subarray(4)));
-  }
-
-  function decodeBeatData(rawData: Uint8Array): schema.BeatData {
-    const { numDefaultMarkers, numMarkers, ...beatData } = new BinaryParser()
-      .doublebe('sampleRate')
-      .uint64be('sampleCount', { formatter: Number })
-      .seek(1)
-      .uint64be('numDefaultMarkers', { formatter: Number })
-      .seek(x => x.numDefaultMarkers * 24)
-      .uint64be('numMarkers')
-      .array('markers', {
-        length: 'numMarkers',
-        type: new BinaryParser()
-          .doublele('sample')
-          .int64le('beatIndex', { formatter: Number })
-          .uint32le('beatsToNextMarker'),
-      })
-      .parse(qDecompress(rawData));
-
-    return beatData;
-  }
-
-  function decodeQuickCues(rawData: Uint8Array): schema.HotCue[] {
-    const { hotCues }: { hotCues: any[] } = new BinaryParser()
-      .uint64be('numHotCues')
-      .array('hotCues', {
-        length: 'numHotCues',
-        type: new BinaryParser()
-          .uint8('nameLength')
-          .string('name', { length: 'nameLength' })
-          .doublebe('sample')
-          .seek(1)
-          .nest('color', { type: colorParser }),
-      })
-      .parse(qDecompress(rawData));
-
-    return hotCues
-      .map(({ nameLength, ...cue }, i) => ({ index: i, ...cue }))
-      .filter(cue => !!cue.name);
-  }
-
-  function decodeLoops(rawData: Uint8Array): schema.Loop[] {
-    const { loops }: { loops: any[] } = new BinaryParser()
-      .uint8('numLoops')
-      .seek(7)
-      .array('loops', {
-        length: 'numLoops',
-        type: new BinaryParser()
-          .uint8('nameLength')
-          .string('name', { length: 'nameLength' })
-          .doublele('startSample')
-          .doublele('endSample')
-          .seek(3)
-          .nest('color', { type: colorParser }),
-      })
-      .parse(rawData);
-
-    return loops
-      .map(({ nameLength, ...loop }, i) => ({ index: i, ...loop }))
-      .filter(loop => !!loop.name);
-  }
-
   return {
     ...track,
+    absolutePath: resolvePathToBaseIfRelative({
+      path: track.path,
+      basePath: getLibraryFolder(),
+    }),
+    normalizedRating: normalizeRating(track.rating),
     beatData: track.beatData && decodeBeatData(track.beatData),
     quickCues: track.quickCues && decodeQuickCues(track.quickCues),
     loops: track.loops && decodeLoops(track.loops),
   };
+}
+
+const colorParser = new BinaryParser()
+  .uint8('red')
+  .uint8('green')
+  .uint8('blue');
+
+function qDecompress(data: Uint8Array): Buffer {
+  return Buffer.from(inflate(data.subarray(4)));
+}
+
+function decodeBeatData(rawData: Uint8Array): schema.BeatData {
+  const { numDefaultMarkers, numMarkers, ...beatData } = new BinaryParser()
+    .doublebe('sampleRate')
+    .uint64be('sampleCount', { formatter: Number })
+    .seek(1)
+    .uint64be('numDefaultMarkers', { formatter: Number })
+    .seek(x => x.numDefaultMarkers * 24)
+    .uint64be('numMarkers')
+    .array('markers', {
+      length: 'numMarkers',
+      type: new BinaryParser()
+        .doublele('sample')
+        .int64le('beatIndex', { formatter: Number })
+        .uint32le('beatsToNextMarker')
+        .seek(4),
+    })
+    .parse(qDecompress(rawData));
+
+  return beatData;
+}
+
+function decodeQuickCues(rawData: Uint8Array): schema.HotCue[] {
+  const { hotCues }: { hotCues: any[] } = new BinaryParser()
+    .uint64be('numHotCues')
+    .array('hotCues', {
+      length: 'numHotCues',
+      type: new BinaryParser()
+        .uint8('nameLength')
+        .string('name', { length: 'nameLength' })
+        .doublebe('sample')
+        .seek(1)
+        .nest('color', { type: colorParser }),
+    })
+    .parse(qDecompress(rawData));
+
+  return hotCues
+    .map(({ nameLength, ...cue }, i) => ({ index: i, ...cue }))
+    .filter(cue => !!cue.name);
+}
+
+function decodeLoops(rawData: Uint8Array): schema.Loop[] {
+  const { loops }: { loops: any[] } = new BinaryParser()
+    .uint8('numLoops')
+    .seek(7)
+    .array('loops', {
+      length: 'numLoops',
+      type: new BinaryParser()
+        .uint8('nameLength')
+        .string('name', { length: 'nameLength' })
+        .doublele('startSample')
+        .doublele('endSample')
+        .seek(3)
+        .nest('color', { type: colorParser }),
+    })
+    .parse(rawData);
+
+  return loops
+    .map(({ nameLength, ...loop }, i) => ({ index: i, ...loop }))
+    .filter(loop => !!loop.name);
+}
+
+function normalizeRating(rating: number): number {
+  return Math.round(clamp(rating, 0, 100) / 5);
 }
