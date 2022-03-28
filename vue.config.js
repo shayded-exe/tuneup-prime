@@ -59,6 +59,9 @@ const vuePluginOptions = {
 
 /** @type {ProjectOptions} */
 module.exports = {
+  configureWebpack: {
+    devtool: 'source-map',
+  },
   css: {
     loaderOptions: {
       sass: {

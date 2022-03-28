@@ -182,9 +182,9 @@ export default class SmartPlaylistsPage extends BaseCommand {
 
     try {
       this.isGenerating = true;
+
       this.reloadPlaylists();
       await this.connectToEngine();
-
       await this.generatePlaylistsInternal();
 
       this.error = '';

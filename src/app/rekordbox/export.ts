@@ -6,10 +6,13 @@ import { Builder } from 'xml2js';
 
 import * as xmlSchema from './xml-schema';
 
-export async function exportXml(
-  filePath: string,
-  playlists: engine.PlaylistInput[],
-): Promise<void> {
+export async function exportXml({
+  filePath,
+  playlists,
+}: {
+  filePath: string;
+  playlists: engine.PlaylistWithTracks[];
+}): Promise<void> {
   const xmlObject = buildXmlObject(playlists);
   const xml = new Builder({
     xmldec: {
@@ -22,7 +25,9 @@ export async function exportXml(
   await fs.promises.writeFile(filePath, xml, 'utf-8');
 }
 
-function buildXmlObject(playlists: engine.PlaylistInput[]): xmlSchema.Library {
+function buildXmlObject(
+  playlists: engine.PlaylistWithTracks[],
+): xmlSchema.Library {
   const tracks = uniqBy(
     playlists.flatMap(p => p.tracks),
     t => t.id,
@@ -87,8 +92,8 @@ function buildTrack(track: engine.Track): xmlSchema.Track {
   };
 }
 
-function formatDate(epoch: number): xmlSchema.Date {
-  return dateFormat(epoch, 'isoDate') as xmlSchema.Date;
+function formatDate(epoch: number): xmlSchema.DateString {
+  return dateFormat(epoch, 'isoDate') as xmlSchema.DateString;
 }
 
 function getLocation(track: engine.Track): xmlSchema.Location {

@@ -48,6 +48,7 @@ import { appStore, AppStoreKey } from '@/store';
 import { remote } from 'electron';
 import { Component } from 'vue-property-decorator';
 import * as engine from '@/app/engine';
+import * as rekordbox from '@/app/rekordbox';
 
 @Component({
   components: {
@@ -64,7 +65,7 @@ export default class RekordboxExportPage extends BaseCommand {
     return this.isExporting;
   }
 
-  mounted() {
+  created() {
     this.rekordboxXmlPath = appStore().get(AppStoreKey.RekordboxXmlPath);
   }
 
@@ -92,15 +93,19 @@ export default class RekordboxExportPage extends BaseCommand {
     } catch (e) {
       console.error(e);
     } finally {
+      await this.disconnectFromEngine();
       this.isExporting = false;
     }
   }
 
   private async exportInternal() {
-    const tracks = await this.engineDb!.getTracks({
+    const playlists = await this.engineDb!.getPlaylistsWithTracks({
       withPerformanceData: true,
     });
-    console.log(tracks);
+    await rekordbox.exportXml({
+      filePath: this.rekordboxXmlPath,
+      playlists,
+    });
   }
 }
 </script>

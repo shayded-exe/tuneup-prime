@@ -1,8 +1,8 @@
-import { resolvePathToBaseIfRelative } from '@/utils';
+import { makePathUnix, resolvePathToBaseIfRelative } from '@/utils';
 import { Parser as BinaryParser } from 'binary-parser';
 import fs from 'fs';
 import knex, { Knex } from 'knex';
-import { chunk, clamp, pick } from 'lodash';
+import { chunk, clamp, keyBy, pick } from 'lodash';
 import { inflate } from 'pako';
 
 import { getLibraryFolder } from './connect';
@@ -93,12 +93,60 @@ export class EngineDB {
 
   private playlistsQb(trx?: Knex.Transaction) {
     return this.table('Playlist', trx) //
-      .select('*')
+      .select('Playlist.*')
       .where({ isPersisted: true });
   }
 
-  async getPlaylists(): Promise<schema.Playlist[]> {
-    return this.playlistsQb();
+  async getPlaylists({ ids }: { ids?: number[] } = {}): Promise<
+    schema.Playlist[]
+  > {
+    let qb = this.playlistsQb();
+    if (ids) {
+      qb = qb.and.whereIn('id', ids);
+    }
+    return qb;
+  }
+
+  async getPlaylistsWithTracks({
+    ids,
+    withPerformanceData,
+  }: {
+    ids?: number[];
+    withPerformanceData?: boolean;
+  } = {}): Promise<schema.PlaylistWithTracks[]> {
+    const playlists = await this.getPlaylists({ ids });
+    const playlistIds = playlists.map(p => p.id);
+
+    const entities = await this.table('PlaylistEntity')
+      .select('*')
+      .whereIn('listId', playlistIds);
+    const tailEntitiesByListId = keyBy(
+      entities.filter(e => !e.nextEntityId),
+      e => e.listId,
+    );
+    const entitiesByNextId = keyBy(entities, e => e.nextEntityId);
+
+    const tracks = await this.getTracks({
+      ids: entities.map(e => e.trackId),
+      withPerformanceData,
+    });
+    const tracksById = keyBy(tracks, t => t.id);
+
+    return playlists.map<schema.PlaylistWithTracks>(playlist => {
+      const playlistTracks = [];
+      // Start with the last track and work backwards
+      let curEntity = tailEntitiesByListId[playlist.id];
+
+      while (curEntity) {
+        playlistTracks.unshift(tracksById[curEntity.trackId]);
+        curEntity = entitiesByNextId[curEntity.id];
+      }
+
+      return {
+        ...playlist,
+        tracks: playlistTracks,
+      };
+    });
   }
 
   private async getPlaylistByProps(
@@ -204,9 +252,17 @@ export class EngineDB {
     });
   }
 
+  private tracksQb(trx?: Knex.Transaction) {
+    return this.table('Track', trx)
+      .whereNotNull('path')
+      .andWhere({ originDatabaseUuid: this.uuid });
+  }
+
   async getTracks({
+    ids,
     withPerformanceData,
   }: {
+    ids?: number[];
     withPerformanceData?: boolean;
   } = {}): Promise<schema.Track[]> {
     const keys: (keyof schema.RawTrack)[] = [
@@ -245,10 +301,11 @@ export class EngineDB {
       keys.push('beatData', 'quickCues', 'loops');
     }
 
-    const tracks = await this.table('Track')
-      .select(keys)
-      .whereNotNull('path')
-      .andWhere('originDatabaseUuid', this.uuid);
+    let qb = this.tracksQb().select(keys);
+    if (ids) {
+      qb = qb.and.whereIn('id', ids);
+    }
+    const tracks = await qb;
 
     return tracks.map(cookRawTrack);
   }
@@ -300,10 +357,12 @@ export class EngineDB {
 function cookRawTrack(track: schema.RawTrack): schema.Track {
   return {
     ...track,
-    absolutePath: resolvePathToBaseIfRelative({
-      path: track.path,
-      basePath: getLibraryFolder(),
-    }),
+    absolutePath: makePathUnix(
+      resolvePathToBaseIfRelative({
+        path: track.path,
+        basePath: getLibraryFolder(),
+      }),
+    ),
     normalizedRating: normalizeRating(track.rating),
     beatData: track.beatData && decodeBeatData(track.beatData),
     quickCues: track.quickCues && decodeQuickCues(track.quickCues),
@@ -333,7 +392,7 @@ function decodeBeatData(rawData: Uint8Array): schema.BeatData {
       type: new BinaryParser()
         .doublele('sample')
         .int64le('beatIndex', { formatter: Number })
-        .uint32le('beatsToNextMarker')
+        .uint32le('beatsToNext')
         .seek(4),
     })
     .parse(qDecompress(rawData));
@@ -382,5 +441,5 @@ function decodeLoops(rawData: Uint8Array): schema.Loop[] {
 }
 
 function normalizeRating(rating: number): number {
-  return Math.round(clamp(rating, 0, 100) / 5);
+  return Math.round(clamp(rating, 0, 100) / 20);
 }

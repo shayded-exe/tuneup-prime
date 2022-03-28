@@ -1,4 +1,4 @@
-export type Date = `${number}-${number}-${number}`;
+export type DateString = `${number}-${number}-${number}`;
 
 export type Location = `file://localhost/${string}`;
 
@@ -65,7 +65,7 @@ export interface Track {
     BitRate: number; // kbps
     Comments?: string;
     Composer?: string;
-    DateAdded: Date;
+    DateAdded: DateString;
     DiscNumber?: number;
     Genre?: string;
     Grouping?: string;

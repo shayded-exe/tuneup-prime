@@ -34,7 +34,10 @@ export interface Playlist {
   isPersisted: boolean;
   lastEditTime: string;
   isExplicitlyExported: boolean;
+  tracks?: Track[];
 }
+
+export type PlaylistWithTracks = SetRequired<Playlist, 'tracks'>;
 
 export type NewPlaylist = Except<Playlist, 'id'>;
 
