@@ -1,15 +1,14 @@
 ![Tuneup PRIME](img/tuneup-prime.png)
 
-#### A library management toolkit for Denon Engine PRIME 🎧
+### _No longer maintained_
 
-&nbsp;&nbsp;_by [SHAYDED](http://shayded.com)_
+#### A library management toolkit for Denon Engine PRIME 🎧
 
 - 🚀 [Installation](#-installation)
 - ❓ [How To Use](#-how-to-use)
   - 🧠 [`smart playlists`](#-smart-playlists)
   - 🔍 [`relocate tracks`](#-relocate-tracks)
   - 🗃 [`consolidate library`](#-consolidate-library)
-    <!-- - 📼 [`import usb playlists`](#-import-usb-playlists) -->
 
 ## 🌟 Features
 
@@ -24,31 +23,13 @@
   - Provide a folder to search for tracks in
 - Library consolidation
   - Move all your tracks into one folder
-    <!-- - Import playlists created on smart consoles like the Prime 4 or SC6000 -->
 - Automatically backs up library before running
-- Supports Engine 1.6.x & 2.1.x
+- Supports Engine 2.1.x
 - Cross platform - Windows & macOS
-- More coming soon! Check out the [upcoming features](https://github.com/rshea0/tuneup-prime/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22new+feature%22)
-
-If there's a feature you'd like added that would be useful to you, [suggest it here](https://github.com/rshea0/tuneup-prime/discussions/new)!
 
 ## 🚀 Installation
 
-You can try tuneup PRIME free for 14 days. Simply download the latest version from the [releases page](https://github.com/rshea0/tuneup-prime/releases).
-
-tuneup PRIME can be purchased on [Gumroad](https://gum.co/tuneup-prime). Pricing is pay-what-you-want (\$5 minimum).
-
-After purchasing, simply download and run the installer.
-
-### Activating
-
-After your trial expires, tuneup PRIME must be activated with a license key. Simply click the "activate" button on the home page and paste in your license key.
-
-> tuneup PRIME only requires an internet connection during activation and never again.
-
-### Updating
-
-tuneup PRIME will notify you when an update is available and show a button to download the latest version.
+Simply download the latest version from the [releases page](https://github.com/shayded-exe/tuneup-prime/releases).
 
 ## ❓ How To Use
 
@@ -91,11 +72,3 @@ Next, click "relocate". You'll be prompted to select the folder to search for yo
 Does what it says on the tin.
 
 ![Consolidate Library](img/screens/consolidate-library.png)
-
-<!--
-### 📼 Import USB Playlists
-
-Imports playlists created on smart consoles like the Prime 4 or SC6000.
-
-tuneup PRIME will look for USB drives that contain Engine libraries. It will ask you to select which drive to import from. After selecting a drive, it will ask you which playlists you want to import.
--->
